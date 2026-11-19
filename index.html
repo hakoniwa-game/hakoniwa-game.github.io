@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>ハコニワ島</title>
+<title>ハコニワ島</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
 <style>
@@ -203,7 +203,8 @@ body.flying #tDown,body.gun #tReload{display:block}
 .mapcard{max-width:940px}
 .mapbody{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
 .mapbox{flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:8px;align-items:center}
-#mapCv{display:block;width:100%;max-width:min(560px,68vh);aspect-ratio:1;image-rendering:pixelated;border:2px solid var(--line);background:#0b1220;cursor:pointer;touch-action:manipulation}
+input.rng{flex:1;min-width:120px;max-width:240px;accent-color:#f3c445;height:28px}b.rv{min-width:3.6em;text-align:right;color:#ffe9a8}
+#mapCv{display:block;width:100%;max-width:min(620px,85vh);aspect-ratio:640/512;image-rendering:pixelated;border:2px solid var(--line);background:#0b1220;cursor:pointer;touch-action:manipulation}
 .maplist{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:4px;max-height:min(600px,70vh);overflow:auto}
 .lmh{margin:8px 0 0;font-size:12px;color:var(--sun);letter-spacing:.12em}
 .lm{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:rgba(0,0,0,.28);border:2px solid transparent;color:var(--paper);padding:6px 8px;font-size:14px}
@@ -311,7 +312,7 @@ body.flying #tDown,body.gun #tReload{display:block}
     </div>
     <div class="mapbody">
       <div class="mapbox">
-        <canvas id="mapCv" width="768" height="768" aria-label="世界の地図"></canvas>
+        <canvas id="mapCv" width="768" height="614" aria-label="世界の地図"></canvas>
         <p class="invinfo" id="mapInfo"></p>
         <div class="btns"><button class="btn" id="mapGo" type="button" hidden>ここへワープ</button></div>
       </div>
@@ -402,6 +403,12 @@ body.flying #tDown,body.gun #tReload{display:block}
         <button class="chip" type="button" data-blast="1.5">大きい</button>
         <button class="chip" type="button" data-blast="2.2">特大</button>
       </div>
+      <div class="srow"><span>武器の威力</span><input type="range" class="rng" id="wpnR" min="0.5" max="10" step="0.5" value="1" aria-label="武器の威力"><b class="rv" id="wpnV">1倍</b></div>
+      <div class="srow"><span>連発スピード</span><input type="range" class="rng" id="rateR" min="0.5" max="10" step="0.5" value="1" aria-label="連発スピード"><b class="rv" id="rateV">1倍</b></div>
+      <div class="srow"><span>押しっぱなし</span>
+        <button class="chip" type="button" data-auto="1">ずっと連発</button>
+        <button class="chip" type="button" data-auto="0">1回ずつ</button>
+      </div>
       <div class="srow"><span>たまご1個で</span>
         <button class="chip" type="button" data-egg="1">1ぴき</button>
         <button class="chip" type="button" data-egg="5">5ひき</button>
@@ -477,14 +484,14 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 
 // ================= 定数・ブロック =================
-const W=512,D=512,H=96,CS=16,SEA=10;
+const W=640,D=512,H=96,CS=16,SEA=10;
 const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,BRICK=9,COBBLE=10,BEDROCK=11,SNOW=12,WATER=13,
   BOMB=14,BIGBOMB=15,LAMP=16,JUMPPAD=17,OBSIDIAN=18,GOLD=19,RED=20,ORANGE=21,YELLOW=22,GREEN=23,BLUE=24,WHITE=25,BLACK=26,
   MAGMA=27,ICE=28,COAL=29,IRON=30,RUBYORE=31,FLOWER_R=32,FLOWER_Y=33,TGRASS=34,PUMPKIN=35,SAPLING=36,NEON=37,MOSSY=38,CLOUD=39,BOOKS=40,RUBY=41,
-  ASPHALT=42,ROADLINE=43,CONCRETE=44,WINDOW=45,STEEL=46,MOONROCK=47,BASALT=48,CASTLE=49,ROOFB=50,COPPER=51,LABPANEL=52,LAUNCH=53,WARPSTONE=54,NEONP=55,NEONY=56,MARBLE=57,RSAND=58,TILEROOF=59,PINK=60,GLASSB=61;
+  ASPHALT=42,ROADLINE=43,CONCRETE=44,WINDOW=45,STEEL=46,MOONROCK=47,BASALT=48,CASTLE=49,ROOFB=50,COPPER=51,LABPANEL=52,LAUNCH=53,WARPSTONE=54,NEONP=55,NEONY=56,MARBLE=57,RSAND=58,TILEROOF=59,PINK=60,GLASSB=61,TRAV=62,TERRA=63;
 const IGNITER=100,THROWBOMB=101,FIREWORK=102,EGG=103,SWORD=104,BOW=105,STAFF=106,WARP=107,
   E_YAK=108,E_WHALE=109,E_IMP=110,E_WISP=111,E_GOLEM=112,E_DRAGON=113,E_BOSS=114,
-  HANDGUN=115,MACHINEGUN=116,ROCKET=117,ROCKET2=126,ROCKET3=127,ROCKET4=128,ROCKET5=129,ROCKET6=130,E_TITAN=131,E_GDRAGON=132,E_ELEPHANT=133,E_CAMEL=134,E_EDRAGON=118,
+  HANDGUN=115,MACHINEGUN=116,ROCKET=117,ROCKET2=126,ROCKET3=127,ROCKET4=128,ROCKET5=129,ROCKET6=130,E_TITAN=131,E_GDRAGON=132,E_ELEPHANT=133,E_CAMEL=134,ROCKET7=135,ROCKET8=136,BEAM=137,E_RYU=138,E_GORILLA=139,E_EDRAGON=118,
   C_STEEL=119,C_MAGMA=120,C_ICE=121,C_THUNDER=122,C_MINI=123,C_GIANT=124,WHISTLE=125;
 const PARTY_MAX=30;
 const T_COBBLE=11,T_MOSSY=44;
@@ -549,6 +556,8 @@ const BLOCKS={
   [TILEROOF]:{name:'瓦屋根',t:[68,68,68]},
   [PINK]:{name:'ピンクブロック',t:[69,69,69]},
   [GLASSB]:{name:'青いガラスのかべ',t:[70,70,70],desc:'高層ビルのかべ'},
+  [TRAV]:{name:'トラバーチン（石灰岩）',t:[71,71,71],desc:'コロッセオの石'},
+  [TERRA]:{name:'テラコッタのかべ',t:[72,72,72],desc:'ローマの家のかべ'},
   [WARPSTONE]:{name:'旅の石',t:[62,63,62],glow:true,desc:'乗ると地図が開き、見つけた場所へワープできる'}
 };
 const TOOLS={
@@ -586,32 +595,39 @@ const TOOLS={
   [ROCKET3]:{name:'ロケットランチャー（20発ショットガン）',desc:'1度に20発が広がって飛ぶ。弾は無限'},
   [ROCKET4]:{name:'ロケットランチャー（40発ショットガン）',desc:'1度に40発が広がって飛ぶ。弾は無限'},
   [ROCKET5]:{name:'ロケットランチャー（60発ショットガン）',desc:'1度に60発が広がって飛ぶ。弾は無限'},
-  [ROCKET6]:{name:'ロケットランチャー（100発ショットガン）',desc:'1度に100発が広がって飛ぶ。弾は無限'}
+  [ROCKET6]:{name:'ロケットランチャー（100発ショットガン）',desc:'1度に100発が広がって飛ぶ。弾は無限'},
+  [ROCKET7]:{name:'ロケットランチャー（1000発ショットガン）',desc:'1度に1000発が大きく広がって飛ぶ。弾は無限'},
+  [ROCKET8]:{name:'ロケットランチャー（1000発ピンポイント）',desc:'1000発がねらった1点（ロックした相手）へ集まる。弾は無限'},
+  [BEAM]:{name:'ビームサーベル',desc:'ふると約100マス先まで光の刃がのびる。生きものもブロックも切る'},
+  [E_RYU]:{name:'龍のたまご',desc:'長い体で空を泳ぐ龍（仲間）。乗れる・ほのおをはく'},
+  [E_GORILLA]:{name:'巨大ゴリラのたまご',desc:'高さ約21マスの巨大ゴリラ（敵）。胸をたたき、跳びかかってくる'}
 };
-const EGGS={[EGG]:'rabbit',[E_YAK]:'yak',[E_WHALE]:'whale',[E_IMP]:'imp',[E_WISP]:'wisp',[E_GOLEM]:'golem',[E_DRAGON]:'dragon',[E_BOSS]:'boss',[E_EDRAGON]:'edragon',[E_TITAN]:'titan',[E_GDRAGON]:'gdragon',[E_ELEPHANT]:'elephant',[E_CAMEL]:'camel',
+const EGGS={[EGG]:'rabbit',[E_YAK]:'yak',[E_WHALE]:'whale',[E_IMP]:'imp',[E_WISP]:'wisp',[E_GOLEM]:'golem',[E_DRAGON]:'dragon',[E_BOSS]:'boss',[E_EDRAGON]:'edragon',[E_TITAN]:'titan',[E_GDRAGON]:'gdragon',[E_ELEPHANT]:'elephant',[E_CAMEL]:'camel',[E_RYU]:'ryu',[E_GORILLA]:'gorilla',
   [C_STEEL]:'steel',[C_MAGMA]:'magma',[C_ICE]:'ice',[C_THUNDER]:'thunder',[C_MINI]:'mini',[C_GIANT]:'giant'};
-const ONE_SHOT=new Set([IGNITER,THROWBOMB,FIREWORK,BOW,STAFF,WARP,EGG,E_YAK,E_WHALE,E_IMP,E_WISP,E_GOLEM,E_DRAGON,E_BOSS,E_EDRAGON,HANDGUN,MACHINEGUN,ROCKET,ROCKET2,ROCKET3,ROCKET4,ROCKET5,ROCKET6,E_TITAN,E_GDRAGON,E_ELEPHANT,E_CAMEL,C_STEEL,C_MAGMA,C_ICE,C_THUNDER,C_MINI,C_GIANT,WHISTLE]);
+const ONE_SHOT=new Set([IGNITER,THROWBOMB,FIREWORK,BOW,STAFF,WARP,EGG,E_YAK,E_WHALE,E_IMP,E_WISP,E_GOLEM,E_DRAGON,E_BOSS,E_EDRAGON,HANDGUN,MACHINEGUN,ROCKET,ROCKET2,ROCKET3,ROCKET4,ROCKET5,ROCKET6,ROCKET7,ROCKET8,E_TITAN,E_GDRAGON,E_ELEPHANT,E_CAMEL,E_RYU,E_GORILLA,C_STEEL,C_MAGMA,C_ICE,C_THUNDER,C_MINI,C_GIANT,WHISTLE]);
 const GUNS={
   [HANDGUN]:{mag:12,cd:.24,reload:1.1,dmg:8,spread:.004,auto:false,kick:.022,pos:[.24,-.22,-.5]},
   [MACHINEGUN]:{mag:60,cd:.085,reload:2.0,dmg:4,spread:.024,auto:true,kick:.008,pos:[.26,-.25,-.55]},
   [ROCKET]:{mag:4,cd:.9,reload:2.6,dmg:60,spread:0,auto:false,kick:.05,pos:[.22,-.2,-.45],rk:{n:1,power:3.4,speed:20,homing:true,spread:0}},
   [ROCKET2]:{mag:30,cd:.16,reload:2,dmg:30,spread:0,auto:true,kick:.02,pos:[.22,-.2,-.45],rk:{n:1,power:2.2,speed:24,homing:true,spread:.03}},
-  [ROCKET3]:{mag:20,cd:1.1,reload:2,dmg:22,spread:0,auto:false,kick:.1,pos:[.2,-.21,-.42],rk:{n:20,power:1.5,speed:26,homing:false,spread:.15,few:true}},
-  [ROCKET4]:{mag:40,cd:1.3,reload:2,dmg:20,spread:0,auto:false,kick:.12,pos:[.2,-.22,-.42],rk:{n:40,power:1.4,speed:26,homing:false,spread:.2,few:true}},
-  [ROCKET5]:{mag:60,cd:1.5,reload:2,dmg:18,spread:0,auto:false,kick:.14,pos:[.2,-.23,-.42],rk:{n:60,power:1.3,speed:26,homing:false,spread:.25,few:true}},
-  [ROCKET6]:{mag:100,cd:1.8,reload:2,dmg:16,spread:0,auto:false,kick:.16,pos:[.2,-.24,-.42],rk:{n:100,power:1.2,speed:26,homing:false,spread:.32,few:true}}
+  [ROCKET3]:{mag:20,cd:1.1,reload:2,dmg:22,spread:0,auto:false,kick:.1,pos:[.26,-.28,-.5],rk:{n:20,power:1.5,speed:26,homing:false,spread:.15,few:true,swarm:'shot'}},
+  [ROCKET4]:{mag:40,cd:1.3,reload:2,dmg:20,spread:0,auto:false,kick:.12,pos:[.26,-.29,-.5],rk:{n:40,power:1.4,speed:26,homing:false,spread:.2,few:true,swarm:'shot'}},
+  [ROCKET5]:{mag:60,cd:1.5,reload:2,dmg:18,spread:0,auto:false,kick:.14,pos:[.26,-.3,-.5],rk:{n:60,power:1.3,speed:26,homing:false,spread:.25,few:true,swarm:'shot'}},
+  [ROCKET6]:{mag:100,cd:1.8,reload:2,dmg:16,spread:0,auto:false,kick:.16,pos:[.26,-.3,-.5],rk:{n:100,power:1.2,speed:26,homing:false,spread:.32,few:true,swarm:'shot'}},
+  [ROCKET7]:{mag:1000,cd:2.2,reload:2,dmg:10,spread:0,auto:false,kick:.18,pos:[.26,-.3,-.5],rk:{n:1000,power:1.1,speed:28,homing:false,spread:.55,few:true,swarm:'shot'}},
+  [ROCKET8]:{mag:1000,cd:2.4,reload:2,dmg:10,spread:0,auto:false,kick:.18,pos:[.26,-.3,-.5],rk:{n:1000,power:1.1,speed:30,homing:true,spread:.75,few:true,swarm:'pin'}}
 };
 const isRocketGun=it=>!!(GUNS[it]&&GUNS[it].rk);
 const itemName=it=>(BLOCKS[it]||TOOLS[it]).name;
 const itemDesc=it=>(BLOCKS[it]||TOOLS[it]).desc||'';
 const INV_GROUPS=[
-  {name:'ぶき',items:[HANDGUN,MACHINEGUN,ROCKET,ROCKET2,ROCKET3,ROCKET4,ROCKET5,ROCKET6,SWORD,BOW]},
+  {name:'ぶき',items:[HANDGUN,MACHINEGUN,ROCKET,ROCKET2,ROCKET3,ROCKET4,ROCKET5,ROCKET6,ROCKET7,ROCKET8,BEAM,SWORD,BOW]},
   {name:'爆発・道具',items:[BOMB,BIGBOMB,IGNITER,THROWBOMB,FIREWORK,STAFF,WARP]},
   {name:'ゴーレム（仲間）',items:[WHISTLE,E_GOLEM,C_STEEL,C_MAGMA,C_ICE,C_THUNDER,C_MINI,C_GIANT]},
-  {name:'生きもの',items:[E_DRAGON,E_YAK,E_WHALE,EGG,E_IMP,E_WISP,E_BOSS,E_EDRAGON,E_TITAN,E_GDRAGON,E_ELEPHANT,E_CAMEL]},
+  {name:'生きもの',items:[E_DRAGON,E_YAK,E_WHALE,EGG,E_IMP,E_WISP,E_BOSS,E_EDRAGON,E_TITAN,E_GDRAGON,E_ELEPHANT,E_CAMEL,E_RYU,E_GORILLA]},
   {name:'ふしぎなブロック',items:[MAGMA,WATER,JUMPPAD,LAMP,PUMPKIN,NEON,OBSIDIAN,CLOUD,ICE,SAND]},
   {name:'植物',items:[SAPLING,FLOWER_R,FLOWER_Y,TGRASS,LEAVES,LOG]},
-  {name:'ワールドのブロック',items:[LAUNCH,WARPSTONE,WINDOW,NEONP,NEONY,MARBLE,RSAND,TILEROOF,PINK,GLASSB,ASPHALT,ROADLINE,CONCRETE,STEEL,CASTLE,ROOFB,COPPER,LABPANEL,BASALT,MOONROCK]},
+  {name:'ワールドのブロック',items:[LAUNCH,WARPSTONE,WINDOW,NEONP,NEONY,MARBLE,TRAV,TERRA,RSAND,TILEROOF,PINK,GLASSB,ASPHALT,ROADLINE,CONCRETE,STEEL,CASTLE,ROOFB,COPPER,LABPANEL,BASALT,MOONROCK]},
   {name:'建物のブロック',items:[GRASS,DIRT,STONE,COBBLE,MOSSY,SNOW,PLANKS,GLASS,BRICK,BOOKS,GOLD,RUBY,COAL,IRON,RUBYORE,RED,ORANGE,YELLOW,GREEN,BLUE,WHITE,BLACK]}
 ];
 const DEFAULT_HOT=[GRASS,PLANKS,BOMB,IGNITER,MACHINEGUN,HANDGUN,ROCKET,E_DRAGON,E_EDRAGON];
@@ -637,6 +653,7 @@ function computeAllTop(){for(let z=0;z<D;z++)for(let x=0;x<W;x++)recomputeTop(x,
 function topAt(x,z){x=Math.floor(x);z=Math.floor(z);if(x<0||z<0||x>=W||z>=D)return 0;return colTop[x+z*W];}
 
 // ゲームの状態
+let wpnMul=1,rateMul=1,autoAll=true,newTip13=false;
 let gravMul=1,brush=1,blastMul=1,timeStop=false,mode='adventure',enemiesOn=true,weather='clear';
 let tod=.06,light=1,dayLight=1,wetAmt=0,snowAmt=0;
 let seed=0,spawn={x:32.5,y:30,z:32.5};
@@ -644,7 +661,7 @@ let playing=false,invOpen=false,dead=false;
 let bgmOn=true,bgmVol=1,lookMul=1,quality='auto',godMode=false,eggCount=1;
 
 // ================= テクスチャ（ドット絵を自動生成） =================
-const TILE=16,NT=72;
+const TILE=16,NT=74;
 const atlas=document.createElement('canvas');atlas.width=TILE*NT;atlas.height=TILE;
 const ac=atlas.getContext('2d');
 const R=rng(20261118);
@@ -789,6 +806,9 @@ each((x,y)=>put(67,x,y,y%5===0?[150,62,44]:y%5===2?[196,96,70]:[182,82,58],jit(.
 each((x,y)=>{const row=y%4,ed=row===3||(x+(y>>2)*2)%4===0;put(68,x,y,ed?[46,50,56]:[78,84,92],(row===0?1.12:1)*jit(.06));});
 each((x,y)=>put(69,x,y,[240,150,190],jit(.08)));
 each((x,y)=>{const e=x===0||y===0||x===15||y===15,refl=Math.abs(x-y-4)<2;put(70,x,y,e?[60,70,84]:refl?[150,196,230]:[70,122,176],jit(.05));});
+// 71 トラバーチン（小さな穴があいた石灰岩）・72 テラコッタのかべ
+each((x,y)=>{const pit=((x*7+y*13)%17===0)||((x*5+y*11)%23===0),ln=y===7||y===15;put(71,x,y,pit?[176,160,128]:ln?[196,182,150]:[222,208,176],jit(.06));});
+each((x,y)=>put(72,x,y,[196,104,64],(y%8===0?.9:1)*jit(.09)));
 // 64・65 ネオン（ピンク・きいろ）
 each((x,y)=>{const e=x===0||y===0||x===15||y===15,i2=x===3||y===3||x===12||y===12;
   put(64,x,y,e?[150,30,100]:i2?[255,200,240]:[250,90,190],jit(.06));
@@ -949,10 +969,10 @@ function flushDirty(budgetMs){
 }
 // ================= 遠くの景色：霧なしで世界のはしまで見通せるように、遠くは軽い形（2×2マスのかたまり）で描く =================
 // 32×32マスの区画ごとに1つの形。近くの区画は細かいチャンクを、遠くの区画はこの軽い形を表示する（重ならないように区画ごとに切りかえ）
-const LT=32,NLT=W/LT,LODC=2,LN=LT/LODC;
+const LT=32,NLT=W/LT,NLTZ=D/LT,LODC=2,LN=LT/LODC;
 const lodMat=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide});
 const lodGlowMat=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide});
-const lods=new Array(NLT*NLT).fill(null),lodDirty=new Set();
+const lods=new Array(NLT*NLTZ).fill(null),lodDirty=new Set();
 const BPL=new Uint8Array(256);for(const k in BLOCKS)if(BLOCKS[k].plant)BPL[k]=1;
 function groundTop(x,z){
   let y=Math.min(colTop[x+z*W],(x-MOON.x)*(x-MOON.x)+(z-MOON.z)*(z-MOON.z)<(MOON.r+2)*(MOON.r+2)?62:69);
@@ -1004,13 +1024,13 @@ function buildLodTile(tx,tz){
 }
 function showLod(L,v){L.on=v;L.a.visible=v&&L.a.userData.n>0;L.b.visible=v&&L.b.userData.n>0;}
 function lodMark(x,z){lodDirty.add(Math.floor(x/LT)+Math.floor(z/LT)*NLT);}
-function* buildAllLod(p0,p1){for(let t=0;t<NLT*NLT;t++){buildLodTile(t%NLT,(t/NLT)|0);if(t%6===5)yield{p:p0+(p1-p0)*t/(NLT*NLT),t:'遠くの景色を用意しています'};}}
+function* buildAllLod(p0,p1){for(let t=0;t<NLT*NLTZ;t++){buildLodTile(t%NLT,(t/NLT)|0);if(t%6===5)yield{p:p0+(p1-p0)*t/(NLT*NLTZ),t:'遠くの景色を用意しています'};}}
 function clearLods(){for(let t=0;t<lods.length;t++){const L=lods[t];if(L){scene.remove(L.a);scene.remove(L.b);L.a.geometry.dispose();L.b.geometry.dispose();lods[t]=null;}}lodDirty.clear();}
 // 区画ごとに「細かいチャンク」か「遠くの軽い形」かを決める（4つのチャンクがそろった近い区画だけ細かく描く）
 function updateLodVis(){
   if(!worldReady)return;
   const f=chunkFocus(),pcx=Math.floor(f.x/CS),pcz=Math.floor(f.z/CS),V=(viewR+.7)*(viewR+.7);let rebuilt=0;
-  for(let tz=0;tz<NLT;tz++)for(let tx=0;tx<NLT;tx++){
+  for(let tz=0;tz<NLTZ;tz++)for(let tx=0;tx<NLT;tx++){
     const t=tx+tz*NLT;let det=true;
     for(let k=0;k<4&&det;k++){const cx=tx*2+(k&1),cz=tz*2+(k>>1),dx=cx-pcx,dz=cz-pcz;if(!chunks[cx+cz*NCX]||dx*dx+dz*dz>V)det=false;}
     for(let k=0;k<4;k++){const ch=chunks[tx*2+(k&1)+(tz*2+(k>>1))*NCX];if(ch&&ch.near!==det)showChunk(ch,det);}
@@ -1075,7 +1095,7 @@ function growTree(x,y,z,r){
 // ================= 世界の生成（広いオープンワールド 384×384） =================
 // まんなか＝はじまりの島（前の島と同じ作り方）、北＝雪山、東＝火山、南＝いにしえの王国、西＝ニューヨークふうの街、
 // 地下＝研究所と地下鉄（海の下はガラスのトンネル）、上空（高さ72より上）＝宇宙（月面基地・宇宙ステーション）
-const OW=384,CX=OW/2,CZ=OW/2,OX=CX-32,OZ=CZ-32,SPACE_Y=72,GEN_VER=2;
+const OW=384,CX=OW/2,CZ=OW/2,OX=CX-32,OZ=CZ-32,SPACE_Y=72,GEN_VER=3;
 const NYB={x0:12,x1:126,z0:112,z1:262};
 const CITY={x0:22,x1:117,z0:124,z1:251};
 const PARK={x0:52,x1:93,z0:156,z1:183};
@@ -1090,9 +1110,9 @@ const LAKE={x:150,z:94,r:13};
 const MOON={x:300,z:74,r:34,y:80};
 const STATION={x:232,z:116,y:88};
 const SUB={z0:197,z1:203,x0:46,x1:269};
-const REGN=['center','snow','volcano','kingdom','city','sea','sf','dubai','india','shanghai'];
+const REGN=['center','snow','volcano','kingdom','city','sea','sf','dubai','india','shanghai','rome','singapore'];
 const REGION_NAME={center:'はじまりの島',sea:'外海',snow:'白銀の雪山',volcano:'ホムラ火山',kingdom:'いにしえの王国',city:'ニューヨークふうの街',
-  lab:'地下研究所',subway:'地下鉄・海底トンネル',space:'宇宙',sf:'サンフランシスコふうの街',dubai:'ドバイふうの砂漠都市',india:'インドふうの都',shanghai:'上海ふうの港町'};
+  lab:'地下研究所',subway:'地下鉄・海底トンネル',space:'宇宙',sf:'サンフランシスコふうの街',dubai:'ドバイふうの砂漠都市',india:'インドふうの都',shanghai:'上海ふうの港町',rome:'ローマふうの都',singapore:'シンガポールふうの湾岸都市'};
 const REG=new Uint8Array(W*D);
 let HM=null,LANDMARKS=[],PADS=[],classicSnap=null,spawnLabGolems=[];
 const smooth=(a,b,v)=>{let t=(v-a)/(b-a);t=t<0?0:t>1?1:t;return t*t*(3-2*t);};
@@ -1211,10 +1231,11 @@ function snapClassic(){const n=64*64*40,a=new Uint8Array(n),b=new Uint8Array(n);
 
 // ---- 地形（行ごとに少しずつ） ----
 function* genTerrain(sd){
-  const nA=makeNoise(sd^0x51ed),nB=makeNoise(sd^0x2b7f),nC=makeNoise(sd^0x7733),r=rng(sd^0x1234567),r2=rng(sd^0x2468ace);
+  const nA=makeNoise(sd^0x51ed),nB=makeNoise(sd^0x2b7f),nC=makeNoise(sd^0x7733),r=rng(sd^0x1234567),r2=rng(sd^0x2468ace),r3=rng(sd^0x13579b);
   HM=new Int16Array(W*D);
   for(let z=0;z<D;z++){
     for(let x=0;x<W;x++){
+      if(x>=EW){newCell2(x,z,nA,nB,nC,r3);continue;}
       if(x>=OW||z>=OW){newCell(x,z,nA,nB,nC,r2);continue;}
       const dx=x-CX,dz=z-CZ,d=Math.hypot(dx,dz);
       const cn=nA(x/46+7,z/46+3);
@@ -2038,7 +2059,7 @@ function genDubai(r){
 }
 function* genNewPlants(sd){
   const r=rng(sd^0x7a7a7a);
-  for(let z=4;z<D-4;z++){for(let x=4;x<W-4;x++){if(x<OW&&z<OW)continue;const k=x+z*W,reg=REG[k],h=HM[k];if(reg<6||h<=SEA+1)continue;
+  for(let z=4;z<D-4;z++){for(let x=4;x<W-4;x++){if(x<OW&&z<OW)continue;const k=x+z*W,reg=REG[k],h=HM[k];if(reg<6||reg>=10||h<=SEA+1)continue;
     const tp=world[idx(x,h,z)],q=r();
     if(reg===6&&tp===GRASS){if(q<.012)growTree(x,h+1,z,r);else if(q<.08)gset(x,h+1,z,TGRASS);else if(q<.1)gset(x,h+1,z,FLOWER_Y);}
     else if(reg===8&&(tp===GRASS||tp===DIRT)){if(q<.006)growTree(x,h+1,z,r);else if(q<.01)palmTree(x,h+1,z,r);else if(q<.05&&tp===GRASS)gset(x,h+1,z,TGRASS);else if(q<.07)gset(x,h+1,z,FLOWER_R);}
@@ -2052,6 +2073,264 @@ function genLinks(r){
   const xc=shoreScan('x',330,383,330),xd=shoreScan('x',330,385,450);seaBridge('x',330,xc,xd,17,GOLD);
   const za=shoreScan('z',330,383,330),zb=shoreScan('z',330,385,450);seaBridge('z',330,za,zb,17,RSAND);
 }
+
+// ================= 東の新しい帯（x 512〜639）：ローマふうの都（コロッセオ）・シンガポールふうの湾岸都市 =================
+const EW=512;
+const ROMB={x0:520,x1:632,z0:14,z1:230},SGB={x0:520,x1:632,z0:240,z1:498};
+const COL={x:576,z:96,a:40,b:33,G:14};      // コロッセオ（だ円の闘技場）
+const SGBAY={x:568,z:372,r:22};              // 湾
+const MBS={x0:602,x1:611,zs:[350,366,382],T:62}; // 屋上に船がのった3本のホテル
+const FLYER={x:540,z:300,r:15};              // 大観覧車
+function newCell2(x,z,nA,nB,nC,r){
+  const f1=nB(x/52+11,z/52+5),f2=nB(x/17+40,z/17+90),f3=nC(x/30+3,z/30+8),cn=nA(x/40+9,z/40+1);
+  const rl=b=>smooth(0,10,Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z)+(cn-.5)*8);
+  let land=0,reg=5,hL=12;
+  const lr=rl(ROMB),lg=rl(SGB);
+  if(lr>land){land=lr;reg=10;hL=13+f1*4+f2*1.2;}
+  if(lg>land){land=lg;reg=11;hL=12;}
+  if(reg===11){// 湾（西の海と水路でつながる）
+    let w=smooth(SGBAY.r-4,SGBAY.r+3,Math.hypot(x-SGBAY.x,z-SGBAY.z));
+    if(x<SGBAY.x&&z>=383&&z<=395)w=Math.min(w,1-smooth(0,2.5,Math.min(z-383,395-z)));
+    land*=w;}
+  const seab=3+f2*3+f3;let h=Math.round(seab+(hL-seab)*land);h=Math.max(1,Math.min(69,h));
+  HM[x+z*W]=h;REG[x+z*W]=land>.5?reg:5;
+  const beach=h<=SEA+1;const top=beach?SAND:GRASS,sub=beach?SAND:DIRT;
+  const base=idx(x,0,z),st=W*D;world[base]=BEDROCK;
+  for(let y=1;y<=h;y++){let id;
+    if(y<h-3){id=STONE;const q=r();if(y<9&&q<.012)id=RUBYORE;else if(y<18&&q<.028)id=IRON;else if(y<30&&q<.045)id=COAL;}
+    else if(y<h)id=sub;else id=top;world[base+y*st]=id;}
+  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wl[base+y*st]=7;}
+}
+function streetTop(x,z,id){const k=x+z*W,h=HM[k];if(h<=SEA)return;for(let y=h+1;y<h+10;y++){const c=get(x,y,z);if(c===LOG||c===LEAVES||isPlant(c))gset(x,y,z,AIR);}gset(x,h,z,id);}
+function umbrellaPine(x,y,z,r){const th=6+(r()*3|0);for(let k=0;k<th;k++)gset(x,y+k,z,LOG);
+  for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){const d=dx*dx+dz*dz;if(d>10)continue;gset(x+dx,y+th,z+dz,LEAVES);if(d<=4)gset(x+dx,y+th+1,z+dz,LEAVES);}}
+// ---- コロッセオ：だ円の円形闘技場。外がわの壁は3段のアーチ＋最上段。南がわは壁がくずれている ----
+function genColosseum(r){
+  const {x:cx,z:cz,a,b,G}=COL;
+  pad(cx-a-8,cz-b-8,cx+a+8,cz+b+8,G,COBBLE,STONE,34);
+  for(let z=cz-b-8;z<=cz+b+8;z++)for(let x=cx-a-8;x<=cx+a+8;x++)REG[x+z*W]=10;
+  for(let z=cz-b-1;z<=cz+b+1;z++)for(let x=cx-a-1;x<=cx+a+1;x++){
+    const dx=(x+.5-cx)/a,dz=(z+.5-cz)/b,u=Math.hypot(dx,dz);if(u>1)continue;
+    const th=Math.atan2(dz,dx),s=(th+Math.PI)*(a+b)/2,p=((s%4)+4)%4,arch=Math.floor(s/4);
+    const ruin=th>.75&&th<2.45,jag=G+11+((arch*7)%3);
+    const gate=(Math.abs(z+.5-cz)<2.6||Math.abs(x+.5-cx)<2.6)&&u>.5;
+    if(u<.5){gset(x,G,z,r()<.08?RSAND:SAND);continue;}
+    let top;
+    if(u<.55)top=G+4;
+    else if(u<.88)top=G+4+Math.floor((u-.55)/.33*14);
+    else top=ruin?(u<.95?G+18:jag):G+24;
+    for(let y=G+1;y<=top;y++){
+      let id=TRAV;
+      if(u<.55)id=MARBLE;
+      else if(u<.88){if(y===top)id=(arch&1)?MARBLE:TRAV;}
+      else if(u<.95){// 回廊（3階ぶん）
+        const ly=(y-G-1)%6;if(y<=G+18&&ly<5&&y!==G+18)id=AIR;if(y===G+6||y===G+12||y===G+18)id=TRAV;
+}
+      else{// 外がわの壁：アーチ
+        if(y<=G+18){const ly=(y-G-1)%6,lvl=((y-G-1)/6)|0;
+          if(p>=1&&ly<4&&!(ly===3&&(p<1.5||p>3.5)))id=AIR;
+          if(ly===5)id=lvl===1?MARBLE:TRAV;}
+        else if(y===G+21&&p>=1.5&&p<2.5&&(arch&1))id=AIR;
+        if(ruin&&y>jag)id=-1;}
+      if(gate&&y<=G+5)id=AIR;
+      if(id>=0)gset(x,y,z,id);}
+    if(gate)gset(x,G,z,TRAV);
+    if(u>=.88&&u<.95&&arch%5===0)gset(x,G+1,z,LAMP);
+  }
+  addLM('colosseum','コロッセオ（円形闘技場）','rome',cx+a+5,cz,G);
+  addLM('arena','闘技場のまんなか（巨大ゴリラ）','rome',cx+13,cz,G);
+}
+// ---- 凱旋門（3つのアーチ） ----
+function genTriumph(cx,cz){
+  const G=gh(cx,cz);pad(cx-10,cz-5,cx+10,cz+8,G,COBBLE,STONE,18);
+  for(let y=G+1;y<=G+15;y++)for(let z=cz;z<=cz+3;z++)for(let x=cx-7;x<=cx+7;x++){
+    const ax=Math.abs(x-cx);let id=y>G+11?TRAV:MARBLE;
+    if(ax<=2&&y<=G+8&&!(y===G+8&&ax===2))id=AIR;
+    if(ax>=4&&ax<=5&&y<=G+5)id=AIR;
+    if(y===G+11||y===G+15)id=MARBLE;
+    gset(x,y,z,id);}
+  for(const x of [cx-6,cx-3,cx+3,cx+6])for(const z of [cz-1,cz+4])for(let y=G+1;y<=G+10;y++)gset(x,y,z,MARBLE);
+}
+// ---- 古代ローマの遺跡（たおれた柱と神殿の土台） ----
+function genForum(r){
+  const x0=552,x1=600,z0=158,z1=194,G=gh(576,176);
+  pad(x0,z0,x1,z1,G,TRAV,STONE,16);
+  for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++)if(r()<.18)gset(x,G,z,r()<.5?GRASS:COBBLE);
+  // 神殿：土台と正面の柱
+  fillB(584,G+1,162,598,G+3,174,TRAV);fillB(584,G+3,162,598,G+3,174,MARBLE);
+  for(let x=584;x<=598;x+=2)for(const z of [162,174]){const ht=x%4===0?11:6+(r()*5|0);for(let y=G+4;y<=G+3+ht;y++)gset(x,y,z,MARBLE);if(ht===11)fillB(x-1,G+15,z-1,x+1,G+15,z+1,TRAV);}
+  fillB(584,G+15,162,598,G+16,163,TRAV);
+  // 広場の柱の列（こわれかけ）
+  for(let k=0;k<12;k++){const x=556+k*2+(k>=8?10:0),z=k%2?186:168,ht=2+(r()*9|0);for(let y=G+1;y<=G+ht;y++)gset(x,y,z,MARBLE);if(ht>8)gset(x,G+ht+1,z,TRAV);}
+  // たおれた柱
+  for(let k=0;k<4;k++){const x=[556,564,584,592][k],z=178+(k%2)*4;for(let d=0;d<6;d++)gset(x+d,G+1,z,MARBLE);}
+  // 赤れんがの壁のなごり
+  for(let x=556;x<=572;x++)for(let y=G+1;y<=G+7-((x*3)%4);y++)gset(x,y,190,BRICK);
+  addLM('forum','古代ローマの遺跡','rome',576,176,G);
+}
+// ---- 願いの泉（宮殿の壁の前の大きな泉） ----
+function genFountain(cx,cz){
+  const G=gh(cx,cz);pad(cx-14,cz-12,cx+14,cz+10,G,TRAV,STONE,22);
+  // 宮殿の正面
+  for(let y=G+1;y<=G+17;y++)for(let x=cx-13;x<=cx+13;x++)for(let z=cz+6;z<=cz+9;z++){
+    let id=z===cz+6&&y%4===2&&Math.abs(x-cx)>4&&(x&1)?GLASS:TRAV;if(Math.abs(x-cx)<=3&&y<=G+11&&z===cz+6)id=y>G+9?MARBLE:AIR;gset(x,y,z,id);}
+  for(const x of [cx-12,cx-8,cx-5,cx+5,cx+8,cx+12])for(let y=G+1;y<=G+15;y++)gset(x,y,cz+5,MARBLE);
+  fillB(cx-13,G+16,cz+5,cx+13,G+17,cz+5,MARBLE);
+  // 泉（水は1マス下げる）
+  for(let z=cz-9;z<=cz+4;z++)for(let x=cx-11;x<=cx+11;x++){const e=x===cx-11||x===cx+11||z===cz-9;
+    if(e){gset(x,G+1,z,MARBLE);continue;}gset(x,G-1,z,MARBLE);gset(x,G,z,WATER);}
+  // 岩と像
+  for(let x=cx-6;x<=cx+6;x++)for(let z=cz+1;z<=cz+4;z++){const hh=2+((x*5+z*3)%3);for(let y=G;y<=G+hh;y++)gset(x,y,z,y===G?STONE:MOSSY);}
+  fillB(cx-1,G+1,cz+3,cx+1,G+7,cz+4,MARBLE);gset(cx,G+8,cz+3,MARBLE);
+  for(let y=G+1;y<=G+4;y++)gset(cx,y,cz,WATER);
+  addLM('fountain','願いの泉（トレビの泉ふう）','rome',cx,cz-12,G);
+}
+// ---- かたむいた塔 ----
+function genLeaning(cx,cz){
+  const G=gh(cx,cz);pad(cx-9,cz-9,cx+12,cz+9,G,GRASS,DIRT,36);
+  for(let y=G+1;y<=G+30;y++){const ox=Math.floor((y-G)*.13),R=y>G+27?3.2:4.6,lvl=(y-G-1)%4;
+    for(let dz=-5;dz<=5;dz++)for(let dx=-5;dx<=5;dx++){const d=Math.hypot(dx,dz);if(d>R)continue;
+      let id=d>R-1.1?MARBLE:AIR;if(y===G+1&&d<R-1.1)id=TRAV;
+      if(d>R-1.1&&lvl>0&&lvl<3&&((Math.round(Math.atan2(dz,dx)*3)+40)%2===0)&&y>G+3)id=AIR;
+      gset(cx+dx+ox,y,cz+dz,id);}}
+  for(let y=G+1;y<=G+3;y++)for(let dz=-1;dz<=1;dz++)gset(cx,y,cz+4+(dz>0?1:0),AIR);
+  addLM('leaning','かたむいた塔（ピサの斜塔ふう）','rome',cx,cz+11,G);
+}
+// ---- ローマふうの家（オレンジや黄色のかべ・瓦屋根） ----
+function romeHouse(x0,z0,w,d,fl,wall,r){
+  let G=0;for(let z=z0;z<z0+d;z++)for(let x=x0;x<x0+w;x++)G=Math.max(G,gh(x,z));
+  pad(x0-1,z0-1,x0+w,z0+d,G,COBBLE,STONE,fl*3+8);
+  const top=G+fl*3;
+  for(let y=G+1;y<=top;y++)for(let z=z0;z<z0+d;z++)for(let x=x0;x<x0+w;x++){
+    const e=x===x0||x===x0+w-1||z===z0||z===z0+d-1;if(!e){gset(x,y,z,(y-G)%3===0?PLANKS:AIR);continue;}
+    const corner=(x===x0||x===x0+w-1)&&(z===z0||z===z0+d-1),ly=(y-G)%3;
+    let id=wall;if(!corner&&ly===2&&(x+z)%3===1)id=GLASS;if(!corner&&ly===2&&(x+z)%3===0&&(z===z0||z===z0+d-1))id=GREEN;
+    gset(x,y,z,id);}
+  const mx=x0+(w>>1);gset(mx,G+1,z0,AIR);gset(mx,G+2,z0,AIR);
+  for(let k=0;k<=Math.ceil(Math.min(w,d)/2);k++)for(let z=z0-1+k;z<=z0+d-k;z++)for(let x=x0-1+k;x<=x0+w-k;x++)
+    if(x===x0-1+k||x===x0+w-k||z===z0-1+k||z===z0+d-k)gset(x,top+1+k,z,RSAND);
+}
+function genRome(r){
+  genColosseum(r);
+  const {x:cx,z:cz,b}=COL;
+  // 石だたみの大通り（コロッセオ→凱旋門→遺跡→泉→南の橋）
+  for(let z=cz+b+9;z<=228;z++)for(let x=cx-2;x<=cx+2;x++)streetTop(x,z,COBBLE);
+  for(let x=cx;x<=604;x++)for(let z=196;z<=199;z++)streetTop(x,z,COBBLE);
+  genTriumph(cx,cz+b+14);genForum(r);genFountain(604,212);genLeaning(546,38);
+  {let prev=null;const zc=EAST_LINK.sh;for(let x=ROMB.x0-6;x<=556;x++){let h=gh(x,zc);if(h<=SEA){prev=null;continue;}
+    if(prev!=null)h=Math.max(prev-1,Math.min(prev+1,h));prev=h;
+    for(let z=zc-3;z<=zc+3;z++){const g=gh(x,z);for(let y=Math.min(g,h)+1;y<=h;y++)gset(x,y,z,STONE);for(let y=h+1;y<=Math.max(g,h)+8;y++)gset(x,y,z,AIR);gset(x,h,z,COBBLE);setHM(x,z,h);}}}
+  const busy=(x,z)=>(Math.abs(z-EAST_LINK.sh)<9&&x<560)||(Math.abs(x-cx)<52&&Math.abs(z-cz)<44)||(x>=548&&x<=604&&z>=140&&z<=200)||(x>=586&&z>=196&&z<=226)||(Math.abs(x-548)<16&&Math.abs(z-38)<16)||Math.abs(x-cx)<5;
+  const walls=[ORANGE,YELLOW,TERRA,WHITE,TERRA,ORANGE];
+  for(let lz=0;lz<16;lz++)for(let lx=0;lx<8;lx++){
+    const x0=522+lx*14,z0=18+lz*13;if(x0+11>ROMB.x1-3||z0+10>ROMB.z1-3)continue;
+    const mx=x0+5,mz=z0+5;if(REG[mx+mz*W]!==10||gh(mx,mz)<=SEA+1||busy(mx,mz)||busy(x0,z0)||busy(x0+10,z0+10))continue;
+    if(r()<.22){const q=r();for(let k=0;k<3;k++){const tx=x0+2+(r()*8|0),tz=z0+2+(r()*7|0),g=gh(tx,tz);if(REG[tx+tz*W]===10&&g>SEA+1&&world[idx(tx,g,tz)]===GRASS){if(q<.5)cypress(tx,g+1,tz);else umbrellaPine(tx,g+1,tz,r);}}continue;}
+    romeHouse(x0+1,z0+1,7+(r()*3|0),6+(r()*3|0),2+(r()*2|0),walls[(r()*walls.length)|0],r);}
+  // 道（家のあいだ）
+  for(let z=ROMB.z0;z<=ROMB.z1;z++)for(let x=ROMB.x0;x<=ROMB.x1;x++){const k=x+z*W;if(REG[k]!==10||busy(x,z))continue;
+    if((x-522)%14===0||(z-18)%13===0){const t=world[idx(x,HM[k],z)];if(t===GRASS||t===DIRT)streetTop(x,z,COBBLE);}}
+  addLM('rome','ローマふうの都','rome',cx,cz-COL.b-6,COL.G);
+}
+// ---- シンガポールふう ----
+function sgTower(x0,z0,w,d,top,r){
+  const G=gh(x0+(w>>1),z0+(d>>1));pad(x0-1,z0-1,x0+w,z0+d,G,CONCRETE,STONE,top-G+4);
+  const kind=(r()*3)|0;
+  for(let y=G+1;y<=top;y++)for(let z=z0;z<z0+d;z++)for(let x=x0;x<x0+w;x++){
+    const e=x===x0||x===x0+w-1||z===z0||z===z0+d-1;if(!e){gset(x,y,z,CONCRETE);continue;}
+    const corner=(x===x0||x===x0+w-1)&&(z===z0||z===z0+d-1);
+    let id=kind===0?(y%3===0?WINDOW:GLASSB):kind===1?(corner?WHITE:y%2?WINDOW:WHITE):(corner||y%4===0?STEEL:(y%4===2?WINDOW:GLASSB));
+    gset(x,y,z,id);}
+  if(r()<.5)fillB(x0+1,top+1,z0+1,x0+w-2,top+1,z0+d-2,GRASS);
+}
+function genMBS(r){
+  const {x0,x1,zs,T}=MBS,G=gh(605,366);
+  pad(x0-8,zs[0]-14,x1+4,zs[2]+20,G,CONCRETE,STONE,T-G+6);
+  for(const tz of zs){
+    for(let y=G+1;y<=T;y++){const fl=y<G+22?Math.round((G+22-y)*.28):0;
+      for(let z=tz;z<=tz+5;z++)for(let x=x0-fl;x<=x1;x++){const e=x===x0-fl||x===x1||z===tz||z===tz+5;
+        gset(x,y,z,!e?CONCRETE:(y%4===0?STEEL:((x+y)%3===0?WINDOW:GLASSB)));}}}
+  // 屋上の船（スカイパーク）
+  const xc=(x0+x1)>>1;
+  for(let z=zs[0]-10;z<=zs[2]+14;z++){const c=(zs[0]+zs[2]+5)/2,hw=Math.round(6.5-Math.max(0,Math.abs(z-c)-22)*.6);if(hw<2)continue;
+    for(let x=xc-hw;x<=xc+1+hw;x++){gset(x,T+1,z,STEEL);gset(x,T+2,z,PLANKS);
+      const edge=x===xc-hw||x===xc+1+hw;if(edge)gset(x,T+3,z,GLASS);}
+    // 西がわ（湾がわ）の長いプール
+    if(z>=zs[0]-2&&z<=zs[2]+8)for(let x=xc-hw+1;x<=xc-hw+4;x++)gset(x,T+2,z,WATER);
+    if(z%6===0&&hw>4){gset(xc+1+hw-2,T+3,z,LOG);gset(xc+1+hw-2,T+4,z,LEAVES);}}
+  addLM('mbs','屋上に船がのった3本のホテル','singapore',xc+3,368,T+2);
+}
+function genLotus(cx,cz){const G=gh(cx,cz-8);
+  for(let y=1;y<=G+2;y++)for(let dz=-4;dz<=4;dz++)for(let dx=-4;dx<=4;dx++)if(dx*dx+dz*dz<=16)gset(cx+dx,y,cz+dz,y<=G?CONCRETE:WHITE);
+  for(let k=0;k<10;k++){const a=-Math.PI*.95+k*Math.PI*1.9/9,ca=Math.cos(a),sa=Math.sin(a);
+    line3(Math.round(cx+ca*2),G+3,Math.round(cz+sa*2),Math.round(cx+ca*8),G+11-(k%2)*2,Math.round(cz+sa*8),1.2,WHITE);}
+  addLM('lotus','蓮の花の形の博物館','singapore',cx,cz-10,G);
+}
+function supertree(x,z,ht){const G=gh(x,z),top=G+ht;
+  for(let y=G+1;y<=top;y++)for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){if(Math.abs(dx)+Math.abs(dz)===2&&y<top-6)continue;
+    gset(x+dx,y,z+dz,y%5===0?STEEL:(Math.abs(dx)+Math.abs(dz)===2?LEAVES:GREEN));}
+  for(let k=0;k<=4;k++){const R=1.5+k*1.1,y=top-4+k;ring(x,z,y,R-.7,R,k===4?NEONP:STEEL);
+    if(k===4)ring(x,z,y,R-1.6,R-.8,LEAVES);}
+  for(let k=0;k<8;k++){const a=k*Math.PI/4;line3(x,top-4,z,Math.round(x+Math.cos(a)*5.5),top,Math.round(z+Math.sin(a)*5.5),0,STEEL);}
+}
+function glassDome(cx,cz,R,ht,hill){const G=gh(cx,cz);pad(cx-R-2,cz-R-2,cx+R+2,cz+R+2,G,GRASS,DIRT,ht+4);
+  for(let y=G+1;y<=G+ht;y++){const t=(y-G)/ht,rr=R*Math.sqrt(Math.max(0,1-t*t));
+    for(let dz=-R;dz<=R;dz++)for(let dx=-R;dx<=R;dx++){const d=Math.hypot(dx,dz);if(d>rr||d<rr-1.2)continue;gset(cx+dx,y,cz+dz,(Math.round(Math.atan2(dz,dx)*4)&1)&&y%3?GLASS:STEEL);}}
+  if(hill){for(let y=G+1;y<=G+ht-3;y++){const rr=(1-(y-G)/(ht-2))*R*.55;disc(cx,cz,y,rr,y>G+ht-6?MOSSY:STONE);}for(let y=G+1;y<=G+ht-4;y++)gset(cx+Math.round(R*.3),y,cz,WATER);}
+  else for(let k=0;k<10;k++){const a=k*.63,d=R*.5;const x=Math.round(cx+Math.cos(a)*d),z=Math.round(cz+Math.sin(a)*d);gset(x,G+1,z,k%2?FLOWER_R:FLOWER_Y);}
+}
+function genFlyer(){const {x:cx,z:cz,r:R}=FLYER,G=gh(cx,cz+8),cy=G+R+6;
+  pad(cx-12,cz-4,cx+12,cz+12,G,CONCRETE,STONE,R*2+10);
+  fillB(cx-10,G+1,cz+4,cx+10,G+4,cz+10,CONCRETE);fillB(cx-10,G+5,cz+4,cx+10,G+5,cz+10,GLASS);
+  for(const oz of [-1,1]){const z=cz+oz;
+    for(let k=0;k<180;k++){const a=k*Math.PI/90;gset(Math.round(cx+Math.cos(a)*R),Math.round(cy+Math.sin(a)*R),z,STEEL);}
+    for(let k=0;k<16;k++){const a=k*Math.PI/8;line3(cx,cy,z,Math.round(cx+Math.cos(a)*R),Math.round(cy+Math.sin(a)*R),z,0,STEEL);}
+    for(const sx of [-1,1])line3(cx,cy,cz+oz*2,cx+sx*9,G+1,cz+oz*4,.6,WHITE);}
+  fillB(cx-1,cy-1,cz-2,cx+1,cy+1,cz+2,STEEL);
+  for(let k=0;k<16;k++){const a=k*Math.PI/8+Math.PI/16,x=Math.round(cx+Math.cos(a)*R),y=Math.round(cy+Math.sin(a)*R);
+    fillB(x-1,y-2,cz,x+1,y-1,cz,GLASS);gset(x,y-3,cz,k%2?NEONP:NEONY);}
+  addLM('flyer','海辺の大観覧車','singapore',cx,cz+14,G);
+}
+function genSingapore(r){
+  // 湾ぞいのプロムナード
+  for(let z=SGB.z0;z<=SGB.z1;z++)for(let x=SGB.x0;x<=SGB.x1;x++){const k=x+z*W;if(REG[k]!==11||HM[k]<=SEA)continue;
+    const bd=Math.hypot(x-SGBAY.x,z-SGBAY.z);if(bd<SGBAY.r+5||(x<SGBAY.x&&z>=381&&z<=397)){streetTop(x,z,CONCRETE);if((x*7+z*3)%23===0)gset(x,HM[k]+1,z,LAMP);}}
+  // 大通り（ドバイからの橋につながる）
+  for(let x=SGB.x0;x<=SGB.x1;x++)for(let z=327;z<=333;z++)streetTop(x,z,z===330&&x%6<3?ROADLINE:ASPHALT);
+  for(let z=334;z<=404;z++)for(let x=590;x<=594;x++)streetTop(x,z,x===592&&z%6<3?ROADLINE:ASPHALT);
+  genMBS(r);genLotus(566,343);genFlyer();
+  for(const [x,z,ht] of [[617,346,22],[626,352,17],[616,359,16],[627,366,24],[618,376,20],[627,384,17],[616,392,15],[625,398,19]])supertree(x,z,ht);
+  {const G=gh(622,371);for(let k=0;k<=18;k++){const x=Math.round(618+(627-618)*k/18),z=Math.round(376+(366-376)*k/18);fillB(x,G+13,z,x,G+13,z+1,PLANKS);gset(x,G+14,z,GLASS);}}
+  addLM('supertree','光る巨大な木の庭','singapore',621,370);
+  glassDome(612,418,8,9,false);glassDome(627,424,6,11,true);
+  // 高層ビルの街
+  for(let lz=0;lz<6;lz++)for(let lx=0;lx<4;lx++){const x0=525+lx*11,z0=400+lz*11;if(z0+8>470)continue;
+    const g=gh(x0+4,z0+4);if(REG[x0+4+(z0+4)*W]!==11||g<=SEA+1)continue;
+    sgTower(x0,z0,7+(r()*2|0),7+(r()*2|0),g+18+(r()*30|0),r);}
+  for(let z=398;z<=472;z++)for(let x=523;x<=570;x++){if(((x-523)%11<2||(z-398)%11<2)&&REG[x+z*W]===11)streetTop(x,z,ASPHALT);}
+  // カラフルな長屋の通り
+  const cols=[PINK,YELLOW,BLUE,GREEN,WHITE,ORANGE];let ci=0;
+  for(let x=526;x<=606;x+=4){const z0=478,G=gh(x+1,z0+3);if(REG[x+1+(z0+3)*W]!==11||G<=SEA+1)continue;
+    pad(x,z0-3,x+3,z0+8,G,CONCRETE,STONE,14);const c=cols[ci++%cols.length];
+    for(let y=G+1;y<=G+9;y++)for(let z=z0;z<=z0+8;z++)for(let xx=x;xx<=x+3;xx++){const e=xx===x||xx===x+3||z===z0||z===z0+8;
+      gset(xx,y,z,!e?(y===G+4||y===G+7?PLANKS:AIR):(z===z0&&(y-G)%3===2&&xx>x&&xx<x+3?WINDOW:c));}
+    gset(x+1,G+1,z0,AIR);gset(x+1,G+2,z0,AIR);fillB(x,G+10,z0,x+3,G+10,z0+8,RSAND);fillB(x,G+11,z0+2,x+3,G+11,z0+6,RSAND);
+    for(let xx=x;xx<=x+3;xx++)streetTop(xx,z0-2,ASPHALT);}
+  addLM('shophouse','カラフルな長屋の通り','singapore',566,474);
+  // 木（ヤシと大きな木）
+  for(let z=SGB.z0+4;z<=SGB.z1-4;z++)for(let x=SGB.x0+4;x<=SGB.x1-4;x++){const k=x+z*W;if(REG[k]!==11)continue;const h=HM[k];
+    if(world[idx(x,h,z)]!==GRASS||get(x,h+1,z)!==AIR||get(x,h+6,z)!==AIR)continue;const q=r();
+    if(q<.0035)palmTree(x,h+1,z,r);else if(q<.006)growTree(x,h+1,z,r);else if(q<.04)gset(x,h+1,z,TGRASS);}
+  addLM('singapore','シンガポールふうの湾岸都市','singapore',580,320);
+}
+function genEastLinks(r){
+  // 上海（東の岸）→ ローマ、ドバイ（東の岸）→ シンガポール、ローマ → シンガポール
+  const a0=shoreScan('x',EAST_LINK.sh,505,470),a1=shoreScan('x',EAST_LINK.sh,505,560);seaBridge('x',EAST_LINK.sh,a0,a1,17,STEEL);
+  const b0=shoreScan('x',EAST_LINK.db,505,470),b1=shoreScan('x',EAST_LINK.db,505,560);seaBridge('x',EAST_LINK.db,b0,b1,17,GOLD);
+  const c0=shoreScan('z',576,235,200),c1=shoreScan('z',576,235,270);seaBridge('z',576,c0,c1,16,TRAV);
+  const d0=shoreScan('z',546,389,370),d1=shoreScan('z',546,389,410);seaBridge('z',546,d0,d1,14,WHITE);
+}
+const EAST_LINK={sh:148,db:330};
 
 function* generateWorld(sd,wantSnap){
   seed=sd;world.fill(0);wl.fill(0);LANDMARKS=[];PADS=[];classicSnap=null;spawnLabGolems=[];
@@ -2074,9 +2353,10 @@ function* generateWorld(sd,wantSnap){
   genSpace(r);genClouds(r);yield{p:.7,t:'宇宙をつくっています'};
   const rc=rng(sd^0x5151);genSF(rc);yield{p:.71,t:'サンフランシスコふうの街をつくっています'};genIndia(rc);yield{p:.72,t:'インドふうの都をつくっています'};
   genShanghai(rc);yield{p:.73,t:'上海ふうの港町をつくっています'};genDubai(rc);genLinks(rc);yield{p:.74,t:'ドバイふうの砂漠都市をつくっています'};
+  const re=rng(sd^0x7e57);genRome(re);yield{p:.75,t:'ローマふうの都とコロッセオをつくっています'};genSingapore(re);genEastLinks(re);yield{p:.76,t:'シンガポールふうの湾岸都市をつくっています'};
   LANDMARKS.unshift({id:'start',name:'はじまりの島',reg:'center',x:spawn.x,y:spawn.y,z:spawn.z});
   LANDMARKS.push({id:'titanField',name:'巨人の野原',reg:REGN[REG[74+70*W]]==='sea'?'snow':REGN[REG[74+70*W]],x:84.5,y:gh(84,80)+1,z:80.5});
-  for(let z=0;z<D;z++){for(let x=0;x<W;x++)recomputeTop(x,z);if((z&31)===31)yield{p:.74+z/D*.06,t:'しあげをしています'};}
+  for(let z=0;z<D;z++){for(let x=0;x<W;x++)recomputeTop(x,z);if((z&31)===31)yield{p:.76+z/D*.04,t:'しあげをしています'};}
   HM=null;
 }
 
@@ -2190,7 +2470,7 @@ let breakHeld=false,breakPulse=false,useHeld=false,useRepT=0,brk=null,brkDelay=0
 const HARD={[GRASS]:.9,[DIRT]:.75,[SAND]:.75,[SNOW]:.3,[STONE]:1.15,[COBBLE]:1.5,[MOSSY]:1.5,[BRICK]:1.5,[LOG]:1.5,[PLANKS]:1.5,[BOOKS]:1.1,
   [LEAVES]:.35,[GLASS]:.45,[ICE]:.75,[PUMPKIN]:1.5,[LAMP]:.45,[NEON]:.45,[GOLD]:1.5,[RUBY]:1.5,[COAL]:2.25,[IRON]:2.25,[RUBYORE]:2.25,
   [OBSIDIAN]:9.4,[CLOUD]:.3,[JUMPPAD]:.5,[ASPHALT]:1.5,[ROADLINE]:1.5,[CONCRETE]:1.8,[WINDOW]:.45,[STEEL]:2.5,[MOONROCK]:.9,[BASALT]:1.25,[CASTLE]:1.5,[ROOFB]:1.5,
-  [COPPER]:2,[LABPANEL]:1.5,[LAUNCH]:.5,[WARPSTONE]:9.4,[NEONP]:.45,[NEONY]:.45,[MARBLE]:2,[RSAND]:1.2,[TILEROOF]:1.5,[PINK]:.8,[GLASSB]:1,[BOMB]:0,[BIGBOMB]:0,[RED]:1.2,[ORANGE]:1.2,[YELLOW]:1.2,[GREEN]:1.2,[BLUE]:1.2,[WHITE]:1.2,[BLACK]:1.2};
+  [COPPER]:2,[LABPANEL]:1.5,[LAUNCH]:.5,[WARPSTONE]:9.4,[NEONP]:.45,[NEONY]:.45,[MARBLE]:2,[TRAV]:1.8,[TERRA]:1.5,[RSAND]:1.2,[TILEROOF]:1.5,[PINK]:.8,[GLASSB]:1,[BOMB]:0,[BIGBOMB]:0,[RED]:1.2,[ORANGE]:1.2,[YELLOW]:1.2,[GREEN]:1.2,[BLUE]:1.2,[WHITE]:1.2,[BLACK]:1.2};
 function breakTime(id){if(mode==='creative'||isPlant(id))return 0;const t=HARD[id];return t==null?1:t;}
 function reachBlock(){return isTouch&&scheme==='touch'?(mode==='creative'?12:6):(mode==='creative'?5:4.5);}
 function reachEntity(){return mode==='creative'?5:(isTouch?3.5:3);}
@@ -2218,8 +2498,10 @@ function updateParts(dt){
     p.vy-=p.grav*dt;if(p.drag){const k=Math.exp(-p.drag*dt);p.vx*=k;p.vy*=k;p.vz*=k;}
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;
   }
+  const qx=camera.position.x,qy=camera.position.y,qz=camera.position.z;
   for(const p of parts){
-    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(p.size*Math.min(1,p.life/p.max*1.6));dummy.updateMatrix();
+    const dc=(p.x-qx)*(p.x-qx)+(p.y-qy)*(p.y-qy)+(p.z-qz)*(p.z-qz);if(dc<1.7)continue;
+    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1));dummy.updateMatrix();
     pMesh.setMatrixAt(n,dummy.matrix);pMesh.setColorAt(n,tmpC.setRGB(p.r,p.g,p.b));n++;
   }
   pMesh.count=n;pMesh.instanceMatrix.needsUpdate=true;if(pMesh.instanceColor)pMesh.instanceColor.needsUpdate=true;
@@ -2294,6 +2576,12 @@ const SONGS={
   shanghai:{name:'黄浦江の夜（上海）',bpm:88,ch:[[60,62,67],[57,62,64],[60,64,69],[55,62,67]],
     bass:[0,-1,-1,7,-1,-1,0,-1,5,-1,-1,7,-1,-1,0,-1],arp:[0,1,2,-1,2,1,0,-1,1,2,3,-1,2,-1,1,-1],lead:'sine',lv:.07,oct:24,bell:true,
     k:[0,8],s:[],h:[2,6,10,14],hv:.012,pad:.045},
+  rome:{name:'剣闘士の行進（ローマ）',bpm:104,ch:[[57,60,64],[53,57,60],[55,59,62],[52,56,59,64]],
+    bass:[0,-1,0,-1,7,-1,7,-1,0,-1,0,-1,5,-1,7,-1],arp:[0,-1,1,2,-1,2,1,-1,0,-1,1,2,3,-1,2,-1],lead:'sawtooth',lv:.03,oct:12,
+    k:[0,4,8,12],s:[4,12],h:[2,6,10,14],hv:.012,pad:.045},
+  singapore:{name:'湾岸のネオン（シンガポール）',bpm:100,ch:[[62,65,69,72],[58,62,65,69],[60,64,67,71],[57,60,64,67]],
+    bass:[0,-1,0,7,-1,0,-1,5,0,-1,0,7,-1,10,-1,7],arp:[0,2,1,3,2,1,0,-1,1,3,2,-1,0,2,3,-1],lead:'square',lv:.026,oct:12,
+    k:[0,6,8,14],s:[4,12],h:[2,6,10,14],hv:.016,pad:.04},
   space:{name:'星の海（宇宙）',bpm:60,ch:[[60,64,67,71],[57,60,64,67],[53,57,60,64],[55,59,62,65]],
     bass:[0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],arp:[3,-1,-1,-1,2,-1,-1,-1,1,-1,-1,-1,0,-1,-1,-1],lead:'sine',lv:.07,oct:24,bell:true,
     k:[],s:[],h:[],hv:0,pad:.065}
@@ -2334,15 +2622,15 @@ function pickMood(){
   if(rg==='subway'||rg==='city')return'city';
   if(isUnder&&P.y<SEA+4)return'cave';
   if(rg==='volcano')return'volcano';
-  if(rg==='sf'||rg==='dubai'||rg==='india'||rg==='shanghai')return rg;
+  if(rg==='sf'||rg==='dubai'||rg==='india'||rg==='shanghai'||rg==='rome'||rg==='singapore')return rg;
   if(rg==='snow')return'snow';
   if(rg==='kingdom')return'kingdom';
-  if((P.mount&&P.mount.kind==='dragon')||(P.fly&&P.y>topAt(P.x,P.z)+8))return'sky';
+  if(isFlyMount(P.mount)||(P.fly&&P.y>topAt(P.x,P.z)+8))return'sky';
   if(dayLight<.5)return'night';
   return'day';
 }
 function showBgm(){const el=$('bgmLabel');el.textContent='♪ '+SONGS[curSong].name;el.classList.add('show');bgmLabelT=3;
-  $('bgmNow').textContent='いまの曲：'+SONGS[curSong].name+'。いる場所（はじまりの島・街・雪山・火山・王国・研究所・宇宙・サンフランシスコ・インド・上海・ドバイ）と、昼・夜・空・地下・戦いに合わせて自動で切り替わります。';}
+  $('bgmNow').textContent='いまの曲：'+SONGS[curSong].name+'。いる場所（はじまりの島・街・雪山・火山・王国・研究所・宇宙・サンフランシスコ・インド・上海・ドバイ・ローマ・シンガポール）と、昼・夜・空・地下・戦いに合わせて自動で切り替わります。';}
 function musicTick(dt){
   bgmLabelT-=dt;if(bgmLabelT<=0)$('bgmLabel').classList.remove('show');
   if(!actx||!musicOut||!bgmOn||actx.state!=='running')return;
@@ -2519,7 +2807,7 @@ function buildTitan(){
 }
 const VIOLET=['#3a2a6a','#1e1440','#c9a24a','#5a3a9a','#e8d8a0','#ff3af0'];
 const isDrg=k=>k==='dragon'||k==='edragon'||k==='gdragon';
-const RES_HOME={edragon:{x:VOL.x,z:VOL.z,y:70,r:24},gdragon:{x:196,z:70,y:100,r:60},titan:{x:74,z:70,r:26}};
+const RES_HOME={edragon:{x:VOL.x,z:VOL.z,y:70,r:24},gdragon:{x:196,z:70,y:100,r:60},titan:{x:74,z:70,r:26},gorilla:{x:576,z:96,r:9}};
 const MOBS={
   rabbit:{name:'ハコウサギ',hp:4,r:.25,h:.5,ai:'hop',build:buildRabbit},
   yak:{name:'モフヤク',hp:24,r:.55,h:1.7,ai:'walk',ride:'ground',seat:1.5,build:buildYak},
@@ -2539,9 +2827,11 @@ const MOBS={
   elephant:{name:'ハコゾウ',hp:60,r:.8,h:2.6,ai:'walk',ride:'ground',seat:2.55,build:buildElephant},
   camel:{name:'ハコラクダ',hp:30,r:.5,h:2.3,ai:'walk',ride:'ground',seat:2.05,build:buildCamel},
   titan:{name:'巨人タイタン',hp:4000,r:5,h:34,ai:'titan',hostile:true,boss:true,huge:true,armor:.6,dmg:8,speed:3,stride:.33,fireproof:true,build:buildTitan},
-  gdragon:{name:'超巨大ドラゴン',hp:3000,r:7,h:9,ai:'gdragon',fly:true,fireproof:true,hostile:true,boss:true,huge:true,armor:.7,dmg:12,build:()=>buildDragon(VIOLET,DS*7)}
+  gdragon:{name:'超巨大ドラゴン',hp:3000,r:7,h:9,ai:'gdragon',fly:true,fireproof:true,hostile:true,boss:true,huge:true,armor:.7,dmg:12,build:()=>buildDragon(VIOLET,DS*7)},
+  ryu:{name:'龍',hp:260,r:1.1,h:1.7,ai:'ryu',fly:true,fireproof:true,ally:true,ride:'fly',segs:true,build:buildRyu},
+  gorilla:{name:'巨大ゴリラ',hp:3500,r:4,h:21,ai:'gorilla',hostile:true,boss:true,huge:true,armor:.6,dmg:8,speed:4.2,stride:.42,fireproof:true,build:buildGorilla}
 };
-const MOB_LIMIT={rabbit:150,yak:80,whale:40,imp:60,boss:8,wisp:40,golem:30,steel:30,magma:30,ice:30,thunder:30,mini:40,giant:15,dragon:15,edragon:10,titan:4,gdragon:4,elephant:60,camel:60},MOB_MAX=400;
+const MOB_LIMIT={rabbit:150,yak:80,whale:40,imp:60,boss:8,wisp:40,golem:30,steel:30,magma:30,ice:30,thunder:30,mini:40,giant:15,dragon:15,edragon:10,titan:4,gdragon:4,elephant:60,camel:60,ryu:15,gorilla:4},MOB_MAX=400;
 const isAlly=m=>!!m.ally,isGolem=m=>m.def.ai==='golem',isHostile=m=>!!(m.def.hostile||m.angry);
 function partyCount(){let n=0;for(const m of mobs)if(m.ally&&isGolem(m))n++;return n;}
 function favName(def){return def.fav.length>1?'花':itemName(def.fav[0]);}
@@ -2559,9 +2849,11 @@ function spawnMob(kind,x,y,z,opt){
     m.home=opt&&opt.home?opt.home:{x:CX,z:CZ,y:32,r:22};}
   if(kind==='wisp')m.home={x,y,z};
   if(kind==='titan'){m.home=opt&&opt.home?opt.home:{x,z,r:30};m.lastStep=false;m.cd=3;m.stompT=3;}
+  if(kind==='gorilla'){m.home=opt&&opt.home?opt.home:{x,z,r:12};m.lastStep=false;m.cd=3;m.stompT=2;m.beatT=4;}
+  if(kind==='ryu'){m.ang=rand()*6.28;m.dir=rand()<.5?1:-1;m.home=opt&&opt.home?opt.home:{x,z,y:Math.max(y+6,topAt(x,z)+10),r:14};initRyuSegs(m);}
   mobs.push(m);return m;
 }
-function removeMob(m,i){scene.remove(m.mesh);disposeBaked(m.mesh);if(i==null)i=mobs.indexOf(m);if(i>=0)mobs.splice(i,1);if(P.mount===m)dismount();}
+function removeMob(m,i){scene.remove(m.mesh);disposeBaked(m.mesh);if(m.segs)removeRyuSegs(m);if(i==null)i=mobs.indexOf(m);if(i>=0)mobs.splice(i,1);if(P.mount===m)dismount();}
 // 広い世界なので、生きものは「ある場所のまわり」に出す
 function landNear(cx,cz,r,minD){
   const inSpace=P.y>=SPACE_Y-4;
@@ -2583,7 +2875,7 @@ function spawnDefaultMobs(){
   at('yak',LAKE.x+10,LAKE.z,26,8);at('rabbit',CASTLE_C.x,CASTLE_C.z-40,30,12);at('rabbit',(PARK.x0+PARK.x1)/2,(PARK.z0+PARK.z1)/2,14,6);
   at('yak',VOL.x-50,VOL.z+40,20,4);at('rabbit',80,90,24,8);at('yak',250,300,24,4);
   spawnMob('dragon',CASTLE_C.x,48,CASTLE_C.z-10,{home:{x:CASTLE_C.x,z:CASTLE_C.z,y:52,r:30}});
-  spawnCityMobs();
+  spawnCityMobs();spawnEastMobs();
   const wg=[['steel',236,282],['magma',VOL.x-30,VOL.z+20],['ice',LAKE.x,LAKE.z+18],['thunder',262,330],['mini',CASTLE_C.x+8,CASTLE_C.z-12],['mini',132,280],['giant',152,352],['golem',CX+6,CZ+6]];
   for(const [k,x,z] of wg){const p=landNear(x,z,6);if(p)spawnMob(k,p.x,p.y,p.z,{wild:true});}
   for(const [x,y,z,k] of spawnLabGolems)spawnMob(k,x,y,z,{wild:true});
@@ -2600,6 +2892,13 @@ function spawnResidents(){
   if(!has('edragon'))spawnMob('edragon',VOL.x,72,VOL.z,{resident:true,home:RES_HOME.edragon});
   if(!has('titan')){const h=RES_HOME.titan;spawnMob('titan',h.x+.5,titanGround(h.x,h.z),h.z+.5,{resident:true,home:h});}
   if(!has('gdragon')){const h=RES_HOME.gdragon;spawnMob('gdragon',h.x+h.r,h.y,h.z,{resident:true,home:h});}
+  if(!has('gorilla')){const h=RES_HOME.gorilla;spawnMob('gorilla',h.x+.5,titanGround(h.x,h.z),h.z+.5,{resident:true,home:h});}
+}
+function spawnEastMobs(){
+  const at=(k,cx,cz,r,n)=>{for(let i=0;i<n;i++){const p=landNear(cx,cz,r);if(p)spawnMob(k,p.x,p.y,p.z);}};
+  at('rabbit',556,40,16,6);at('yak',604,150,14,3);at('rabbit',600,440,16,4);
+  spawnMob('ryu',SGBAY.x,40,SGBAY.z,{home:{x:SGBAY.x,z:SGBAY.z,y:44,r:26}});spawnMob('ryu',COL.x,46,COL.z+70,{home:{x:COL.x,z:COL.z+60,y:46,r:30}});
+  spawnMob('ryu',446,44,120,{home:{x:446,z:120,y:44,r:20}});
 }
 function clearMobs(){for(let i=mobs.length-1;i>=0;i--)removeMob(mobs[i],i);}
 function mobHurt(m,dmg,kx,ky,kz,src){
@@ -2834,6 +3133,9 @@ function animateMob(m,dt){
   m.mesh.position.set(m.x,m.y,m.z);m.mesh.rotation.y=m.yaw;
   if(m.hurtT>0){m.hurtT-=dt;m.mesh.visible=Math.floor(m.hurtT*20)%2===0;}else m.mesh.visible=true;
   if(m.lod)m.mesh.visible=false;
+  if(m.kind==='gorilla')animateGorilla(m);
+  if(m.segs)updateRyuSegs(m);
+  if(m.kind==='ryu')m.parts.root.rotation.x=Math.max(-.5,Math.min(.5,(P.mount===m?pitch*.6:m.vy*.06)));
 }
 let spawnT=4,wispT=8,edragonT=30;
 function updateMobs(dt0){
@@ -2844,7 +3146,7 @@ function updateMobs(dt0){
     // 遠い生きものは止めて隠す（広い世界でも軽く）。夜の敵は遠くへ行ったら消える
     if(d2>110*110&&m!==P.mount&&!m.order&&!m.def.huge&&!(m.ally&&isGolem(m)&&!m.stay)){
       if(m.natural&&d2>150*150){removeMob(m,i);continue;}
-      const v=!m.lod;if(m.mesh.visible!==v)m.mesh.visible=v;continue;}
+      const v=!m.lod;if(m.mesh.visible!==v)m.mesh.visible=v;if(m.segs)for(const sg of m.segs)sg.visible=v;continue;}
     const far=d2>46*46&&!m.def.boss&&!m.def.fly&&!m.order;
     let dt=dt0;
     if(far){m.acc=(m.acc||0)+dt0;m.tick=(m.tick||0)+1;if(m.tick&3)continue;dt=Math.min(.2,m.acc);m.acc=0;}
@@ -2860,6 +3162,8 @@ function updateMobs(dt0){
         case 'edragon':aiEDragon(m,dt);break;
         case 'titan':aiTitan(m,dt);break;
         case 'gdragon':aiGDragon(m,dt);break;
+        case 'ryu':aiRyu(m,dt);break;
+        case 'gorilla':aiGorilla(m,dt);break;
       }
     }
     m.atkT-=dt;
@@ -2915,26 +3219,28 @@ function rayBox(o,d,mn,mx,maxD){
 // ================= 乗る =================
 function seatPos(m){
   if(m.kind==='dragon')return{x:m.x+Math.sin(m.yaw)*.15*DS,y:m.y+1.3*DS,z:m.z+Math.cos(m.yaw)*.15*DS};
+  if(m.kind==='ryu')return{x:m.x+Math.sin(m.yaw)*1.9*RS,y:m.y+1.05*RS,z:m.z+Math.cos(m.yaw)*1.9*RS};
   return{x:m.x,y:m.y+(m.def.seat||1.5),z:m.z};
 }
 function mount(m){
   P.mount=m;P.fly=false;m.vx=m.vy=m.vz=0;let k=0;while(hitsBox(m.x,m.y,m.z,m.r,m.h)&&k++<24)m.y+=1;
   yaw=m.yaw;updateTouchLabels();$('tFly').classList.remove('on');
-  toast(m.kind==='dragon'?(isTouch?'ドラゴンに乗った！ スティックで見ている方へ飛ぶ・上へ/下へ・「ほのお」・「おりる」':'ドラゴンに乗った！ W で見ている方へ飛ぶ・Space 上昇・Ctrl 加速・左クリックでほのお・Shift でおりる')
+  toast(isFlyMount(m)?(isTouch?m.def.name.replace('ソラ','')+'に乗った！ スティックで見ている方へ飛ぶ・上へ/下へ・「ほのお」・「おりる」':m.def.name.replace('ソラ','')+'に乗った！ W で見ている方へ飛ぶ・Space 上昇・Ctrl 加速・左クリックでほのお・Shift でおりる')
     :(isTouch?'モフヤクに乗った！「おりる」で降りる':'モフヤクに乗った！ Shift でおりる'),3400);
-  if(m.kind==='dragon')sfx(180,.6,'sawtooth',.06,70);
+  if(isFlyMount(m))sfx(m.kind==='ryu'?260:180,.6,'sawtooth',.06,70);
 }
+function isFlyMount(m){return !!(m&&m.def.ride==='fly');}
 function dismount(){
   const m=P.mount;if(!m)return;P.mount=null;
   const sx=Math.cos(yaw),sz=-Math.sin(yaw);
   P.x=Math.min(W-.5,Math.max(.5,m.x+sx*(m.r+.8)));P.z=Math.min(D-.5,Math.max(.5,m.z+sz*(m.r+.8)));P.y=m.y+.2;
   let k=0;while(hitsBox(P.x,P.y,P.z,P.r,P.h)&&k++<40)P.y+=1;
   P.vx=P.vy=P.vz=0;P.fallTop=P.y;P.padBounce=true;updateTouchLabels();
-  if(m.kind==='dragon'){m.home={x:m.x,z:m.z,y:Math.max(m.y,topAt(m.x,m.z)+8),r:8+rand()*6};m.ang=Math.atan2(m.z-m.home.z,m.x-m.home.x);}
+  if(isFlyMount(m)){m.home={x:m.x,z:m.z,y:Math.max(m.y,topAt(m.x,m.z)+8),r:m.kind==='ryu'?12:8+rand()*6};m.ang=Math.atan2(m.z-m.home.z,m.x-m.home.x);}
 }
 function rideUpdate(dt,f,r,jump,shift,sprint){
   const m=P.mount,sn=Math.sin(yaw),cs=Math.cos(yaw);
-  if(m.kind==='dragon'){
+  if(isFlyMount(m)){
     const cp=Math.cos(pitch),sp=sprint?19:13;
     const tx=(-sn*cp*f+cs*r*.6)*sp,tz=(-cs*cp*f-sn*r*.6)*sp,ty=Math.sin(pitch)*f*sp+(jump?7:0)-(shift?7:0);
     const k=Math.min(1,dt*2.5);m.vx+=(tx-m.vx)*k;m.vy+=(ty-m.vy)*k;m.vz+=(tz-m.vz)*k;
@@ -3030,19 +3336,20 @@ function explode(cx,cy,cz,power,opt){
     for(let y=y0-1;y<=y1+1;y++)for(let z=z0-1;z<=z1+1;z++)for(let x=x0-1;x<=x1+1;x++){
       if(!inB(x,y,z))continue;const id=world[idx(x,y,z)];if(isLiquid(id)||id===SAND||isPlant(id))schedule(x,y,z);}
   }
-  for(let i=0;i<(40+r*8)*pk;i++){const a=rand()*Math.PI*2,e=rand()*Math.PI-Math.PI/2,s=3+rand()*r*2;
-    addP(cx,cy,cz,Math.cos(a)*Math.cos(e)*s,Math.sin(e)*s+2,Math.sin(a)*Math.cos(e)*s,.3+rand()*.4,.35+rand()*.3,1,.55+rand()*.35,.15,2,3);}
-  for(let i=0;i<(22+r*5)*pk;i++){const g=(.35+rand()*.25)*light;
-    addP(cx+(rand()-.5)*r,cy+(rand()-.5)*r*.6,cz+(rand()-.5)*r,(rand()-.5)*2,1+rand()*2,(rand()-.5)*2,1.4+rand()*1.4,.6+rand()*.6,g,g,g,-1.2,1.2);}
-  if(!few||(boomFlashN++%4)===0){const fm=new THREE.Mesh(flashGeo,new THREE.MeshBasicMaterial({color:0xffc060,transparent:true,opacity:.85,depthWrite:false,fog:false}));
+  const camD=Math.hypot(cx-camera.position.x,cy-camera.position.y,cz-camera.position.z),smk=few?(camD<10?.12:camD<25?.3:.7):1,psz=few&&camD<25?.55:1;
+  for(let i=0;i<(40+r*8)*pk*(few?Math.max(.35,smk):1);i++){const a=rand()*Math.PI*2,e=rand()*Math.PI-Math.PI/2,s=3+rand()*r*2;
+    addP(cx,cy,cz,Math.cos(a)*Math.cos(e)*s,Math.sin(e)*s+2,Math.sin(a)*Math.cos(e)*s,.3+rand()*.4,(.35+rand()*.3)*psz,1,.55+rand()*.35,.15,2,3);}
+  for(let i=0;i<(22+r*5)*pk*smk;i++){const g=(.35+rand()*.25)*light;
+    addP(cx+(rand()-.5)*r,cy+(rand()-.5)*r*.6,cz+(rand()-.5)*r,(rand()-.5)*2,1+rand()*2,(rand()-.5)*2,1.4+rand()*1.4,(.6+rand()*.6)*psz,g,g,g,-1.2,1.2);}
+  if((!few||(boomFlashN++%4)===0)&&!(few&&camD<14)){const fm=new THREE.Mesh(flashGeo,new THREE.MeshBasicMaterial({color:0xffc060,transparent:true,opacity:.85,depthWrite:false,fog:false}));
     fm.position.set(cx,cy,cz);fm.scale.setScalar(few?1.2:.5);scene.add(fm);flashes.push({m:fm,t:0,r:few?r*1.6:r});}
   if(!P.mount){const fp=blastPush(P,cx,cy,cz,r,22);if(fp>0)P.knock=.9;}
   for(const m of mobs){if(m===P.mount)continue;const f=blastPush(m,cx,cy,cz,r,m.kind==='whale'||m.kind==='dragon'?4:18);
     if(f>0)mobHurt(m,Math.round(f*(isAlly(m)?.25:1.1)),0,0,0,'blast');}
   for(const b of bombs)blastPush(b,cx,cy,cz,r,10);
   const dist=Math.hypot(cx-P.x,cy-P.y-1,cz-P.z);
-  shake=Math.max(shake,Math.min(1.2,r*.22*Math.max(0,1-dist/40)));
-  const ft=$('flashTint');ft.style.opacity=Math.min(.55,Math.max(0,.6-dist/40)).toFixed(2);
+  shake=Math.max(shake,Math.min(few?.35:1.2,r*.22*Math.max(0,1-dist/40)));
+  if(!few){const ft=$('flashTint');ft.style.opacity=Math.min(.55,Math.max(0,.6-dist/40)).toFixed(2);}
   const v=distVol(cx,cy,cz),now=performance.now();
   if(!few||now-lastBoomSnd>70){lastBoomSnd=now;noise(.9*v*(few?.6:1),1.4,1400,60);sfx(70,.7,'sine',.35*v*(few?.6:1));}
   if(!noBlocks)queueSave();
@@ -3113,7 +3420,7 @@ function projHit(p,px,py,pz,m){
     return true;
   }
   if(p.kind==='arrow'){
-    if(m){mobHurt(m,6,p.vx*.15,3,p.vz*.15,'player');return true;}
+    if(m){mobHurt(m,6*(p.mul||1),p.vx*.15,3,p.vz*.15,'player');return true;}
     p.stuck=true;p.life=3;p.x=px;p.y=py;p.z=pz;sfx(400,.06,'square',.03);return false;
   }
   if(p.kind==='warp'){
@@ -3143,7 +3450,7 @@ function updateProjs(dt){
       const dd=Math.hypot(dx,dy,dz)||1,turn=Math.min(1,dt*(p.tgt?5:3));
       p.vx+=(dx/dd*p.speed-p.vx)*turn;p.vy+=(dy/dd*p.speed-p.vy)*turn;p.vz+=(dz/dd*p.speed-p.vz)*turn;
       const vv=Math.hypot(p.vx,p.vy,p.vz)||1;p.vx*=p.speed/vv;p.vy*=p.speed/vv;p.vz*=p.speed/vv;
-      if(p.kind==='rocket')for(let q=0;q<(p.few?1:2);q++){const g2=.45+rand()*.25;addP(p.x-p.vx*.012,p.y-p.vy*.012,p.z-p.vz*.012,(rand()-.5)*.6,(rand()-.5)*.6+.4,(rand()-.5)*.6,.9+rand()*.6,.22+rand()*.15,g2,g2,g2,-.6,1.2);}
+      if(p.kind==='rocket'&&p.life<(PROJ_LIFE.rocket-.12))for(let q=0;q<(p.few?1:2);q++){const g2=.45+rand()*.25;addP(p.x-p.vx*.012,p.y-p.vy*.012,p.z-p.vz*.012,(rand()-.5)*.6,(rand()-.5)*.6+.4,(rand()-.5)*.6,.9+rand()*.6,.22+rand()*.15,g2,g2,g2,-.6,1.2);}
       if(p.kind==='rocket')addP(p.x,p.y,p.z,(rand()-.5),(rand()-.5),(rand()-.5),.12,.18,1,.7,.2,0);
     }
     if(p.kind==='efire'){
@@ -3182,8 +3489,8 @@ function screenDir(sx,sy){
   const cy=Math.cos(camYaw),sy2=Math.sin(camYaw),x3=x*cy+z2*sy2,z3=-x*sy2+z2*cy;
   const l=Math.hypot(x3,y2,z3)||1;return{x:x3/l,y:y2/l,z:z3/l};
 }
-function shootArrow(){if(P.bowT>0)return;P.bowT=.35;const d=camDir(),c=EYE;
-  shoot('arrow',c.x+d.x*.6,c.y+d.y*.6-.1,c.z+d.z*.6,d.x*34,d.y*34+1,d.z*34);sfx(700,.12,'triangle',.05,300);}
+function shootArrow(){if(P.bowT>0)return;P.bowT=Math.max(.05,.35/rateMul);const d=camDir(),c=EYE;
+  shoot('arrow',c.x+d.x*.6,c.y+d.y*.6-.1,c.z+d.z*.6,d.x*34,d.y*34+1,d.z*34,{mul:wpnMul});sfx(700,.12,'triangle',.05,300);}
 function throwWarp(){const d=camDir(),c=EYE;shoot('warp',c.x+d.x*.6,c.y+d.y*.6,c.z+d.z*.6,d.x*20,d.y*20+3,d.z*20);sfx(500,.15,'sine',.05);}
 // ================= 銃・ロケットランチャー =================
 const ammo={};for(const k in GUNS)ammo[k]=GUNS[k].mag;
@@ -3212,20 +3519,69 @@ function buildViewModels(){
   g.userData.flash=bx(g,.2,.2,.1,fl,0,.02,-.55);g.userData.flash.userData.nobake=true;vmModels[ROCKET2]=g;
   // 20発ショットガン：はばの広い箱に、穴がたくさん
   g=new THREE.Group();const rust=mat('#8a4a2a');
-  bx(g,.36,.24,.7,rust,0,.02,-.05);bx(g,.38,.26,.05,dark,0,.02,-.42);
-  for(let iy=0;iy<4;iy++)for(let ix=0;ix<5;ix++)bx(g,.045,.045,.03,red,-.14+ix*.07,-.07+iy*.06,-.45);
+  bx(g,.28,.19,.7,rust,0,.02,-.05);bx(g,.3,.21,.05,dark,0,.02,-.42);
+  for(let iy=0;iy<4;iy++)for(let ix=0;ix<5;ix++)bx(g,.035,.035,.03,red,-.11+ix*.055,-.055+iy*.047,-.45);
   bx(g,.05,.14,.07,grip,0,-.17,.08);bx(g,.06,.06,.14,dark,-.21,.1,-.05);
-  g.userData.flash=bx(g,.4,.28,.1,fl,0,.02,-.5);g.userData.flash.userData.nobake=true;vmModels[ROCKET3]=g;
+  g.userData.flash=bx(g,.12,.12,.08,fl,0,.02,-.5);g.userData.flash.userData.nobake=true;vmModels[ROCKET3]=g;
   // 40発・60発・100発：箱がどんどん大きく、穴もふえる
-  for(const [it,w,h,cols,rows,hex] of [[ROCKET4,.46,.3,8,5,'#5a3a8a'],[ROCKET5,.54,.36,10,6,'#2a7a7a'],[ROCKET6,.66,.44,10,10,'#b08a2a']]){
+  for(const [it,w,h,cols,rows,hex] of [[ROCKET4,.3,.2,6,4,'#5a3a8a'],[ROCKET5,.32,.22,7,5,'#2a7a7a'],[ROCKET6,.34,.24,8,6,'#b08a2a'],[ROCKET7,.36,.26,10,7,'#8a1a2a'],[ROCKET8,.36,.26,10,7,'#1a3a8a']]){
     g=new THREE.Group();const body=mat(hex);
     bx(g,w,h,.72,body,0,.02,-.05);bx(g,w+.02,h+.02,.05,dark,0,.02,-.43);
     for(let iy=0;iy<rows;iy++)for(let ix=0;ix<cols;ix++)bx(g,w/cols*.6,h/rows*.6,.03,red,-w/2+w/cols*(ix+.5),.02-h/2+h/rows*(iy+.5),-.46);
     bx(g,.05,.14,.07,grip,0,-h/2-.06,.08);bx(g,.06,.06,.14,dark,-w/2-.03,h/2,-.05);
-    g.userData.flash=bx(g,w+.04,h+.04,.1,fl,0,.02,-.52);g.userData.flash.userData.nobake=true;vmModels[it]=g;}
+    g.userData.flash=bx(g,.12,.12,.08,fl,0,.02,-.52);g.userData.flash.userData.nobake=true;vmModels[it]=g;}
   for(const k in vmModels){bakeGroup(vmModels[k]);vmModels[k].visible=false;vmModels[k].userData.flash.visible=false;vm.add(vmModels[k]);}
 }
 buildViewModels();
+// ================= ビームサーベル：ふると約100マス先までのびる光の刃（生きものを切り、ブロックも切る） =================
+const BEAM_LEN=100,BEAM_SWING=.26,BEAM_CUT_MAX=600;
+const beamCore=new THREE.Mesh(unitBox,new THREE.MeshBasicMaterial({color:0xf2ffff,fog:false}));
+const beamGlow=new THREE.Mesh(unitBox,new THREE.MeshBasicMaterial({color:0x38e0ff,transparent:true,opacity:.42,depthWrite:false,fog:false}));
+beamCore.visible=beamGlow.visible=false;beamCore.frustumCulled=beamGlow.frustumCulled=false;scene.add(beamCore);scene.add(beamGlow);
+let beamT=0,beamCD=0,beamHitSet=null,beamSide=1,beamCutN=0,beamK=0;
+function beamSwing(){
+  if(beamCD>0||!playing||dead||invOpen)return;
+  beamCD=Math.max(.08,.42/rateMul);beamT=BEAM_SWING;beamHitSet=new Set();beamSide=-beamSide;beamCutN=0;beamK=0;swingArm();
+  sfx(220,.3,'sawtooth',.05,900);noise(.22,.3,2600,600,'bandpass');
+}
+function beamDirAt(k){const a=(.5-k)*1.9*beamSide,p=pitch+(k-.5)*.42*beamSide,yw=yaw+a,cp=Math.cos(p);
+  return{x:-Math.sin(yw)*cp,y:Math.sin(p),z:-Math.cos(yw)*cp};}
+function beamCutLine(o,d){
+  for(let t=1.6;t<BEAM_LEN&&beamCutN<BEAM_CUT_MAX;t+=.7){const x=Math.floor(o.x+d.x*t),y=Math.floor(o.y+d.y*t),z=Math.floor(o.z+d.z*t);
+    if(!inB(x,y,z))continue;const id=world[idx(x,y,z)];
+    if(!id||isLiquid(id)||id===BEDROCK||id===WARPSTONE||id===LAUNCH)continue;
+    if(id===BOMB||id===BIGBOMB){setRaw(x,y,z,AIR);primeBomb(x,y,z,id,.2);continue;}
+    if(beamCutN%6===0&&BLOCKS[id]){const c=tileColor[BLOCKS[id].t[1]];addP(x+.5,y+.5,z+.5,(rand()-.5)*3,1+rand()*2,(rand()-.5)*3,.5,.14,c[0]*light,c[1]*light,c[2]*light,12);}
+    setRaw(x,y,z,AIR);scheduleAround(x,y,z);beamCutN++;}
+}
+function beamHitMobs(o,d){
+  for(const m of mobs){if(m===P.mount||beamHitSet.has(m)||(m.ally&&isGolem(m)))continue;
+    const cx=m.x-o.x,cy=m.y+m.h*.5-o.y,cz=m.z-o.z,t=cx*d.x+cy*d.y+cz*d.z;if(t<0||t>BEAM_LEN+m.r)continue;
+    const px=o.x+d.x*t,py=o.y+d.y*t,pz=o.z+d.z*t,rr=(isDrg(m.kind)?m.r*1.5:m.r)+1.1+t*.02,vy=1.2+t*.05;
+    if(Math.abs(px-m.x)<rr&&Math.abs(pz-m.z)<rr&&py>m.y-vy&&py<m.y+m.h+vy){
+      beamHitSet.add(m);if(m.ally){m.vx+=d.x*3;m.vz+=d.z*3;continue;}
+      mobHurt(m,40*wpnMul,d.x*7,5,d.z*7,'player');hitMark();
+      for(let i=0;i<10;i++)addP(px,py,pz,(rand()-.5)*6,rand()*4,(rand()-.5)*6,.4,.14,.6,.95,1,6);}}
+}
+function updateBeam(dt){
+  beamCD-=dt;
+  if(beamT<=0){if(beamCore.visible){beamCore.visible=beamGlow.visible=false;}return;}
+  const k0=beamK;beamT-=dt;const k1=beamK=Math.min(1,1-beamT/BEAM_SWING);
+  const o=muzzle(),n=Math.ceil((k1-k0)*90)+1;
+  for(let s=1;s<=n;s++){const d=beamDirAt(k0+(k1-k0)*s/n);beamHitMobs(o,d);beamCutLine(o,d);}
+  if(beamCutN)queueSave();
+  const d=beamDirAt(k1),L=BEAM_LEN*Math.min(1,k1*5),ex=o.x+d.x*L,ey=o.y+d.y*L,ez=o.z+d.z*L;
+  for(const [me,w] of [[beamCore,.1],[beamGlow,.42]]){me.visible=true;me.position.set((o.x+ex)/2,(o.y+ey)/2,(o.z+ez)/2);me.scale.set(w,w,L);me.lookAt(ex,ey,ez);}
+  if(beamT<=0){beamCore.visible=beamGlow.visible=false;}
+}
+function buildBeamModel(){
+  const g=new THREE.Group(),hilt=mat('#3a3f48'),steel=mat('#9aa4b0'),gold=mat('#d9b04a');
+  bx(g,.06,.06,.26,hilt,0,0,0);bx(g,.075,.075,.05,steel,0,0,-.12);bx(g,.075,.075,.04,gold,0,0,.1);bx(g,.03,.03,.05,mat('#d23a36'),.04,0,-.02);
+  const bl=bx(g,.05,.05,.9,glowM('#bff8ff'),0,0,-.6);bl.userData.nobake=true;
+  bakeGroup(g);g.visible=false;g.userData.flash={visible:false};vm.add(g);vmModels[BEAM]=g;
+}
+buildBeamModel();
+
 let vmRec=0,vmBob=0,vmFlashT=0;
 function isGun(it){return !!GUNS[it];}
 function startReload(){
@@ -3237,8 +3593,9 @@ function tryFire(){
   const it=hot[sel],g=GUNS[it];if(!g||dead||!playing||invOpen)return;
   if(reloadT>0||gunCD>0)return;
   // 弾は無限（減らない）
-  gunCD=g.cd;vmRec=1;vmFlashT=.05;camKick+=g.kick;shake=Math.max(shake,g.rk?(g.rk.n>1?.3:.18):.05);
-  if(g.rk)fireRocket(g,it);else fireBullet(g,it);
+  gunCD=Math.max(.035,g.cd/rateMul);vmRec=1;vmFlashT=.05;
+  const fast=1/Math.sqrt(Math.max(1,rateMul));camKick=Math.min(.12,camKick+g.kick*fast);shake=Math.max(shake,(g.rk?(g.rk.n>1?.22:.18):.05)*fast);
+  if(g.rk&&g.rk.swarm)fireSwarm(g,it);else if(g.rk)fireRocket(g,it);else fireBullet(g,it);
 }
 function muzzle(){const c=EYE,d=camDir(),sn=Math.sin(yaw),cs=Math.cos(yaw);
   return{x:c.x+d.x*.7+cs*.22,y:c.y+d.y*.7-.18,z:c.z+d.z*.7-sn*.22};}
@@ -3256,7 +3613,7 @@ function fireBullet(g,it){
   }
   let end;
   if(mh&&(!bh||mh.t<bh.t)){
-    const m=mh.m;mobHurt(m,g.dmg,d.x*(it===HANDGUN?3:1.2),1.5,d.z*(it===HANDGUN?3:1.2),'gun');hitMark();
+    const m=mh.m;mobHurt(m,g.dmg*wpnMul,d.x*(it===HANDGUN?3:1.2),1.5,d.z*(it===HANDGUN?3:1.2),'gun');hitMark();
     end={x:c.x+d.x*mh.t,y:c.y+d.y*mh.t,z:c.z+d.z*mh.t};
   }else if(bh){
     end={x:c.x+d.x*bh.t,y:c.y+d.y*bh.t,z:c.z+d.z*bh.t};
@@ -3283,13 +3640,95 @@ function fireRocket(g,it){
       d.x+=(ux/ul*Math.cos(a)+vx*Math.sin(a))*s;d.y+=vy*Math.sin(a)*s;d.z+=(uz/ul*Math.cos(a)+vz*Math.sin(a))*s;const l=Math.hypot(d.x,d.y,d.z);d.x/=l;d.y/=l;d.z/=l;}
     const sp=R.speed*(R.n>1?.85+rand()*.3:1);
     shoot('rocket',m0.x+d.x*.2*n/R.n,m0.y+d.y*.2*n/R.n,m0.z+d.z*.2*n/R.n,d.x*sp,d.y*sp,d.z*sp,
-      R.homing?{tgt:lockTarget,aim,speed:sp,power:R.power,dmg:g.dmg}:{speed:sp,power:R.power,dmg:g.dmg,few:!!R.few,straight:true});
+      R.homing?{tgt:lockTarget,aim,speed:sp,power:R.power*(1+(wpnMul-1)*.2),dmg:g.dmg*wpnMul}:{speed:sp,power:R.power*(1+(wpnMul-1)*.2),dmg:g.dmg*wpnMul,few:!!R.few,straight:true});
   }
-  for(let i=0;i<(R.n>1?30:16);i++){const g2=.6+rand()*.2;addP(m0.x,m0.y,m0.z,-d0.x*4+(rand()-.5)*3,-d0.y*4+(rand()-.5)*3+1,-d0.z*4+(rand()-.5)*3,.8,.3,g2,g2,g2,-.5,2);}
+  for(let i=0;i<(R.n>1?8:10);i++){const g2=.6+rand()*.2;addP(m0.x,m0.y,m0.z,-d0.x*4+(rand()-.5)*3,-d0.y*4+(rand()-.5)*3+1,-d0.z*4+(rand()-.5)*3,.8,.3,g2,g2,g2,-.5,2);}
   if(R.n>1){const k=Math.min(1.6,.7+R.n/120);noise(.7*k,1,420,2600,'bandpass');sfx(80-R.n*.2,.7,'sawtooth',.1*k,30);}
   else if(it===ROCKET2){noise(.3,.35,700,3200,'bandpass');sfx(120,.25,'sawtooth',.06,50);}
   else{noise(.5,.8,500,3200,'bandpass');sfx(95,.6,'sawtooth',.08,40);}
 }
+// ================= 大量ロケット（20発〜1000発）：1発ずつ形を作らず、まとめて1回で描く。視界をさえぎらないよう、目の前のものは描かない =================
+const SW_N=3000;
+const swPos=new Float32Array(SW_N*3),swVel=new Float32Array(SW_N*3),swAim=new Float32Array(SW_N*3);
+const swLife=new Float32Array(SW_N),swAge=new Float32Array(SW_N),swDmg=new Float32Array(SW_N),swPow=new Float32Array(SW_N),swSpd=new Float32Array(SW_N);
+const swMode=new Uint8Array(SW_N),swTgt=new Array(SW_N).fill(null);
+let swN=0,swFrame=0,swBoomT=0;
+const swMat=new THREE.MeshBasicMaterial({color:0xffc070});
+const swMesh=new THREE.InstancedMesh(unitBox,swMat,SW_N);swMesh.count=0;swMesh.frustumCulled=false;scene.add(swMesh);
+const swDummy=new THREE.Object3D(),swBooms=new Map(),swHurt=new Map(),swGrid=new Map();
+function swCopy(j,i){for(let k=0;k<3;k++){swPos[i*3+k]=swPos[j*3+k];swVel[i*3+k]=swVel[j*3+k];swAim[i*3+k]=swAim[j*3+k];}
+  swLife[i]=swLife[j];swAge[i]=swAge[j];swDmg[i]=swDmg[j];swPow[i]=swPow[j];swSpd[i]=swSpd[j];swMode[i]=swMode[j];swTgt[i]=swTgt[j];}
+function swKill(i){const j=--swN;if(i!==j)swCopy(j,i);swTgt[j]=null;}
+function swAdd(x,y,z,vx,vy,vz,mode,ax,ay,az,tgt,dmg,pow,life){
+  if(swN>=SW_N)swKill(0);
+  const i=swN++,o=i*3;swPos[o]=x;swPos[o+1]=y;swPos[o+2]=z;swVel[o]=vx;swVel[o+1]=vy;swVel[o+2]=vz;swAim[o]=ax;swAim[o+1]=ay;swAim[o+2]=az;
+  swLife[i]=life;swAge[i]=0;swDmg[i]=dmg;swPow[i]=pow;swSpd[i]=Math.hypot(vx,vy,vz);swMode[i]=mode;swTgt[i]=tgt;}
+// 近くで同時に起きた爆発は1つの大きな爆発にまとめる（軽くするため）
+function swBoom(x,y,z,pow){const k=Math.floor(x/4)+','+Math.floor(y/4)+','+Math.floor(z/4);let b=swBooms.get(k);
+  if(!b){b={x:0,y:0,z:0,n:0,p:0};swBooms.set(k,b);}b.x+=x;b.y+=y;b.z+=z;b.n++;if(pow>b.p)b.p=pow;}
+function fireSwarm(g,it){
+  const c=EYE,d0=camDir(),R=g.rk,n=R.n,pin=R.swarm==='pin';
+  const tgt=pin?(lockTarget||findLock()):null;let ax,ay,az;
+  {const bh=raycastFrom(c,d0,pin?240:160),t=bh?bh.t:(pin?160:120);ax=c.x+d0.x*t;ay=c.y+d0.y*t;az=c.z+d0.z*t;}
+  const ul=Math.hypot(d0.x,d0.z)||1,ux=-d0.z/ul,uz=d0.x/ul,vx=-d0.y*uz,vy=d0.z*ux-d0.x*uz,vz=d0.y*ux;
+  const dmg=g.dmg*wpnMul,pow=R.power*(1+(wpnMul-1)*.2);
+  for(let k=0;k<n;k++){
+    const a=rand()*6.283,s=Math.sqrt(rand())*R.spread,ca=Math.cos(a)*s,sa=Math.sin(a)*s;
+    let dx=d0.x+ux*ca+vx*sa,dy=d0.y+vy*sa+(pin?.25+rand()*.35:0),dz=d0.z+uz*ca+vz*sa;const l=Math.hypot(dx,dy,dz);dx/=l;dy/=l;dz/=l;
+    const sp=R.speed*(pin?.45+rand()*.45:.8+rand()*.4),st=1.6+rand()*1.4;
+    const j=pin?2.2:0;
+    swAdd(c.x+dx*st,c.y+dy*st-.2,c.z+dz*st,dx*sp,dy*sp,dz*sp,pin?1:0,ax+(rand()-.5)*j,ay+(rand()-.5)*j,az+(rand()-.5)*j,tgt,dmg,pow,pin?7:4.5);}
+  const m0=muzzle();for(let i=0;i<6;i++){const g2=.7+rand()*.2;addP(m0.x,m0.y,m0.z,-d0.x*3+(rand()-.5)*2,(rand()-.5)*2+1,-d0.z*3+(rand()-.5)*2,.5,.14,g2,g2,g2,-.5,2);}
+  const k=Math.min(1.8,.7+n/400);noise(.7*k,1.2,420,2600,'bandpass');sfx(Math.max(40,80-n*.04),.8,'sawtooth',.1*k,30);
+  if(n>=500)setTimeout(()=>noise(.5,1.4,900,1400,'bandpass'),120);
+}
+function updateSwarm(dt){
+  swFrame++;
+  // 生きものを8マスごとの区画に入れておく（1発ずつ全部の生きものと比べないで済む）
+  swGrid.clear();
+  if(swN)for(const m of mobs){if(m===P.mount||(m.ally&&isGolem(m)))continue;const rr=(isDrg(m.kind)?m.r*1.5:m.r)+.4;
+    for(let gz=Math.floor((m.z-rr)/8);gz<=Math.floor((m.z+rr)/8);gz++)for(let gx=Math.floor((m.x-rr)/8);gx<=Math.floor((m.x+rr)/8);gx++){
+      const key=gx+gz*4096;let a=swGrid.get(key);if(!a){a=[];swGrid.set(key,a);}a.push(m);}}
+  const cx=camera.position.x,cy=camera.position.y,cz=camera.position.z;let vis=0;
+  for(let i=swN-1;i>=0;i--){
+    const o=i*3;swAge[i]+=dt;swLife[i]-=dt;
+    let x=swPos[o],y=swPos[o+1],z=swPos[o+2];
+    if(swLife[i]<=0){swBoom(x,y,z,swPow[i]);swKill(i);continue;}
+    let vx=swVel[o],vy=swVel[o+1],vz=swVel[o+2];
+    const sp=swSpd[i]=Math.min(46,swSpd[i]+30*dt);
+    if(swMode[i]===1){// ピンポイント：ねらった1点（ロックした相手）へ集まる
+      let tx=swAim[o],ty=swAim[o+1],tz=swAim[o+2];const t=swTgt[i];
+      if(t){if(t.hp>0&&mobs.includes(t)){tx=t.x+(swAim[o]-Math.floor(swAim[o]))*1.2-.6;ty=t.y+t.h*.5;tz=t.z+(swAim[o+2]-Math.floor(swAim[o+2]))*1.2-.6;}else swTgt[i]=null;}
+      const ex=tx-x,ey=ty-y,ez=tz-z,ed=Math.hypot(ex,ey,ez)||1,turn=Math.min(1,dt*(1.2+swAge[i]*4));
+      vx+=(ex/ed*sp-vx)*turn;vy+=(ey/ed*sp-vy)*turn;vz+=(ez/ed*sp-vz)*turn;}
+    const vl=Math.hypot(vx,vy,vz)||1;vx*=sp/vl;vy*=sp/vl;vz*=sp/vl;
+    swVel[o]=vx;swVel[o+1]=vy;swVel[o+2]=vz;
+    const steps=Math.min(4,Math.max(1,Math.ceil(sp*dt/.6))),s=dt/steps;let hit=false;
+    for(let k=0;k<steps&&!hit;k++){
+      const ox=x,oy=y,oz=z;x+=vx*s;y+=vy*s;z+=vz*s;
+      const id=get(Math.floor(x),Math.floor(y),Math.floor(z));
+      if(isSolid(id)||id===WATER||y<0){swBoom(ox,oy,oz,swPow[i]);hit=true;break;}
+      const a=swGrid.get(Math.floor(x/8)+Math.floor(z/8)*4096);
+      if(a)for(const m of a){const big=isDrg(m.kind),rr=(big?m.r*1.5:m.r)+.3;
+        if(Math.abs(x-m.x)<rr&&Math.abs(z-m.z)<rr&&y>m.y-.2&&y<m.y+m.h+(big?.8:.3)){
+          swHurt.set(m,(swHurt.get(m)||0)+swDmg[i]);swBoom(x,y,z,swPow[i]*.6);hit=true;break;}}}
+    if(hit){swKill(i);continue;}
+    swPos[o]=x;swPos[o+1]=y;swPos[o+2]=z;
+    // 目の前（6マス以内）と、出たばかりのロケットは描かない＝視界をふさがない
+    const dc=(x-cx)*(x-cx)+(y-cy)*(y-cy)+(z-cz)*(z-cz);
+    if(dc>36&&swAge[i]>.05&&vis<SW_N){swDummy.position.set(x,y,z);swDummy.lookAt(x+vx,y+vy,z+vz);swDummy.scale.set(.16,.16,.7);swDummy.updateMatrix();swMesh.setMatrixAt(vis++,swDummy.matrix);
+      if(((i+swFrame)&31)===0&&dc>196)addP(x-vx*.02,y-vy*.02,z-vz*.02,0,.4,0,.35,.12,.75,.75,.75,-.4,1.5);}
+  }
+  swMesh.count=vis;swMesh.visible=vis>0;swMesh.instanceMatrix.needsUpdate=true;
+  if(swHurt.size){for(const [m,dm] of swHurt)if(mobs.includes(m))mobHurt(m,dm,0,3,0,'gun');swHurt.clear();hitMark();}
+  swBoomT-=dt;
+  if(swBooms.size&&(swBoomT<=0||!swN)){swBoomT=.12;
+    for(const b of swBooms.values()){const p=Math.min(9,b.p*(1+.45*Math.sqrt(b.n-1)))*blastMul;boomQ.push([b.x/b.n,b.y/b.n,b.z/b.n,p]);}
+    swBooms.clear();
+    if(boomQ.length>90)boomQ.splice(0,boomQ.length-90);}
+}
+function clearSwarm(){swN=0;swTgt.fill(null);swBooms.clear();swMesh.count=0;}
+
 function hitMark(){hitT=.12;sfx(1500,.035,'square',.025);}
 function findLock(){
   const c=EYE,d=camDir();let best=null,bs=-9;
@@ -3315,10 +3754,11 @@ function updateWeapons(dt,moving){
   gunCD-=dt;emptyT-=dt;camKick*=Math.exp(-dt*9);
   const it=hot[sel],g=GUNS[it];
   if(reloadT>0){if(it!==reloadGun)reloadT=0;else{reloadT-=dt;if(reloadT<=0){ammo[reloadGun]=GUNS[reloadGun].mag;reloadT=0;}}}
-  if(g&&fireHeld&&g.auto)tryFire();
+  if(g&&fireHeld&&(g.auto||autoAll))tryFire();
   // 手に持つ銃
-  vm.visible=!!g&&playing&&!dead&&perspective===0;
+  vm.visible=(!!g||it===BEAM)&&playing&&!dead&&perspective===0;
   for(const k in vmModels)vmModels[k].visible=+k===it;
+  if(it===BEAM){const md=vmModels[BEAM];if(moving)vmBob+=dt*9;md.visible=beamT<=0;md.position.set(.3+Math.sin(vmBob)*.012,-.3+Math.abs(Math.cos(vmBob))*.01,-.5);md.rotation.set(.95,-.15,-.2);}
   if(g){
     const md=vmModels[it];vmRec=Math.max(0,vmRec-dt*7);vmFlashT-=dt;md.userData.flash.visible=vmFlashT>0;
 
@@ -3353,8 +3793,8 @@ function updateWeapons(dt,moving){
   setBodyClass('gun',!!g);
 }
 function dragonFire(){
-  if(P.fireT>0)return;P.fireT=.45;const m=P.mount,d=camDir();
-  const hx=m.x-Math.sin(m.yaw)*3.0*DS*.7,hz=m.z-Math.cos(m.yaw)*3.0*DS*.7,hy=m.y+1.4*DS;
+  if(P.fireT>0)return;P.fireT=Math.max(.06,.45/rateMul);const m=P.mount,d=camDir(),ry=m.kind==='ryu';
+  const fw=ry?1.7*RS:3.0*DS*.7,hx=m.x-Math.sin(m.yaw)*fw,hz=m.z-Math.cos(m.yaw)*fw,hy=m.y+(ry?.85*RS:1.4*DS);
   shoot('fire',hx,hy,hz,d.x*28+m.vx,d.y*28+m.vy,d.z*28+m.vz);
   for(let i=0;i<12;i++)addP(hx,hy,hz,d.x*8+(rand()-.5)*3,d.y*8+(rand()-.5)*3,d.z*8+(rand()-.5)*3,.3,.25,1,.6,.2,0,2);
   noise(.25,.5,2000,400,'bandpass');sfx(120,.4,'sawtooth',.05,60);
@@ -3387,6 +3827,126 @@ function staffStrike(){
   const h=raycast(60);let x,y,z;
   if(h){x=h.x+.5;y=h.y+1;z=h.z+.5;}else{const d=camDir(),c=EYE;x=c.x+d.x*30;z=c.z+d.z*30;y=topAt(x,z)+1;}
   lightning(x,y,z,false);
+}
+
+// ================= 龍：長い体がうねりながら空を泳ぐ（乗れる・ほのおをはく） =================
+const RYU_SEG=24,RYU_SP=1.05,RS=1.3;
+function buildRyu(){
+  const g=new THREE.Group(),root=limb(g,0,0,0);root.scale.setScalar(RS);
+  const body=mat('#2f6fd0'),dark=mat('#1f4a94'),belly=mat('#f0d27a'),mane=mat('#f4f4f0'),horn=mat('#e8d8a0'),red=mat('#e04a3a'),eye=glowM('#ffe36a'),gold=mat('#f0c040');
+  bx(root,.9,.66,1.1,body,0,.85,-.1);bx(root,.66,.42,.8,body,0,.76,-.95);bx(root,.56,.16,.78,belly,0,.47,-.85);
+  bx(root,.7,.12,.3,dark,0,1.2,-.3);bx(root,.2,.14,.12,dark,-.16,.92,-1.38);bx(root,.2,.14,.12,dark,.16,.92,-1.38);
+  bx(root,.12,.1,.04,eye,-.3,1.02,-.5);bx(root,.12,.1,.04,eye,.3,1.02,-.5);
+  for(const s of [-1,1]){
+    bx(root,.1,.1,.7,horn,.26*s,1.38,.25).rotation.x=.7;bx(root,.08,.3,.08,horn,.34*s,1.5,.45);
+    bx(root,.05,.05,1.1,gold,.36*s,.72,-1.55).rotation.y=-.35*s;
+    bx(root,.18,.5,.5,mane,.42*s,.95,.35);}
+  bx(root,.5,.4,.5,mane,0,1.1,.55);bx(root,.2,.36,.5,red,0,1.3,.75);
+  return{g,root};}
+const ryuProto={};
+function ryuSegProto(kind){if(ryuProto[kind])return ryuProto[kind];
+  const g=new THREE.Group(),body=mat('#2f6fd0'),belly=mat('#f0d27a'),red=mat('#e04a3a'),claw=mat('#f0e6c8'),dark=mat('#1f4a94');
+  if(kind==='tail'){bx(g,.5,.46,1.1,body,0,0,0);bx(g,.08,.7,.8,red,0,.2,.3);bx(g,.9,.06,.5,red,0,0,.55);}
+  else{bx(g,.82,.74,1.15,body,0,0,0);bx(g,.62,.16,1.1,belly,0,-.36,0);bx(g,.1,.34,.6,red,0,.5,0);bx(g,.86,.1,.3,dark,0,.2,.3);
+    if(kind==='leg')for(const s of [-1,1]){bx(g,.18,.5,.2,body,.46*s,-.5,0).rotation.z=.4*s;bx(g,.28,.1,.34,claw,.62*s,-.78,-.08);}}
+  bakeGroup(g);ryuProto[kind]=g;return g;}
+function initRyuSegs(m){
+  m.segs=[];m.trail=[];
+  for(let i=0;i<RYU_SEG;i++){const kind=i===RYU_SEG-1?'tail':(i===3||i===13)?'leg':'body';
+    const s=ryuSegProto(kind).clone();const sc=RS*(1-i/RYU_SEG*.55);s.scale.setScalar(sc);s.userData.sc=sc;scene.add(s);m.segs.push(s);}
+  const bx0=Math.sin(m.yaw),bz0=Math.cos(m.yaw);
+  for(let k=Math.ceil(RYU_SEG*RYU_SP*RS/.3)+6;k>=0;k--)m.trail.push({x:m.x+bx0*(1+k*.3),y:m.y+.9*RS,z:m.z+bz0*(1+k*.3)});
+}
+function updateRyuSegs(m){
+  const tr=m.trail,ax=m.x+Math.sin(m.yaw)*.9*RS,ay=m.y+.82*RS,az=m.z+Math.cos(m.yaw)*.9*RS,L=tr[tr.length-1];
+  if(Math.hypot(ax-L.x,ay-L.y,az-L.z)>.3){tr.push({x:ax,y:ay,z:az});const mx=Math.ceil(RYU_SEG*RYU_SP*RS/.3)+12;if(tr.length>mx)tr.splice(0,tr.length-mx);}
+  let j=tr.length-1,acc=0,px=ax,py=ay,pz=az;const vis=m.mesh.visible;
+  for(let i=0;i<m.segs.length;i++){const s=m.segs[i],want=(i===0?.55:1)*RYU_SP*s.userData.sc;
+    let qx=px,qy=py,qz=pz;
+    while(j>0){const p=tr[j],dd=Math.hypot(p.x-qx,p.y-qy,p.z-qz);if(acc+dd>=want){const f=(want-acc)/(dd||1);qx+=(p.x-qx)*f;qy+=(p.y-qy)*f;qz+=(p.z-qz)*f;acc=want;break;}acc+=dd;qx=p.x;qy=p.y;qz=p.z;j--;}
+    const wob=Math.sin(m.anim*3-i*.55)*.12*s.userData.sc;
+    s.position.set(qx,qy+wob,qz);s.lookAt(px,py,pz);s.visible=vis;
+    px=qx;py=qy;pz=qz;acc=0;}
+}
+function removeRyuSegs(m){if(m.segs)for(const s of m.segs)scene.remove(s);m.segs=null;}
+function aiRyu(m,dt){
+  const hm=m.home;m.ang+=dt*.16*m.dir;
+  const rr=hm.r*(1+Math.sin(m.ang*3.1)*.3),tx=hm.x+Math.cos(m.ang)*rr,tz=hm.z+Math.sin(m.ang)*rr,ty=hm.y+Math.sin(m.ang*4.3)*4;
+  const dx=tx-m.x,dy=ty-m.y,dz=tz-m.z,d=Math.hypot(dx,dy,dz)||1,sp=Math.min(9,d*1.5);
+  const k=Math.min(1,dt*1.3);m.vx+=(dx/d*sp-m.vx)*k;m.vy+=(dy/d*sp-m.vy)*k;m.vz+=(dz/d*sp-m.vz)*k;
+  m.x+=m.vx*dt;m.y+=m.vy*dt;m.z+=m.vz*dt;
+  const g=topAt(m.x,m.z)+4;if(m.y<g)m.y+=(g-m.y)*Math.min(1,dt*4);
+  m.x=Math.max(4,Math.min(W-4,m.x));m.z=Math.max(4,Math.min(D-4,m.z));
+  faceVel(m,.07);
+}
+// ================= 巨大ゴリラ：胸をたたいてほえ、跳びかかって地面をゆらす。近いと両手で地面をたたき、遠いと岩を投げる =================
+const GS=6;
+function buildGorilla(){
+  const g=new THREE.Group(),root=limb(g,0,0,0);root.scale.setScalar(GS);
+  const fur=mat('#2b2727'),fur2=mat('#3a3434'),silver=mat('#8e8e94'),skin=mat('#4a3c38'),eye=glowM('#ff5a2a'),tooth=mat('#efe6cf');
+  const legs=[],arms=[];
+  for(const s of [-1,1]){const l=limb(root,.36*s,1.0,.25);bx(l,.44,1.0,.52,fur,0,-.5,0);bx(l,.48,.16,.72,skin,0,-.94,-.1);legs.push(l);}
+  bx(root,1.2,.8,.9,fur,0,1.3,.2);bx(root,1.56,1.05,1.15,fur,0,2.0,-.05);bx(root,.9,.62,.08,skin,0,1.95,-.64);
+  bx(root,1.3,.5,.85,silver,0,2.05,.3);bx(root,1.66,.42,1.05,fur2,0,2.62,0);
+  for(const s of [-1,1]){const a=limb(root,.98*s,2.45,-.05);bx(a,.52,1.2,.58,fur,0,-.6,0);bx(a,.58,1.1,.62,fur2,0,-1.62,0);bx(a,.64,.42,.72,skin,0,-2.3,-.04);arms.push(a);}
+  const head=limb(root,0,2.72,-.5);
+  bx(head,.78,.72,.72,fur,0,.32,0);bx(head,.84,.17,.26,fur2,0,.52,-.36);bx(head,.58,.46,.12,skin,0,.26,-.4);bx(head,.52,.28,.28,skin,0,.06,-.48);
+  bx(head,.14,.08,.04,eye,-.17,.4,-.47);bx(head,.14,.08,.04,eye,.17,.4,-.47);bx(head,.3,.06,.04,tooth,0,-.02,-.63);bx(head,.42,.22,.52,fur,0,.74,.05);
+  return{g,root,legs,arms,head};}
+function gorillaStep(m,side){
+  const rx=Math.cos(m.yaw),rz=-Math.sin(m.yaw),x=m.x+rx*side*2.2,z=m.z+rz*side*2.2,y=titanGround(x,z),d=Math.hypot(x-P.x,z-P.z);
+  if(d<70){const v=1-d/70;shake=Math.max(shake,.32*v);sfx(56,.4,'sine',.22*v);}
+  for(let i=0;i<8;i++){const a=rand()*6.283;addP(x+Math.cos(a)*1.4,y+.2,z+Math.sin(a)*1.4,Math.cos(a)*3,1+rand()*2,Math.sin(a)*3,.9,.4,.55*light,.5*light,.44*light,-.5,1.5);}
+  if(m.chasing){crushAt(x,y,z,1.8);if(d<4&&!dead&&!P.mount){P.vy=Math.max(P.vy,6);P.knock=.4;damagePlayer(5);}}
+}
+function gorillaLand(m){
+  const y=titanGround(m.x,m.z);explode(m.x,y,m.z,4.4*blastMul);crushAt(m.x,y,m.z,4.5);
+  const d=Math.hypot(m.x-P.x,m.z-P.z);shake=Math.max(shake,Math.max(0,1.2-d/60));noise(.9*distVol(m.x,y,m.z),1.4,700,40);
+  if(d<13&&!dead){if(!P.mount){P.vy=10;P.knock=.7;}damagePlayer(9);}
+}
+function aiGorilla(m,dt){
+  const tg=playerTarget(),dx=tg.x-m.x,dz=tg.z-m.z,dist=Math.hypot(dx,dz)||1,sp0=m.def.speed;
+  m.beat=Math.max(0,(m.beat||0)-dt);
+  if(m.leap){
+    m.vy-=30*dt;m.x=Math.max(8,Math.min(W-8,m.x+m.vx*dt));m.z=Math.max(8,Math.min(D-8,m.z+m.vz*dt));m.y+=m.vy*dt;
+    const gy=titanGround(m.x,m.z);if(m.vy<0&&m.y<=gy){m.y=gy;m.leap=false;m.vx*=.15;m.vz*=.15;gorillaLand(m);}
+    m.ground=false;return;}
+  const aggro=m.resident&&!m.provoked?24:100;let tx=0,tz=0;
+  m.chasing=dist<aggro&&!dead&&mode==='adventure';
+  m.beatT=(m.beatT==null?6:m.beatT)-dt;
+  if(m.beatT<=0&&(!m.chasing||dist>18)){m.beatT=m.chasing?9+rand()*5:12+rand()*8;m.beat=1.7;m.drumT=0;}
+  if(m.beat>0){m.drumT-=dt;if(m.drumT<=0){m.drumT=.2;const v=distVol(m.x,m.y+12,m.z);sfx(70,.14,'sine',.35*v);noise(.12*v,.12,400,90);shake=Math.max(shake,.12*v);}
+    if(m.chasing)m.yaw=lerpAngle(m.yaw,Math.atan2(-dx,-dz),Math.min(1,dt*2));}
+  else if(m.chasing){
+    if(dist>10){tx=dx/dist*sp0;tz=dz/dist*sp0;}
+    m.yaw=lerpAngle(m.yaw,Math.atan2(-dx,-dz),Math.min(1,dt*2));
+    m.cd-=dt;m.stompT-=dt;
+    if(dist<13&&m.stompT<=0){m.stompT=2.6;m.punch=.45;
+      const x=m.x-Math.sin(m.yaw)*6,z=m.z-Math.cos(m.yaw)*6,y=titanGround(x,z);explode(x,y,z,3.6*blastMul);
+      if(Math.hypot(x-P.x,z-P.z)<9&&!dead){if(!P.mount){P.vy=9;P.knock=.6;}damagePlayer(9);}}
+    else if(dist>=(m.blocked?10:16)&&dist<60&&m.cd<=0){m.cd=6+rand()*2;const T=1.3,gy=titanGround(tg.x,tg.z);
+      m.vx=(tg.x-m.x)/T*.9;m.vz=(tg.z-m.z)/T*.9;m.vy=(gy-m.y+15*T*T)/T;m.leap=true;m.punch=.6;
+      noise(.7*distVol(m.x,m.y+10,m.z),.9,600,120,'bandpass');sfx(90,.9,'sawtooth',.12,40);}
+    else if(dist>=60&&dist<95&&m.cd<=0){m.cd=4.5;m.punch=.45;
+      const hx=m.x+Math.cos(m.yaw)*6,hz=m.z-Math.sin(m.yaw)*6,hy=m.y+GS*2.6,T=Math.max(1.2,dist/24),ty=tg.y+1,g=16;
+      shoot('boulder',hx,hy,hz,(tg.x-hx)/T,(ty-hy+.5*g*T*T)/T,(tg.z-hz)/T);}
+  }else{
+    const hm=m.home||{x:m.x,z:m.z,r:12},hx=hm.x-m.x,hz=hm.z-m.z,hd=Math.hypot(hx,hz);
+    if(hd>hm.r){tx=hx/hd*sp0*.6;tz=hz/hd*sp0*.6;}else{wander(m,sp0*.4,dt);tx=m.tx;tz=m.tz;}
+  }
+  const k=Math.min(1,dt*1.4);m.vx+=(tx-m.vx)*k;m.vz+=(tz-m.vz)*k;
+  // 高いかべ（5マスより高い段差）は歩いてはのぼらない。追いかけるときは跳びこえてくる
+  const nx=Math.max(8,Math.min(W-8,m.x+m.vx*dt)),nz=Math.max(8,Math.min(D-8,m.z+m.vz*dt)),ahead=titanGround(nx+Math.sign(m.vx)*m.r*.6,nz+Math.sign(m.vz)*m.r*.6);
+  if(ahead>m.y+5){m.vx*=-.2;m.vz*=-.2;if(m.chasing&&m.cd>1.5)m.cd=1.5;}else{m.x=nx;m.z=nz;}
+  const gy=titanGround(m.x,m.z);m.y+=(gy-m.y)*Math.min(1,dt*3);m.vy=0;m.ground=true;
+  if(!m.chasing&&m.beat<=0)faceVel(m,.04);
+  const st=Math.sin(m.walk)>0;if(st!==m.lastStep&&Math.hypot(m.vx,m.vz)>.5){m.lastStep=st;gorillaStep(m,st?1:-1);}
+}
+function animateGorilla(m){
+  const p=m.parts;p.root.rotation.x=m.leap?-.1:m.chasing?.32:.14;
+  if(m.leap){p.arms[0].rotation.x=p.arms[1].rotation.x=-2.7;p.arms[0].rotation.z=-.3;p.arms[1].rotation.z=.3;}
+  else if(m.beat>0){const b=Math.sin(m.anim*16);p.arms[0].rotation.x=-1.35+b*.25;p.arms[1].rotation.x=-1.35-b*.25;p.arms[0].rotation.z=.55;p.arms[1].rotation.z=-.55;p.head.rotation.x=-.35;}
+  else{p.arms[0].rotation.z=p.arms[1].rotation.z=0;p.head.rotation.x=m.chasing?-.3:0;}
 }
 
 // ---- 巨人タイタン：ゆっくり歩き、足音で地面がゆれる。近づくと踏みつけ、遠いと岩を投げる ----
@@ -3464,7 +4024,7 @@ function bigHit(p){
 }
 // ---- たくさんの生きもの：遠くのものは「1回でまとめて描く箱」にして軽くする ----
 const MOB_COL={rabbit:'#e8e0d0',yak:'#8a6a4a',whale:'#5d84a8',imp:'#3b2a5c',boss:'#24183a',wisp:'#ff9a3a',golem:'#8a8a86',steel:'#9aa7b4',magma:'#d2421f',
-  ice:'#9fdcf2',thunder:'#ecc23a',mini:'#ff9ad0',giant:'#7a7a7a',dragon:'#2f8f7a',edragon:'#a8322a',titan:'#8a6a50',gdragon:'#3a2a6a',elephant:'#8a8a90',camel:'#c8a06a'};
+  ice:'#9fdcf2',thunder:'#ecc23a',mini:'#ff9ad0',giant:'#7a7a7a',dragon:'#2f8f7a',edragon:'#a8322a',titan:'#8a6a50',gdragon:'#3a2a6a',elephant:'#8a8a90',camel:'#c8a06a',ryu:'#2f6fd0',gorilla:'#2b2727'};
 const IMP_N=700,impMat=new THREE.MeshBasicMaterial({color:0xffffff}),impMesh=new THREE.InstancedMesh(unitBox,impMat,IMP_N);
 impMesh.count=0;impMesh.frustumCulled=false;scene.add(impMesh);
 const impDummy=new THREE.Object3D(),impCol={};for(const k in MOB_COL)impCol[k]=new THREE.Color(MOB_COL[k]);
@@ -3697,10 +4257,10 @@ $('viewBtn').addEventListener('pointerdown',e=>e.stopPropagation());
 // ---------- こわす・攻撃・使う ----------
 let allyHint=false,bedrockHint=false;
 function attackMob(mh){
-  const it=hot[sel],sw=it===SWORD,cdMax=sw?.6:.25,k=Math.max(.2,1-Math.max(0,atkCD)/cdMax);atkCD=cdMax;
+  const it=hot[sel],sw=it===SWORD,cdMax=(sw?.6:.25)/(autoAll?rateMul:1),k=Math.max(.2,1-Math.max(0,atkCD)/cdMax);atkCD=cdMax;
   const m=mh.m,kb=(sw?8:5)*k;
   if(isAlly(m)&&!allyHint){allyHint=true;toast('仲間にはダメージが入りません');}
-  mobHurt(m,(sw?7:2)*k,mh.d.x*kb,5*k,mh.d.z*kb,'player');
+  mobHurt(m,(sw?7*wpnMul:2)*k,mh.d.x*kb,5*k,mh.d.z*kb,'player');
   if(m.kind==='rabbit')m.t=.3;
   if(sw)sfx(300,.12,'sawtooth',.04,150);swingArm();
 }
@@ -3709,9 +4269,10 @@ function pressAttack(){
   if(!playing||invOpen||dead)return true;
   const it=hot[sel];
   if(isGun(it)){tryFire();return true;}
-  if(P.mount&&P.mount.kind==='dragon'){dragonFire();return true;}
+  if(isFlyMount(P.mount)){dragonFire();return true;}
   const mh=mobHit(reachEntity()),h=raycast(reachBlock());
   if(mh&&(!h||mh.t<h.t+.6)){attackMob(mh);return true;}
+  if(it===BEAM){beamSwing();return true;}
   swingArm();
   if(it===SWORD){noise(.05,.12,3000,800,'bandpass');return true;}
   return false;
@@ -3746,7 +4307,11 @@ function doBreak(h){
 function updateMining(dt){
   brkDelay-=dt;atkCD-=dt;
   const it=hot[sel];
-  const active=(breakHeld||breakPulse)&&playing&&!invOpen&&!dead&&!isGun(it)&&!(P.mount&&P.mount.kind==='dragon')&&it!==SWORD;
+  if(breakHeld&&playing&&!invOpen&&!dead){
+    if(isFlyMount(P.mount)){if(autoAll)dragonFire();}
+    else if(it===BEAM){if(autoAll||beamCD<-.05)beamSwing();}
+    else if(it===SWORD&&autoAll&&atkCD<=0){const mh=mobHit(reachEntity());if(mh)attackMob(mh);else{swingArm();atkCD=.6/rateMul;}}}
+  const active=(breakHeld||breakPulse)&&playing&&!invOpen&&!dead&&!isGun(it)&&!isFlyMount(P.mount)&&it!==SWORD&&it!==BEAM;
   const pulse=breakPulse;breakPulse=false;
   if(!active){if(brk){brk=null;hideCrack();}return;}
   const mh=mobHit(reachEntity()),h=raycast(reachBlock());
@@ -3762,7 +4327,7 @@ function updateMining(dt){
 }
 function updateUse(dt){
   if(!useHeld)return;useRepT-=dt;
-  if(useRepT<=0){useRepT=.2;const it=hot[sel];if(BLOCKS[it]&&!ONE_SHOT.has(it))useItem();}
+  if(useRepT<=0){useRepT=.2;const it=hot[sel];if(BLOCKS[it]&&!ONE_SHOT.has(it))useItem();else if(it===BOW&&autoAll){useRepT=Math.max(.05,.35/rateMul);useItem();}}
 }
 function cyclePerspective(){perspective=(perspective+1)%3;toast(['1人称','うしろから（3人称）','前から（3人称）'][perspective],1200);syncSettings();queueSave();}
 function aimText(m){
@@ -3774,8 +4339,8 @@ function aimText(m){
   return s;
 }
 function updateTouchLabels(){
-  const it=hot[sel],dragon=!!(P.mount&&P.mount.kind==='dragon');
-  $('tBreak').textContent=isGun(it)?'うつ':dragon?'ほのお':it===SWORD?'こうげき':'こわす';
+  const it=hot[sel],dragon=isFlyMount(P.mount);
+  $('tBreak').textContent=isGun(it)?'うつ':dragon?'ほのお':it===SWORD||it===BEAM?'こうげき':'こわす';
   $('tPlace').textContent=isGun(it)?(zoom?'ズーム解除':'ズーム'):it>=100?'つかう':'おく';
   $('tFly').textContent=P.mount?'おりる':'しゃがむ';
   $('tFly').classList.toggle('on',touchSneak&&!P.mount);
@@ -3798,10 +4363,13 @@ const PIX={
   [ROCKET5]:{pal:{o:'#2a7a7a',l:'#5ac0c0',r:'#d23a36',k:'#2a2a2a'},rows:["oooooooooooo","olololololor","oooooooooooo","olololololor","oooooooooooo","olololololor","oooooooooooo","olololololor","oooooooooooo","....k..k....","....kk......","............"]},
   [ROCKET6]:{pal:{o:'#b08a2a',l:'#ffd86a',r:'#d23a36',k:'#2a2a2a'},rows:["oooooooooooo","olllllllllor","olololololor","olllllllllor","olololololor","olllllllllor","olololololor","olllllllllor","olololololor","oooooooooooo","....kk......","............"]},
   [ROCKET3]:{pal:{o:'#8a4a2a',l:'#b86a3a',r:'#d23a36',k:'#2a2a2a'},rows:["............","..oooooooooo","..olllllllor","..oooooooooo","..olllllllor","..oooooooooo","..olllllllor","..oooooooooo","....k..k....","....k..k....","....kk......","............"]},
+  [ROCKET7]:{pal:{o:'#8a1a2a',l:'#ff9a4a',k:'#2a2a2a'},rows:["oooooooooooo","olllllllllll","olllllllllll","olllllllllll","olllllllllll","olllllllllll","olllllllllll","olllllllllll","oooooooooooo","....k..k....","....kk......","............"]},
+  [ROCKET8]:{pal:{o:'#1a3a8a',l:'#ff9a4a',w:'#ffffff',r:'#d23a36',k:'#2a2a2a'},rows:["oooooooooo..","ollllllllo.r","ollllllllo.r","ollllllllorw","ollllllllo.r","ollllllllo.r","oooooooooo..","....k..k....","....kk......","............","............","............"]},
+  [BEAM]:{pal:{w:'#f2ffff',c:'#38e0ff',h:'#3a3f48',s:'#9aa4b0',g:'#d9b04a'},rows:["..........cw","........cwc.",".......cwc..","......cwc...",".....cwc....","....cwc.....","...cwc......","..ss........","..hs........",".hh.........","gh..........","g..........."]},
   [ROCKET]:{pal:{o:'#4f6b3a',l:'#7a9a5c',r:'#d23a36',k:'#2a2a2a'},rows:["............","............","k.........r.","kooooooooorr","klllllllllrr","kooooooooorr","k.........r.","...k..k.....","...k..k.....","...kk.......","............","............"]}
 };
 const EGGC={[EGG]:['#f2ead6','#b98a5a'],[E_YAK]:['#e6d8b8','#7a5638'],[E_WHALE]:['#5d84a8','#c9d8e2'],[E_IMP]:['#3b2a5c','#ffd84a'],
-  [E_WISP]:['#ff9a3a','#fff1b0'],[E_DRAGON]:['#2f8f7a','#e0b84a'],[E_BOSS]:['#24183a','#f3c445'],[E_EDRAGON]:['#a8322a','#f0a040'],[E_TITAN]:['#8a6a50','#d9a84a'],[E_GDRAGON]:['#3a2a6a','#ff3af0'],[E_ELEPHANT]:['#8a8a90','#c8322a'],[E_CAMEL]:['#c8a06a','#d04a2a']};
+  [E_WISP]:['#ff9a3a','#fff1b0'],[E_DRAGON]:['#2f8f7a','#e0b84a'],[E_BOSS]:['#24183a','#f3c445'],[E_EDRAGON]:['#a8322a','#f0a040'],[E_TITAN]:['#8a6a50','#d9a84a'],[E_GDRAGON]:['#3a2a6a','#ff3af0'],[E_ELEPHANT]:['#8a8a90','#c8322a'],[E_CAMEL]:['#c8a06a','#d04a2a'],[E_RYU]:['#2f6fd0','#f0c040'],[E_GORILLA]:['#2b2727','#8e8e94']};
 const CORE_COL={[E_GOLEM]:['#c9fff6','#4fe3d0','#2b9a8c','#6a6a6a'],[C_STEEL]:['#fff4c9','#ffc94a','#9aa7b4','#5d6873'],
   [C_MAGMA]:['#fff1b0','#ff9a3a','#d2421f','#2b2422'],[C_ICE]:['#ffffff','#bff4ff','#6ec6ef','#8fa6b8'],[C_THUNDER]:['#ffffff','#8fd8ff','#ecc23a','#3a3f47'],
   [C_MINI]:['#ffe3f0','#ff9ad0','#c99c6c','#7a5a3a'],[C_GIANT]:['#ffd6e4','#ff6a9a','#7a7a7a','#4a5a3a']};
@@ -3959,7 +4527,7 @@ function useItem(){
   if(it===BOW){shootArrow();return;}
   if(it===WARP){throwWarp();return;}
   if(it===STAFF){staffStrike();return;}
-  if(it===SWORD){pressAttack();return;}
+  if(it===SWORD||it===BEAM){pressAttack();return;}
   if(it===IGNITER){
     if(h&&(h.id===BOMB||h.id===BIGBOMB)){setBlock(h.x,h.y,h.z,AIR);primeBomb(h.x,h.y,h.z,h.id,3);sfx(1200,.1,'square',.03);}
     else toast('爆弾ブロックをねらって使ってください');
@@ -3972,12 +4540,12 @@ function useItem(){
     if(kind==='whale'){const w=frontPoint(4);const fx=Math.floor(w.x),fz=Math.floor(w.z);
       if(get(fx,Math.floor(w.y),fz)!==WATER&&get(fx,SEA,fz)!==WATER){toast('ハコクジラは海に向かって使ってください');return;}
       p={x:fx+.5,y:Math.min(SEA-1.5,w.y),z:fz+.5};}
-    if(isDrg(kind))p.y+=2;
+    if(isDrg(kind)||kind==='ryu')p.y+=2;
     if(MOBS[kind].ai==='golem'&&partyCount()>=PARTY_MAX){toast('なかまは'+PARTY_MAX+'体までです');return;}
-    if(kind==='titan'){const f=camDir(),fl=Math.hypot(f.x,f.z)||1;p={x:Math.max(10,Math.min(W-10,P.x+f.x/fl*30)),y:0,z:Math.max(10,Math.min(D-10,P.z+f.z/fl*30))};p.y=titanGround(p.x,p.z);}
+    if(kind==='titan'||kind==='gorilla'){const f=camDir(),fl=Math.hypot(f.x,f.z)||1;p={x:Math.max(10,Math.min(W-10,P.x+f.x/fl*30)),y:0,z:Math.max(10,Math.min(D-10,P.z+f.z/fl*30))};p.y=titanGround(p.x,p.z);}
     if(kind==='gdragon'){const f=camDir(),fl=Math.hypot(f.x,f.z)||1;p={x:P.x+f.x/fl*45,y:P.y+28,z:P.z+f.z/fl*45};}
     // たまご1個で何びきも呼べる（メニューの「たまご1個で」）
-    let m=null,cnt=0;const want=kind==='titan'||kind==='gdragon'?1:eggCount;
+    let m=null,cnt=0;const want=kind==='titan'||kind==='gdragon'||kind==='gorilla'?1:eggCount;
     for(let k=0;k<want;k++){let q=p;
       if(k>0){const a=k*2.4,rr=1.2+Math.sqrt(k)*1.7;q={x:p.x+Math.cos(a)*rr,y:p.y,z:p.z+Math.sin(a)*rr};
         if(kind==='whale'){if(get(Math.floor(q.x),Math.floor(q.y),Math.floor(q.z))!==WATER)continue;}
@@ -3993,6 +4561,8 @@ function useItem(){
     else if(MOBS[kind].ai==='golem'){sfx(80,.4,'square',.1);if(cnt<=1)toast(MOBS[kind].name+'が仲間になった！（なかま '+partyCount()+'体）',2600);}
     else if(kind==='titan'){sfx(50,1.6,'sawtooth',.12,25);shake=.6;toast('巨人タイタンがあらわれた！ 足もとに気をつけて',3200);}
     else if(kind==='gdragon'){sfx(60,1.8,'sawtooth',.12,25);shake=.5;toast('超巨大ドラゴンがあらわれた！',3200);}
+    else if(kind==='gorilla'){sfx(55,1.6,'sawtooth',.12,25);shake=.6;toast('巨大ゴリラがあらわれた！ 跳びかかりに気をつけて',3200);}
+    else if(kind==='ryu'){sfx(300,.9,'sine',.07,600);toast('龍が来た！ ねらって右クリック（スマホは「つかう」）で乗れます',3600);}
     else if(kind==='boss'){sfx(90,1,'sawtooth',.08,40);shake=.4;toast('ヨルノオウがあらわれた！',2600);}
     else if(kind==='edragon'){sfx(140,1.2,'sawtooth',.09,45);shake=.3;toast('ホムラドラゴンがあらわれた！ ロケットランチャーでロックオンしよう',3200);}
     else sfx(660,.12,'sine',.06);
@@ -4086,7 +4656,7 @@ function placeCamera(){
   camYaw=yaw;camPitch=pitch+camKick;
   if(perspective===0)camera.position.set(EYE.x+jx,EYE.y+jy,EYE.z+jz);
   else{
-    const d=lookDir(),dist=P.mount&&P.mount.kind==='dragon'?7:4,sg=perspective===1?-1:1;let t=dist;
+    const d=lookDir(),dist=isFlyMount(P.mount)?7:4,sg=perspective===1?-1:1;let t=dist;
     for(let st=.3;st<=dist;st+=.25){const x=EYE.x+d.x*st*sg,y=EYE.y+d.y*st*sg,z=EYE.z+d.z*st*sg;
       if(solidAt(Math.floor(x),Math.floor(y),Math.floor(z))){t=Math.max(.3,st-.35);break;}}
     camera.position.set(EYE.x+d.x*t*sg+jx,EYE.y+d.y*t*sg+jy,EYE.z+d.z*t*sg+jz);
@@ -4112,11 +4682,12 @@ function updateDebug(){
 
 // ================= 冒険：地方・発見・コンパス・地図・ワープ・発射台 =================
 let curRegion='center',regionShown='center',regionHold=0,regionT=0,isUnder=false,stoneLock=false,found=new Set(),launchSt=null,cmpT=0,cmpTarget=null;
-const REGION_SUB={center:'スタート地点の島',sea:'どこまでも続く海',snow:'北の雪山・氷の湖・白銀の峰',volcano:'東の火山・マグマの川',kingdom:'南の城・大樹・遺跡',
+const REGION_SUB={rome:'コロッセオ・凱旋門・遺跡・願いの泉・かたむいた塔',singapore:'屋上に船がのったホテル・光る木の庭・大観覧車',center:'スタート地点の島',sea:'どこまでも続く海',snow:'北の雪山・氷の湖・白銀の峰',volcano:'東の火山・マグマの川',kingdom:'南の城・大樹・遺跡',
   city:'西の摩天楼・つり橋・女神の像',sf:'坂道とカラフルな家・赤い大つり橋',dubai:'砂漠と超高層タワー・ヤシの木の島',india:'白亜の霊廟・市場・川辺の階段',shanghai:'川沿いの洋館とテレビ塔',lab:'地下にひそむ研究所',subway:'海の下を通るトンネル',space:'高さ72より上・月面基地と宇宙ステーション'};
 function regionAt(x,y,z){
-  if(y>=SPACE_Y-2)return'space';
   x=Math.floor(x);z=Math.floor(z);
+  // 高い山の上（地面から続いている）は宇宙ではない。月や宇宙ステーションは下が空いている
+  if(y>=SPACE_Y-2){let solid=x>=0&&z>=0&&x<W&&z<D;for(let yy=30;solid&&yy<Math.min(H,Math.floor(y));yy++){const id=world[idx(x,yy,z)];if(!id||id===CLOUD)solid=false;}if(!solid)return'space';}
   if(x>=LABB.x0-2&&x<=LABB.x1+2&&z>=LABB.z0-2&&z<=LABB.z1+9&&y<16)return'lab';
   if(x>=SUB.x0-1&&x<=SUB.x1&&z>=SUB.z0-4&&z<=SUB.z1+12&&y<8)return'subway';
   if(x<0||z<0||x>=W||z>=D)return'sea';
@@ -4174,8 +4745,8 @@ function updateCompass(dt){
 // ---- 地図 ----
 let mapOpen=false,mapImg=null,mapStamp=-1,mapSel=null;
 const mapCv=$('mapCv'),mctx=mapCv.getContext('2d');
-const MAP_LABELS=[['sf',100,444],['india',300,426],['shanghai',470,110],['dubai',452,340],['center',CX,CZ+30],['snow',196,70],['volcano',VOL.x,VOL.z+40],['kingdom',CASTLE_C.x,CASTLE_C.z+40],['city',70,150],['space',MOON.x,MOON.z-40]];
-const LM_ORDER=['center','city','subway','snow','volcano','lab','kingdom','space','sf','india','shanghai','dubai'];
+const MAP_LABELS=[['rome',548,30],['singapore',522,500],['sf',100,444],['india',300,426],['shanghai',470,110],['dubai',452,340],['center',CX,CZ+30],['snow',196,70],['volcano',VOL.x,VOL.z+40],['kingdom',CASTLE_C.x,CASTLE_C.z+40],['city',70,150],['space',MOON.x,MOON.z-40]];
+const LM_ORDER=['center','city','subway','snow','volcano','lab','kingdom','space','sf','india','shanghai','dubai','rome','singapore'];
 function buildMapImage(){
   const c=document.createElement('canvas');c.width=W;c.height=D;const g=c.getContext('2d'),im=g.createImageData(W,D),d=im.data;
   const ys=new Int16Array(W*D),ids=new Uint8Array(W*D);
@@ -4355,11 +4926,11 @@ function save(){
     const mp=P.mount,L=launchSt;
     const px=L?L.to.x:mp?mp.x:P.x,py=L?L.to.y:mp?mp.y+mp.h+.5:P.y,pz=L?L.to.z:mp?mp.z:P.z;
     localStorage.setItem(KEY,JSON.stringify({v:6,gen:GEN_VER,ammo,seed,e:encodeEdits(),p:[px,py,pz,yaw,pitch],tod,sp:spawn,hot,mobs:ms,hp:P.hp,found:[...found],
-      set:{gravMul,brush,blastMul,timeStop,mode,enemiesOn,weather,bgmOn,bgmVol,lookMul,partyStay,quality,scheme,autoJump,perspective,debugOn,god:godMode,rk:rkTipShown,egg:eggCount}}));}
+      set:{gravMul,brush,blastMul,timeStop,mode,enemiesOn,weather,bgmOn,bgmVol,lookMul,partyStay,quality,scheme,autoJump,perspective,debugOn,god:godMode,rk:rkTipShown,egg:eggCount,wpn:wpnMul,rate:rateMul,auto:autoAll,nt13:newTip13}}));}
   catch(e){if(!saveWarned){saveWarned=true;toast('保存の容量がいっぱいです。メニューの「新しい世界をつくる」で軽くなります',4200);}}
 }
 function queueSave(){if(!worldReady)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(window.requestIdleCallback)requestIdleCallback(save,{timeout:2000});else save();},1500);}
-let loadedMobs=null,migratedGuns=false,saveVer=6,migrated=false,worldChanged=false,rkTipShown=false,grewWorld=false;
+let grewEast=false,loadedMobs=null,migratedGuns=false,saveVer=6,migrated=false,worldChanged=false,rkTipShown=false,grewWorld=false;
 function readSave(){try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(!j||!(j.e!=null||j.w)||!Array.isArray(j.p))return null;return j;}catch(e){return null;}}
 // 世界を作る前に：設定・位置・もちものなど
 function applySaveMeta(j){
@@ -4374,7 +4945,8 @@ function applySaveMeta(j){
   if(j.set){gravMul=j.set.gravMul||1;brush=j.set.brush||1;blastMul=j.set.blastMul||1;timeStop=!!j.set.timeStop;
     if(j.set.mode)mode=j.set.mode;if(j.set.enemiesOn!=null)enemiesOn=!!j.set.enemiesOn;if(j.set.weather)weather=j.set.weather;
     if(j.set.bgmOn!=null)bgmOn=!!j.set.bgmOn;if(j.set.bgmVol!=null)bgmVol=Math.max(0,Math.min(2,j.set.bgmVol|0));if(j.set.lookMul)lookMul=j.set.lookMul;partyStay=!!j.set.partyStay;if(j.set.quality)quality=j.set.quality;if(j.set.scheme)scheme=j.set.scheme;if(j.set.autoJump!=null)autoJump=!!j.set.autoJump;
-    if(j.set.perspective!=null)perspective=j.set.perspective|0;debugOn=!!j.set.debugOn;godMode=!!j.set.god;rkTipShown=!!j.set.rk;if([1,5,10,30].includes(j.set.egg))eggCount=j.set.egg;}
+    if(j.set.perspective!=null)perspective=j.set.perspective|0;debugOn=!!j.set.debugOn;godMode=!!j.set.god;rkTipShown=!!j.set.rk;if([1,5,10,30].includes(j.set.egg))eggCount=j.set.egg;
+    const cl=(v)=>Math.max(.5,Math.min(10,Math.round((+v||1)*2)/2));if(j.set.wpn!=null)wpnMul=cl(j.set.wpn);if(j.set.rate!=null)rateMul=cl(j.set.rate);if(j.set.auto!=null)autoAll=!!j.set.auto;newTip13=!!j.set.nt13;}
   if(typeof j.hp==='number')P.hp=Math.max(1,Math.min(20,j.hp));
   if(Array.isArray(j.mobs))loadedMobs=j.mobs.map(a=>{const b=a.slice();b[1]+=ox;b[3]+=oz;return b;});
   if(Array.isArray(j.found))found=new Set(j.found);
@@ -4383,7 +4955,7 @@ function applySaveMeta(j){
 // 世界を作ったあとに：変えたブロックをもどす（前の64×64の島は、最初の状態とくらべて変わったところだけを、まんなかへ引っ越す）
 function applySaveWorld(j){
   let n=0;
-  if(j.v>=6){if(j.e){if(j.gen===GEN_VER)n=decodeEdits(j.e);else if(j.gen===1){n=decodeEdits(j.e,384);grewWorld=true;}else worldChanged=true;}}
+  if(j.v>=6){if(j.e){if(j.gen===GEN_VER)n=decodeEdits(j.e);else if(j.gen===1){n=decodeEdits(j.e,384);grewWorld=true;grewEast=true;}else if(j.gen===2){n=decodeEdits(j.e,512);grewEast=true;}else worldChanged=true;}}
   else if(j.w&&classicSnap){
     const ow=unb64(j.w);
     if(ow.length===64*64*40){const ol=j.l?unb64(j.l):null,okL=ol&&ol.length===ow.length;
@@ -4444,7 +5016,7 @@ function bootWorld(sd,j,after){
       const m=spawnMob(a[0],a[1],a[2],a[3],res?{resident:true,home:RES_HOME[a[0]]}:a[5]===0?{wild:true}:null);
       if(m){if(a[4])m.hp=a[4];if(a[6])m.angry=true;if(a[7]){m.stay=true;m.home={x:m.x,z:m.z};}}}
       if(saveVer<5){spawnWildGolems();newGolems=true;}
-      if(saveVer<6)spawnRegionMobs();if(grewWorld||saveVer<6)spawnCityMobs();spawnResidents();}
+      if(saveVer<6)spawnRegionMobs();if(grewWorld||saveVer<6)spawnCityMobs();if(grewEast||saveVer<6)spawnEastMobs();spawnResidents();}
     else spawnDefaultMobs();
     loadedMobs=null;
     titleFocus={x:P.x,y:P.y,z:P.z};titleUnder=roofAbove(P.x,P.y+1.6,P.z);
@@ -4469,6 +5041,8 @@ function syncSettings(){
   document.querySelectorAll('[data-grav]').forEach(b=>b.classList.toggle('on',+b.dataset.grav===gravMul));
   document.querySelectorAll('[data-brush]').forEach(b=>b.classList.toggle('on',+b.dataset.brush===brush));
   document.querySelectorAll('[data-blast]').forEach(b=>b.classList.toggle('on',+b.dataset.blast===blastMul));
+  document.querySelectorAll('[data-auto]').forEach(b=>b.classList.toggle('on',(b.dataset.auto==='1')===autoAll));
+  $('wpnR').value=wpnMul;$('wpnV').textContent=wpnMul+'倍';$('rateR').value=rateMul;$('rateV').textContent=rateMul+'倍';
   document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===mode));
   document.querySelectorAll('[data-god]').forEach(b=>b.classList.toggle('on',(b.dataset.god==='1')===godMode));
   document.querySelectorAll('[data-egg]').forEach(b=>b.classList.toggle('on',+b.dataset.egg===eggCount));
@@ -4499,6 +5073,9 @@ document.querySelectorAll('[data-time]').forEach(b=>b.addEventListener('click',(
 document.querySelectorAll('[data-grav]').forEach(b=>b.addEventListener('click',()=>{gravMul=+b.dataset.grav;syncSettings();queueSave();}));
 document.querySelectorAll('[data-brush]').forEach(b=>b.addEventListener('click',()=>{brush=+b.dataset.brush;syncSettings();queueSave();}));
 document.querySelectorAll('[data-blast]').forEach(b=>b.addEventListener('click',()=>{blastMul=+b.dataset.blast;syncSettings();queueSave();}));
+document.querySelectorAll('[data-auto]').forEach(b=>b.addEventListener('click',()=>{autoAll=b.dataset.auto==='1';syncSettings();queueSave();}));
+$('wpnR').addEventListener('input',()=>{wpnMul=+$('wpnR').value||1;syncSettings();queueSave();});
+$('rateR').addEventListener('input',()=>{rateMul=+$('rateR').value||1;syncSettings();queueSave();});
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;if(mode==='creative')P.hp=20;else P.fly=false;syncSettings();queueSave();}));
 document.querySelectorAll('[data-egg]').forEach(b=>b.addEventListener('click',()=>{eggCount=+b.dataset.egg;syncSettings();queueSave();}));
 document.querySelectorAll('[data-god]').forEach(b=>b.addEventListener('click',()=>{godMode=b.dataset.god==='1';if(godMode){P.hp=20;}lastHp=-1;renderHearts();syncSettings();queueSave();}));
@@ -4536,10 +5113,12 @@ function start(){
   if(!hasSave)setTimeout(()=>toast('広い世界へようこそ！ つり橋の先は街、北は雪山、東は火山、南は王国。'+(isTouch?'右上の「地図」':'M キー')+'で地図を開けます',5600),portrait?3200:600);
   else if(newGolems){newGolems=false;setTimeout(()=>toast('島に野生のゴーレムが7種類あらわれました。好物をあげると仲間になります',4200),600);}
   else if(migratedGuns){migratedGuns=false;setTimeout(()=>toast('7〜9番の枠に、ハンドガン・マシンガン・ロケットランチャーを入れました',4200),600);}
-  if(grewWorld){grewWorld=false;setTimeout(()=>toast('世界が広がりました！ 海の向こうに、サンフランシスコ・インド・上海・ドバイふうの4つの街ができています（橋でつながっています）',6000),900);}
+  if(grewEast&&!grewWorld){grewEast=false;setTimeout(()=>toast('世界がさらに広がりました！ 東の海の向こうに、ローマふうの都（コロッセオ）とシンガポールふうの湾岸都市ができています（上海・ドバイから橋でつながっています）',6500),900);}
+  if(grewWorld){grewWorld=false;grewEast=false;setTimeout(()=>toast('世界が広がりました！ 海の向こうに、サンフランシスコ・インド・上海・ドバイふうの4つの街ができています（橋でつながっています）',6000),900);}
   if(!rkTipShown){rkTipShown=true;setTimeout(()=>toast('ロケットランチャーが3種類に（1発ずつ・連発・20発ショットガン）。もちものの「ぶき」にあります。弾は全部無限です',5200),isTouch?6500:6500);queueSave();}
   if(migrated){migrated=false;setTimeout(()=>toast('前の島は、広くなった世界のまんなかにそのまま引っ越しました。地図（'+(isTouch?'右上の「地図」':'M キー')+'）で冒険先を見てみよう',5200),isTouch?900:5000);}
   else if(worldChanged){worldChanged=false;setTimeout(()=>toast('世界の作り方が変わったため、ブロックの変更は引きつげませんでした',4200),600);}
+  if(!newTip13&&hasSave){newTip13=true;setTimeout(()=>toast('新しいぶき：1000発ロケット（ショットガン・ピンポイント）とビームサーベル。メニューで「武器の威力」「連発スピード」を変えられます',6000),isTouch?13000:13000);queueSave();}
   if(!found.has('start')){found.add('start');}
   hasSave=true;renderHotbar();select(sel);applyBgmVolume();
 }
@@ -4650,7 +5229,7 @@ function update(dt){
   updateMining(dt);updateUse(dt);
   updateWeapons(dt,(P.ground||P.mount)&&Math.hypot(P.mount?P.mount.vx:P.vx,P.mount?P.mount.vz:P.vz)>1);
   updateAvatar(dt);
-  const flying=P.fly||!!(P.mount&&P.mount.kind==='dragon');
+  const flying=P.fly||isFlyMount(P.mount);
   if(flying!==document.body.classList.contains('flying')){document.body.classList.toggle('flying',flying);updateTouchLabels();}
   const eye=get(Math.floor(camera.position.x),Math.floor(camera.position.y),Math.floor(camera.position.z));
   setHidden('waterTint',eye!==WATER);setHidden('lavaTint',eye!==MAGMA);
@@ -4721,7 +5300,7 @@ function frame(now){
   }
   updateWeather(dt);
   updateParts(dt);
-  flushDirty(playing?(launchSt?10:isTouch?4:6):10);updateLodVis();updateMobLod(dt);processBooms();
+  flushDirty(playing?(launchSt?10:isTouch?4:6):10);updateLodVis();updateMobLod(dt);updateSwarm(playing&&!timeStop?dt:0);updateBeam(dt);processBooms();
   updateSky();
   renderer.render(scene,camera);
   frameMs+=(performance.now()-t0-frameMs)*.1;
@@ -4730,4 +5309,3 @@ function frame(now){
 requestAnimationFrame(frame);
 })();
 </script>
-</body></html>
