@@ -3175,13 +3175,24 @@ function lerpAngle(a,b,t){let d=b-a;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Mat
 
 // ================= 粒（破片・煙・火花・花火） =================
 let MAXP=2600;const MAXP_ALLOC=2600;
+// スマホ・タブレットでは、たくさんの弾・粒を「点」と「線」で描く（どのGPUでも動くいちばん基本の描き方）。
+// ?gl=safe / ?gl=fast で切りかえて確かめられる
+const SAFE_GL=(()=>{try{const q=new URLSearchParams(location.search).get('gl');if(q==='safe')return true;if(q==='fast')return false;}catch(e){}return isTouch;})();
+function ptMat(size,minPx){const m=new THREE.PointsMaterial({size,vertexColors:true,sizeAttenuation:true});
+  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <fog_vertex>','#include <fog_vertex>\n  gl_PointSize=max(gl_PointSize,'+minPx.toFixed(1)+');');};return m;}
+class PtBatch{constructor(n,size,minPx,mat){this.n=n;this.pos=new Float32Array(n*3);this.col=new Float32Array(n*3).fill(1);const g=new THREE.BufferGeometry();
+    this.pa=new THREE.BufferAttribute(this.pos,3);this.ca=new THREE.BufferAttribute(this.col,3);this.pa.setUsage(THREE.DynamicDrawUsage);this.ca.setUsage(THREE.DynamicDrawUsage);
+    g.setAttribute('position',this.pa);g.setAttribute('color',this.ca);g.setDrawRange(0,0);this.g=g;this.obj=new THREE.Points(g,mat||ptMat(size,minPx));this.obj.frustumCulled=false;this.k=0;scene.add(this.obj);}
+  begin(){this.k=0;}add(x,y,z,r,gg,b){if(this.k>=this.n)return;const o=this.k*3;this.pos[o]=x;this.pos[o+1]=y;this.pos[o+2]=z;this.col[o]=r;this.col[o+1]=gg;this.col[o+2]=b;this.k++;}
+  end(){this.g.setDrawRange(0,this.k);this.obj.visible=this.k>0;if(this.k){this.pa.updateRange.offset=0;this.pa.updateRange.count=this.k*3;this.ca.updateRange.offset=0;this.ca.updateRange.count=this.k*3;this.pa.needsUpdate=true;this.ca.needsUpdate=true;}}}
 const pMesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({fog:true}),MAXP_ALLOC);
 // 色のバッファは最初から全部のぶん用意する（count=0 のあとに setColorAt すると長さ0のバッファになり、スマホのGPUでは粒が描かれない／PCでは黒くなる）
 function instColor(m,n){m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(n*3).fill(1),3);m.instanceColor.setUsage(THREE.DynamicDrawUsage);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);}
 instColor(pMesh,MAXP_ALLOC);
 pMesh.frustumCulled=false;pMesh.count=0;
 const tmpC=new THREE.Color(),dummy=new THREE.Object3D();
-scene.add(pMesh);
+if(!SAFE_GL)scene.add(pMesh);
+const pBat=SAFE_GL?[new PtBatch(2600,.13,2),new PtBatch(1400,.32,2.5),new PtBatch(700,.8,3)]:null;
 const parts=[];
 function addP(x,y,z,vx,vy,vz,life,size,r,g,b,grav,drag){
   if(parts.length>=MAXP||(parts.length>MAXP*.6&&Math.random()<.5))return;
@@ -3196,9 +3207,13 @@ function updateParts(dt){
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;
   }
   const qx=camera.position.x,qy=camera.position.y,qz=camera.position.z;
+  if(SAFE_GL){for(const b of pBat)b.begin();
+    for(const p of parts){const dc=(p.x-qx)*(p.x-qx)+(p.y-qy)*(p.y-qy)+(p.z-qz)*(p.z-qz);if(dc<1.7)continue;
+      const sz=p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1);(sz<.2?pBat[0]:sz<.5?pBat[1]:pBat[2]).add(p.x,p.y,p.z,p.r,p.g,p.b);}
+    for(const b of pBat)b.end();return;}
   for(const p of parts){
     const dc=(p.x-qx)*(p.x-qx)+(p.y-qy)*(p.y-qy)+(p.z-qz)*(p.z-qz);if(dc<1.7)continue;
-    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(Math.max(p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1),dc>16?Math.sqrt(dc)*PXW*1.2:0));dummy.updateMatrix();
+    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(Math.max(p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1),dc>16&&p.size>=.12?Math.sqrt(dc)*PXW*1.2:0));dummy.updateMatrix();
     pMesh.setMatrixAt(n,dummy.matrix);pMesh.setColorAt(n,tmpC.setRGB(p.r,p.g,p.b));n++;
   }
   pMesh.count=n;pMesh.instanceMatrix.needsUpdate=true;if(pMesh.instanceColor)pMesh.instanceColor.needsUpdate=true;
@@ -3749,7 +3764,6 @@ function aiFly(m,dt){
   const k=Math.min(1,dt*2);m.vx+=(vx-m.vx)*k;m.vy+=(vy-m.vy)*k;m.vz+=(vz-m.vz)*k;
   mobPhysics(m,dt);
   m.yaw=lerpAngle(m.yaw,Math.atan2(-dx,-dz),.1);
-  if(rand()<dt*8)addP(m.x+(rand()-.5)*.3,m.y+.6,m.z+(rand()-.5)*.3,(rand()-.5)*.5,1+rand(),(rand()-.5)*.5,.5,.1,1,.6+rand()*.3,.2,-1);
   if(m.inW){steam(m.x-.5,m.y-.5,m.z-.5);m.hp=0;}
   if((weather==='rain'||weather==='storm')&&m.y>=topAt(m.x,m.z))m.hp-=dt*1.5;
 }
@@ -4110,8 +4124,7 @@ function explode(cx,cy,cz,power,opt){
   const camD=Math.hypot(cx-camera.position.x,cy-camera.position.y,cz-camera.position.z),smk=few?(camD<10?.12:camD<25?.3:.7):1,psz=few&&camD<25?.55:1;
   for(let i=0;i<(40+r*8)*pk*(few?Math.max(.35,smk):1);i++){const a=rand()*Math.PI*2,e=rand()*Math.PI-Math.PI/2,s=3+rand()*r*2;
     addP(cx,cy,cz,Math.cos(a)*Math.cos(e)*s,Math.sin(e)*s+2,Math.sin(a)*Math.cos(e)*s,.3+rand()*.4,(.35+rand()*.3)*psz,1,.55+rand()*.35,.15,2,3);}
-  for(let i=0;i<(22+r*5)*pk*smk;i++){const g=(.35+rand()*.25)*light;
-    addP(cx+(rand()-.5)*r,cy+(rand()-.5)*r*.6,cz+(rand()-.5)*r,(rand()-.5)*2,1+rand()*2,(rand()-.5)*2,1.4+rand()*1.4,(.6+rand()*.6)*psz,g,g,g,-1.2,1.2);}
+  // （爆発の灰色の煙は出さない：軽さのため）
   if((!few||(boomFlashN++%4)===0)&&!(few&&camD<14)){const fm=new THREE.Mesh(flashGeo,new THREE.MeshBasicMaterial({color:0xffc060,transparent:true,opacity:.85,depthWrite:false,fog:false}));
     fm.position.set(cx,cy,cz);fm.scale.setScalar(few?1.2:.5);scene.add(fm);flashes.push({m:fm,t:0,r:few?r*1.6:r});}
   if(!P.mount&&!few&&!(opt&&opt.mine)){const fp=blastPush(P,cx,cy,cz,r,22);if(fp>0)P.knock=.9;}
@@ -4222,7 +4235,7 @@ function updateProjs(dt){
       const dd=Math.hypot(dx,dy,dz)||1,turn=Math.min(1,dt*(p.tgt?5:3));
       p.vx+=(dx/dd*p.speed-p.vx)*turn;p.vy+=(dy/dd*p.speed-p.vy)*turn;p.vz+=(dz/dd*p.speed-p.vz)*turn;
       const vv=Math.hypot(p.vx,p.vy,p.vz)||1;p.vx*=p.speed/vv;p.vy*=p.speed/vv;p.vz*=p.speed/vv;
-      if(p.kind==='rocket'&&p.life<(PROJ_LIFE.rocket-.12))for(let q=0;q<(p.few?1:2);q++){const g2=.45+rand()*.25;addP(p.x-p.vx*.012,p.y-p.vy*.012,p.z-p.vz*.012,(rand()-.5)*.6,(rand()-.5)*.6+.4,(rand()-.5)*.6,.9+rand()*.6,.22+rand()*.15,g2,g2,g2,-.6,1.2);}
+      // （ロケットの煙のあとは出さない）
       if(p.kind==='rocket')addP(p.x,p.y,p.z,(rand()-.5),(rand()-.5),(rand()-.5),.12,.18,1,.7,.2,0);
     }
     if(p.kind==='efire'){
@@ -4304,7 +4317,7 @@ function gearMove(dt,f,r,jump,down,sprint){
     P.vx+=((-sn*f+cs*r)*sp-P.vx)*acc;P.vz+=((-cs*f-sn*r)*sp-P.vz)*acc;
     if(jump){P.vy=Math.min(9,P.vy+34*dt);P.ground=false;
       jetSndT-=dt;if(jetSndT<=0){jetSndT=.18;noise(.05,.2,900,300,'bandpass');}
-      for(let i=0;i<2;i++)addP(P.x+(rand()-.5)*.3,P.y+.7,P.z+(rand()-.5)*.3,(rand()-.5),-5-rand()*3,(rand()-.5),.35,.13,1,.6+rand()*.3,.15,0);}
+}
     else if(down)P.vy=Math.max(P.vy-20*dt,-14);
     P.padBounce=true;return true;}
   if(gear==='wing'){
@@ -4314,7 +4327,6 @@ function gearMove(dt,f,r,jump,down,sprint){
     const tx=-sn*cp*sp*(f<-.2?.3:1)+cs*r*5,tz=-cs*cp*sp*(f<-.2?.3:1)-sn*r*5,acc=Math.min(1,dt*2);
     P.vx+=(tx-P.vx)*acc;P.vz+=(tz-P.vz)*acc;
     if(!jump||flapCD>.1){const minV=pitch<-.35?-6-dive:down?-8:-2.2;P.vy=Math.max(P.vy,minV);}
-    if(rand()<dt*10)addP(P.x+(rand()-.5),P.y+1.2,P.z+(rand()-.5),0,0,0,.4,.08,1,1,1,0);
     P.padBounce=true;return true;}
   return false;
 }
@@ -4337,7 +4349,7 @@ function giantMove(dt,f,r,jump,sprint){
   const nx=Math.max(.5,Math.min(W-.5,P.x+P.vx*dt)),nz=Math.max(.5,Math.min(D-.5,P.z+P.vz*dt)),g=giantGround(nx,nz);
   if(g>P.y+S*.75){P.vx*=.2;P.vz*=.2;}else{const dm=Math.hypot(nx-P.x,nz-P.z);P.x=nx;P.z=nz;giantStepD+=dm;
     if(giantStepD>S*.9&&P.ground){giantStepD=0;const v=Math.min(1,S/8);shake=Math.max(shake,.25*v);sfx(60,.3,'sine',.18*v);
-      for(let i=0;i<6;i++){const a=rand()*6.283;addP(P.x+Math.cos(a)*S*.3,P.y+.2,P.z+Math.sin(a)*S*.3,Math.cos(a)*2,1+rand(),Math.sin(a)*2,.8,.3,.55*light,.5*light,.44*light,-.5,1.5);}
+
       for(const m of mobs)if(isHostile(m)&&!m.def.huge&&Math.hypot(m.x-P.x,m.z-P.z)<S*.55&&Math.abs(m.y-P.y)<S)mobHurt(m,10*wpnMul,0,6,0,'player');}}
   const gy=giantGround(P.x,P.z);
   if(jump&&P.ground){P.vy=7*Math.sqrt(S);P.ground=false;}
@@ -4495,7 +4507,6 @@ function animateRobot(m,dt){
   // 胸のコア：ためると大きく光る
   const cs=m.charge>0?1+(1-m.charge/.6)*1.8:m.beamT>0?2.2+Math.sin(m.beamT*40)*.3:1;p.core.scale.setScalar(cs);
   // 足のジェット
-  if(!m.ground&&rand()<.6)for(const s of [-1,1])addP(m.x+Math.cos(m.yaw)*s*1.3,m.y+.3,m.z-Math.sin(m.yaw)*s*1.3,0,-8,0,.25,.35,1,.6,.2,0);
 }
 const VEH_MSG={
   cart:['トロッコに乗った！ W で加速・S でブレーキ・Shift でおりる（乗ったまま銃もうてる）','トロッコに乗った！ 前へで加速・後ろでブレーキ・「おりる」で降りる'],
@@ -4527,7 +4538,6 @@ function rideVehicle(m,dt,f,r,jump,shift,sprint){
     steerXZ(m,-hs*sp,-hc*sp,dt,3);
     if(m.bump&&m.ground&&Math.abs(f)>.1)m.vy=7.5;
     mobPhysics(m,dt,10);
-    if(Math.abs(f)>.1&&m.ground&&rand()<dt*8)addP(m.x-hs*-2.4,m.y+.3,m.z-hc*-2.4,(rand()-.5),.6,(rand()-.5),.6,.2,.5*light,.46*light,.4*light,-.3,1.2);
     return;}
   if(k==='heli'||k==='vjet'){
     const jt=k==='vjet',cp=Math.cos(pitch),sp=jt?(sprint?52:32):(sprint?24:15);
@@ -4536,11 +4546,9 @@ function rideVehicle(m,dt,f,r,jump,shift,sprint){
     const kk=Math.min(1,dt*(jt?1.5:2.4));m.vx+=(tx-m.vx)*kk;m.vy+=(ty-m.vy)*kk;m.vz+=(tz-m.vz)*kk;
     moveBody(m,dt);if(m.y>H+40){m.y=H+40;m.vy=Math.min(0,m.vy);}
     const py=m.yaw;m.yaw=lerpAngle(m.yaw,yaw,Math.min(1,dt*(jt?2.6:5)));m.turn=((m.turn||0)*.9+(lerpAngle(0,m.yaw-py,1)/Math.max(dt,.001))*.1);
-    if(jt&&rand()<dt*20){const hs=Math.sin(m.yaw),hc=Math.cos(m.yaw);addP(m.x+hs*3.9,m.y+1,m.z+hc*3.9,hs*3,0,hc*3,.25,.14,1,.6,.2,0);}
     return;}
   if(k==='robot'){
     roboInit(m);const boost=sprint&&(Math.abs(f)>.1||Math.abs(r)>.1),sp=(boost?20:9)*(m.beamT>0||m.charge>0?.45:1),acc=Math.min(1,dt*(boost?2.5:4));
-    if(boost&&rand()<dt*40){const bs=Math.sin(m.yaw),bc=Math.cos(m.yaw);for(const s of [-1,1])addP(m.x+bs*2+Math.cos(m.yaw)*s*1.2,m.y+8.2,m.z+bc*2-Math.sin(m.yaw)*s*1.2,bs*10,-2,bc*10,.3,.4,1,.65,.25,0);}
     m.vx+=((-sn*f+cs*r)*sp-m.vx)*acc;m.vz+=((-cs*f-sn*r)*sp-m.vz)*acc;
     const nx=Math.max(3,Math.min(W-3,m.x+m.vx*dt)),nz=Math.max(3,Math.min(D-3,m.z+m.vz*dt)),g=titanGround(nx,nz);
     if(g>m.y+7){m.vx*=.2;m.vz*=.2;}else{const dm=Math.hypot(nx-m.x,nz-m.z);m.x=nx;m.z=nz;m.stepD=(m.stepD||0)+dm;
@@ -4549,7 +4557,6 @@ function rideVehicle(m,dt,f,r,jump,shift,sprint){
     if(!jump)m.jumpHeld=false;
     if(m.ground)m.hover=Math.min(3,m.hover+dt*1.5);
     else if(jump&&!m.jumpHeld&&!m.slam&&m.hover>0&&m.vy<2){m.hover-=dt;m.vy=Math.max(m.vy,0)+(2-m.vy)*Math.min(1,dt*5);m.vy+=22*dt;if(rand()<dt*12)noise(.05,.1,1200,500,'bandpass');}
-    if(!m.ground&&rand()<dt*30)for(const s of [-1,1])addP(m.x+Math.cos(m.yaw)*s*1.3,m.y+.5,m.z-Math.sin(m.yaw)*s*1.3,0,-6,0,.3,.3,1,.6,.2,0);
     m.vy-=22*dt;m.y+=m.vy*dt;const gy=titanGround(m.x,m.z);
     if(m.y<=gy){if(m.slam&&!m.ground){m.y=gy;robotSlamLand(m);}else if(!m.ground&&m.vy<-10){shake=Math.max(shake,.5);sfx(50,.4,'sine',.22);}m.y=gy;m.vy=0;m.ground=true;}else m.ground=false;
     m.yaw=lerpAngle(m.yaw,yaw,Math.min(1,dt*5));
@@ -4565,7 +4572,7 @@ function vehicleFire(){
   const shell=(x,y,z,sp,power,dmg)=>{const v=toward(x,y,z,A,d);return shoot('rocket',x,y,z,v.x*sp,v.y*sp,v.z*sp,{speed:sp,power:power*pw,dmg:dmg*wpnMul,straight:true,veh:true});};
   const rx=Math.cos(m.yaw),rz=-Math.sin(m.yaw);
   if(k==='tank'){vehCD=Math.max(.15,1.1/rateMul);const tx=m.x,ty=m.y+1.75,tz=m.z;shell(tx+d.x*3.6,ty+d.y*3.6,tz+d.z*3.6,80,3.4,60);
-    noise(.6,.5,500,60);sfx(70,.4,'sawtooth',.12,30);for(let i=0;i<10;i++)addP(tx+d.x*4,ty+d.y*4,tz+d.z*4,d.x*3+(rand()-.5)*2,d.y*3+rand(),d.z*3+(rand()-.5)*2,.8,.3,.75,.75,.75,-.4,1.5);}
+    noise(.6,.5,500,60);sfx(70,.4,'sawtooth',.12,30);}
   else if(k==='heli'){vehCD=Math.max(.08,.4/rateMul);m.side=-(m.side||1);shell(m.x+rx*1.1*m.side+d.x*1.5,m.y+.7,m.z+rz*1.1*m.side+d.z*1.5,58,2.4,35);noise(.25,.4,1500,400,'bandpass');}
   else if(k==='vjet'){vehCD=Math.max(.04,.12/rateMul);m.side=-(m.side||1);shell(m.x+rx*.8*m.side+d.x*4.5,m.y+1+d.y*4.5,m.z+rz*.8*m.side+d.z*4.5,120,1.4,22);sfx(150,.07,'square',.05,90);}
   else if(k==='robot')robotAttack(m);
@@ -5086,7 +5093,7 @@ function fireRocket(g,it){
     shoot('rocket',m0.x+d.x*.2*n/R.n,m0.y+d.y*.2*n/R.n,m0.z+d.z*.2*n/R.n,d.x*sp,d.y*sp,d.z*sp,
       R.homing?{tgt:lockTarget,aim,speed:sp,power:R.power*(1+(wpnMul-1)*.2),dmg:g.dmg*wpnMul}:{speed:sp,power:R.power*(1+(wpnMul-1)*.2),dmg:g.dmg*wpnMul,few:!!R.few,straight:true});
   }
-  for(let i=0;i<(R.n>1?8:10);i++){const g2=.6+rand()*.2;addP(m0.x,m0.y,m0.z,-d0.x*4+(rand()-.5)*3,-d0.y*4+(rand()-.5)*3+1,-d0.z*4+(rand()-.5)*3,.8,.3,g2,g2,g2,-.5,2);}
+
   if(R.n>1){const k=Math.min(1.6,.7+R.n/120);noise(.7*k,1,420,2600,'bandpass');sfx(80-R.n*.2,.7,'sawtooth',.1*k,30);}
   else if(it===ROCKET2){noise(.3,.35,700,3200,'bandpass');sfx(120,.25,'sawtooth',.06,50);}
   else{noise(.5,.8,500,3200,'bandpass');sfx(95,.6,'sawtooth',.08,40);}
@@ -5098,7 +5105,11 @@ const swLife=new Float32Array(SW_N),swAge=new Float32Array(SW_N),swDmg=new Float
 const swMode=new Uint8Array(SW_N),swWet=new Uint8Array(SW_N),swTgt=new Array(SW_N).fill(null);
 let swN=0,swFrame=0,swBoomT=0;
 const swMat=new THREE.MeshBasicMaterial({color:0xffc070});
-const swMesh=new THREE.InstancedMesh(unitBox,swMat,SW_N);swMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);swMesh.count=0;swMesh.frustumCulled=false;scene.add(swMesh);
+const swMesh=new THREE.InstancedMesh(unitBox.clone(),swMat,SW_N);swMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);swMesh.count=0;swMesh.frustumCulled=false;if(!SAFE_GL)scene.add(swMesh);
+const SW_DRAW=isTouch?3000:6000;let swDrawn=0;
+const swLinePos=new Float32Array(SW_DRAW*6),swLineGeo=new THREE.BufferGeometry(),swLineAttr=new THREE.BufferAttribute(swLinePos,3);swLineAttr.setUsage(THREE.DynamicDrawUsage);swLineGeo.setAttribute('position',swLineAttr);swLineGeo.setDrawRange(0,0);
+const swLines=new THREE.LineSegments(swLineGeo,new THREE.LineBasicMaterial({color:0xffd27a}));swLines.frustumCulled=false;if(SAFE_GL)scene.add(swLines);
+const swHeads=SAFE_GL?new PtBatch(SW_DRAW,.22,3):null;
 const swDummy=new THREE.Object3D(),swBooms=new Map(),swHurt=new Map(),swGrid=new Map();
 function swCopy(j,i){for(let k=0;k<3;k++){swPos[i*3+k]=swPos[j*3+k];swVel[i*3+k]=swVel[j*3+k];swAim[i*3+k]=swAim[j*3+k];}
   swLife[i]=swLife[j];swAge[i]=swAge[j];swDmg[i]=swDmg[j];swPow[i]=swPow[j];swSpd[i]=swSpd[j];swMode[i]=swMode[j];swWet[i]=swWet[j];swTgt[i]=swTgt[j];}
@@ -5122,12 +5133,12 @@ function fireSwarm(g,it){
     const sp=R.speed*(pin?.45+rand()*.45:.8+rand()*.4),st=1.6+rand()*1.4;
     const j=pin?2.2:0;
     swAdd(c.x+dx*st,c.y+dy*st-.2,c.z+dz*st,dx*sp,dy*sp,dz*sp,pin?1:0,ax+(rand()-.5)*j,ay+(rand()-.5)*j,az+(rand()-.5)*j,tgt,dmg,pow,pin?7:4.5);}
-  const m0=muzzle();for(let i=0;i<6;i++){const g2=.7+rand()*.2;addP(m0.x,m0.y,m0.z,-d0.x*3+(rand()-.5)*2,(rand()-.5)*2+1,-d0.z*3+(rand()-.5)*2,.5,.14,g2,g2,g2,-.5,2);}
+
   const k=Math.min(1.8,.7+n/400);noise(.7*k,1.2,420,2600,'bandpass');sfx(Math.max(40,80-n*.04),.8,'sawtooth',.1*k,30);
   if(n>=500)setTimeout(()=>noise(.5,1.4,900,1400,'bandpass'),120);
 }
 function updateSwarm(dt){
-  swFrame++;
+  swFrame++;if(swHeads)swHeads.begin();
   // 生きものを8マスごとの区画に入れておく（1発ずつ全部の生きものと比べないで済む）
   swGrid.clear();
   if(swN)for(const m of mobs){if(m===P.mount||(m.ally&&isGolem(m)))continue;const rr=(isDrg(m.kind)?m.r*1.5:m.r)+.4;
@@ -5161,10 +5172,15 @@ function updateSwarm(dt){
     swPos[o]=x;swPos[o+1]=y;swPos[o+2]=z;
     // 目の前（6マス以内）と、出たばかりのロケットは描かない＝視界をふさがない
     const dc=(x-cx)*(x-cx)+(y-cy)*(y-cy)+(z-cz)*(z-cz);
+    if(SAFE_GL){if(dc>2.2&&swAge[i]>.02&&vis<SW_DRAW&&(swN<=SW_DRAW||(i%Math.ceil(swN/SW_DRAW))===0)){const sp=Math.hypot(vx,vy,vz)||1,L=swMode[i]>=2?2.4:1.2,o2=vis*6;
+        swLinePos[o2]=x;swLinePos[o2+1]=y;swLinePos[o2+2]=z;swLinePos[o2+3]=x-vx/sp*L;swLinePos[o2+4]=y-vy/sp*L;swLinePos[o2+5]=z-vz/sp*L;
+        if(swMode[i]<2||(vis&3)===0)swHeads.add(x,y,z,1,swMode[i]<2?.62:.82,swMode[i]<2?.25:.45);vis++;}continue;}
     if((dc>36||(dc>1.5&&(i&15)===0))&&swAge[i]>.02&&vis<SW_N){swDummy.position.set(x,y,z);swDummy.lookAt(x+vx,y+vy,z+vz);{const pw=Math.sqrt(dc)*PXW;if(swMode[i]>=2){const w=Math.max(.06,pw*1.5);swDummy.scale.set(w,w,Math.max(2.4,w*12));}else{const w=Math.max(.16,pw*2.2);swDummy.scale.set(w,w,Math.max(.7,w*4));}}swDummy.updateMatrix();swMesh.setMatrixAt(vis++,swDummy.matrix);
-      if(swMode[i]<2&&((i+swFrame)&31)===0&&dc>196)addP(x-vx*.02,y-vy*.02,z-vz*.02,0,.4,0,.35,.12,.75,.75,.75,-.4,1.5);}
+    }
   }
-  swMesh.count=vis;swMesh.visible=vis>0;swMesh.instanceMatrix.needsUpdate=true;
+  swDrawn=vis;
+  if(SAFE_GL){swLineGeo.setDrawRange(0,vis*2);swLines.visible=vis>0;if(vis){swLineAttr.updateRange.offset=0;swLineAttr.updateRange.count=vis*6;swLineAttr.needsUpdate=true;}swHeads.end();swMesh.count=vis;}
+  else{swMesh.count=vis;swMesh.visible=vis>0;swMesh.instanceMatrix.updateRange.offset=0;swMesh.instanceMatrix.updateRange.count=vis*16;swMesh.instanceMatrix.needsUpdate=true;}
   if(swHurt.size){for(const [m,dm] of swHurt)if(mobs.includes(m))mobHurt(m,dm,0,3,0,'gun');swHurt.clear();hitMark();}
   swBoomT-=dt;
   if(swBooms.size&&(swBoomT<=0||!swN)){swBoomT=.12;
@@ -5472,7 +5488,8 @@ function bigHit(p){
 const MOB_COL={rabbit:'#e8e0d0',yak:'#8a6a4a',whale:'#5d84a8',imp:'#3b2a5c',boss:'#24183a',wisp:'#ff9a3a',golem:'#8a8a86',steel:'#9aa7b4',magma:'#d2421f',
   ice:'#9fdcf2',thunder:'#ecc23a',mini:'#ff9ad0',giant:'#7a7a7a',dragon:'#2f8f7a',edragon:'#a8322a',titan:'#8a6a50',gdragon:'#3a2a6a',elephant:'#8a8a90',camel:'#c8a06a',ryu:'#2f6fd0',gorilla:'#2b2727',horse:'#8a5a34',tank:'#5a6b3a',heli:'#3a5a7a',vjet:'#8a96a4',robot:'#e8ecf0',cart:'#c8322a',viking:'#7a5a3a',soldier:'#5a6b3a',knight:'#c8ccd4',wizard:'#3a2a8a',pirate:'#e8e0d0',ninja:'#24242c',citizen:'#3a7ac8',farmer:'#c8322a',merchant:'#8a3a8a',chef:'#f4f4f0',dog:'#c8904a',cat:'#f0a040',wolf:'#9aa0a8',bdragon:'#24182e',phoenix:'#ff5a1a',frost:'#bfe6ff',mecha:'#3a3a44',crystal:'#ff6ad8'};
 const IMP_N=700,impMat=new THREE.MeshBasicMaterial({color:0xffffff}),impMesh=new THREE.InstancedMesh(unitBox,impMat,IMP_N);
-instColor(impMesh,IMP_N);impMesh.count=0;impMesh.frustumCulled=false;scene.add(impMesh);
+instColor(impMesh,IMP_N);impMesh.count=0;impMesh.frustumCulled=false;if(!SAFE_GL)scene.add(impMesh);
+const impBat=SAFE_GL?[new PtBatch(IMP_N,1.4,2),new PtBatch(200,3.2,3),new PtBatch(80,7,4)]:null;
 const impDummy=new THREE.Object3D(),impCol={};for(const k in MOB_COL)impCol[k]=new THREE.Color(MOB_COL[k]);
 let mobLodT=0;
 function updateMobLod(dt){
@@ -5484,6 +5501,9 @@ function updateMobLod(dt){
     const NEAR=isTouch?60:110;
     list.forEach((m,i)=>{m.lod=(i<NEAR&&m._d<90)?0:m._d<260?1:2;});
   }
+  if(SAFE_GL){for(const b of impBat)b.begin();const L=light;
+    for(const m of mobs){if(m.lod!==1)continue;const c=impCol[m.kind]||impCol.rabbit,sz=Math.max(m.h,m.r*2)*(isDrg(m.kind)?1.6:1);(sz<2.2?impBat[0]:sz<5?impBat[1]:impBat[2]).add(m.x,m.y+m.h/2,m.z,c.r*L,c.g*L,c.b*L);}
+    for(const b of impBat)b.end();return;}
   let n=0;
   for(const m of mobs){if(m.lod!==1||n>=IMP_N)continue;
     impDummy.position.set(m.x,m.y+m.h/2,m.z);impDummy.rotation.set(0,m.yaw,0);
@@ -6170,6 +6190,7 @@ function updateDebug(){
     'ブロック: '+Math.floor(P.x)+' '+Math.floor(P.y)+' '+Math.floor(P.z)+'   向き: '+dir,
     '描画回数: '+calls+'   解像度: ×'+pixelRatio.toFixed(2)+'   見える距離: '+fogFar,
     '生きもの: '+mobs.length+'   粒: '+parts.length+'/'+MAXP+'   飛ぶもの: '+projs.length,
+    '弾: '+swN+'発とんでいる / '+swDrawn+'発を描いた   描き方: '+(SAFE_GL?'点と線（スマホ用）':'まとめ描き（PC用）'),
     'モード: '+(mode==='creative'?'クリエイティブ':'ぼうけん')+(sneak?'  しゃがみ':'')+(sprinting?'  ダッシュ':'')+(P.fly?'  飛行':'')+'  視点: '+['1人称','うしろ','前'][perspective]
   ].join('\n');
 }
@@ -6340,7 +6361,6 @@ function updateLaunch(dt){
   else if(p<.75){const q=e((p-.35)/.4);x=L.from.x+(L.to.x-L.from.x)*q;z=L.from.z+(L.to.z-L.from.z)*q;y=L.apex;}
   else{const q=e((p-.75)/.25);x=L.to.x;z=L.to.z;y=L.apex+(L.to.y-L.apex)*q;}
   P.x=x;P.y=y;P.z=z;P.vx=P.vy=P.vz=0;P.inv=.5;P.fallTop=y;
-  for(let i=0;i<4;i++)addP(x+(rand()-.5)*.6,y-.2,z+(rand()-.5)*.6,(rand()-.5)*2,-6-rand()*4,(rand()-.5)*2,.6+rand()*.4,.2,1,.5+rand()*.4,.1,-2,1);
   L.smoke-=dt;if(L.smoke<=0){L.smoke=.5;noise(.16,.6,500,80);}
   shake=Math.max(shake,p<.3?.15:.04);
   if(p>=1){P.padBounce=true;P.ground=true;launchSt=null;stoneLock=true;curRegion=regionAt(P.x,P.y,P.z);toast(L.label+'に着いた！',2000);sfx(660,.3,'sine',.06);queueSave();updateTouchLabels();}
