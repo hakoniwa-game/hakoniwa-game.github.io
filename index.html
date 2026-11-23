@@ -2516,10 +2516,15 @@ function poof(x,y,z,n,r,g,b){for(let i=0;i<n;i++)addP(x+(rand()-.5),y+rand(),z+(
 let actx=null,noiseBuf=null,sfxOut=null,musicOut=null;
 const BGM_VOL=[.1,.2,.34];
 function audio(){try{
-  if(!actx){actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(actx&&actx.state==='closed')actx=null;
+  if(!actx){try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
+    actx=new(window.AudioContext||window.webkitAudioContext)();
     sfxOut=actx.createGain();sfxOut.gain.value=1;sfxOut.connect(actx.destination);
     const comp=actx.createDynamicsCompressor();musicOut=actx.createGain();musicOut.gain.value=bgmOn?BGM_VOL[bgmVol]:0;musicOut.connect(comp);comp.connect(actx.destination);}
-  if(actx.state==='suspended')actx.resume();return actx;}catch(e){return null;}}
+  if(actx.state!=='running'){const r=actx.resume();if(r&&r.catch)r.catch(()=>{});}return actx;}catch(e){return null;}}
+// スマホで別アプリから戻ったときや、音が止まったままのときに、次のタッチで音を戻す
+['touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>{if(actx&&actx.state!=='running')audio();},{capture:true,passive:true}));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&actx&&actx.state!=='running')audio();});
 function getNoise(a){if(!noiseBuf){const len=a.sampleRate*2.4|0;noiseBuf=a.createBuffer(1,len,a.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;}return noiseBuf;}
 function sfx(f,dur,type,vol,f2){const a=audio();if(!a)return;
   try{const o=a.createOscillator(),g=a.createGain(),t=a.currentTime;
