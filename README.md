@@ -2,7 +2,7 @@
 
 ブラウザで遊べる3Dブロッククラフトゲームです。インストール不要で、PC・スマホのどちらでも遊べます。
 
-**遊ぶ：** https://sugimototakuya.github.io/hakoniwa-island/
+**遊ぶ：** https://hakoniwa-game.github.io/
 
 - 掘る・積む・ドラゴンに乗って飛ぶ
 - 雪山・火山・王国・いろいろな街・地下研究所・宇宙までつづく広い世界
