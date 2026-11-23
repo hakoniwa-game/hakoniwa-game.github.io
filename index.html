@@ -82,7 +82,8 @@ body.touch .slot.more{display:grid}
 body.nohud .hud{display:none!important}
 body.touch.scheme-touch #tBreak,body.touch.scheme-touch #tPlace{display:none}
 body.touch.scheme-touch.gun #tBreak,body.touch.scheme-touch.dragon #tBreak,body.touch.scheme-touch.gun #tPlace,body.touch.scheme-touch.ctx #tPlace{display:block}
-body.touch.scheme-touch:not(.gun):not(.dragon) #cross{display:none}
+body.touch.scheme-touch.veh #tBreak,body.touch.scheme-touch.robo #tPlace{display:block}
+body.touch.scheme-touch:not(.gun):not(.dragon):not(.veh) #cross{display:none}
 #padDot.hold{width:44px;height:44px;margin:-22px 0 0 -22px;border-color:#fff}
 .invsec{grid-column:1/-1;margin:8px 0 0;font-size:13px;color:var(--sun);letter-spacing:.14em;border-bottom:1px solid var(--line);padding-bottom:4px}
 .item{display:flex;align-items:center;gap:8px;text-align:left;background:rgba(0,0,0,.28);border:2px solid transparent;color:var(--paper);padding:6px;min-width:0}
@@ -4068,7 +4069,7 @@ function throwBomb(){
   const d=camDir();
   const o=makeBomb(BOMB,.42);
   const b={x:EYE.x+d.x*.5,y:EYE.y-.3+d.y*.5,z:EYE.z+d.z*.5,
-    vx:d.x*13+P.vx*.5,vy:d.y*13+3,vz:d.z*13+P.vz*.5,r:.2,h:.4,fuse:2,power:2.7,mesh:o.g,flash:o.f,thrown:true,bounce:.42,spin:rand()*6};
+    vx:d.x*13+P.vx*.5,vy:d.y*13+(isLiquid(get(Math.floor(EYE.x),Math.floor(EYE.y),Math.floor(EYE.z)))?1:Math.max(3,11*Math.min(1.1,aimPoint(16).t/13)+.4)),vz:d.z*13+P.vz*.5,r:.2,h:.4,fuse:2,power:2.7,mesh:o.g,flash:o.f,thrown:true,bounce:.42,spin:rand()*6};
   if(hitsBox(b.x,b.y,b.z,b.r,b.h)){b.x=EYE.x;b.y=EYE.y-.2;b.z=EYE.z;}
   bombs.push(b);sfx(220,.15,'triangle',.05);
 }
@@ -4128,7 +4129,7 @@ function updateBombs(dt){
     const b=bombs[i];
     b.fuse-=dt;
     const inW=get(Math.floor(b.x),Math.floor(b.y+b.h/2),Math.floor(b.z))===WATER;
-    b.vy-=(inW?6:22)*gravMul*dt;if(inW){b.vx*=Math.exp(-3*dt);b.vz*=Math.exp(-3*dt);b.vy=Math.max(b.vy,-2);}
+    b.vy-=(inW?6:22)*gravMul*dt;if(inW){const k=b.thrown?1:3;b.vx*=Math.exp(-k*dt);b.vz*=Math.exp(-k*dt);if(!b.thrown)b.vy=Math.max(b.vy,-2);else b.vy*=Math.exp(-k*dt);}
     if(b.ground&&!b.thrown){b.vx*=Math.exp(-8*dt);b.vz*=Math.exp(-8*dt);}
     if(b.ground&&b.thrown){b.vx*=Math.exp(-3*dt);b.vz*=Math.exp(-3*dt);}
     moveBody(b,dt);
@@ -4136,6 +4137,7 @@ function updateBombs(dt){
     if(b.thrown&&!b.ground){b.spin+=dt*8;b.mesh.rotation.set(b.spin,b.spin*.7,0);}
     const rate=b.fuse<1?16:6;b.flash.visible=Math.floor(b.fuse*rate)%2===0;
     if(rand()<.6)addP(b.x,b.y+b.h+.05,b.z,(rand()-.5),2+rand(),(rand()-.5),.25,.07,1,.85,.3,2);
+    if(b.thrown&&b.fuse>.05&&b.fuse<1.95)for(const m of mobs){if(m===P.mount||isAlly(m)||!isHostile(m))continue;const rr=(isDrg(m.kind)?m.r*1.5:m.r)+.3;if(Math.abs(b.x-m.x)<rr&&Math.abs(b.z-m.z)<rr&&b.y+b.h>m.y&&b.y<m.y+m.h+.2){b.fuse=0;break;}}
     if(b.fuse<=0){boom.push(b);scene.remove(b.mesh);bombs.splice(i,1);}
   }
   for(const b of boom)explode(b.x,b.y+b.h/2,b.z,b.power*blastMul);
@@ -4171,7 +4173,7 @@ function buildProj(kind){
 const PROJ_LIFE={arrow:6,warp:5,fire:2.2,rocket:7,efire:4,gfire:3,boulder:6,mfire:6};
 function shoot(kind,x,y,z,vx,vy,vz,extra){
   if(projs.length>420){const o=projs.shift();scene.remove(o.mesh);}
-  const p={kind,x,y,z,vx,vy,vz,life:PROJ_LIFE[kind]||3,stuck:false,mesh:makeProjMesh(kind)};
+  const p={kind,x,y,z,vx,vy,vz,life:PROJ_LIFE[kind]||3,stuck:false,mesh:makeProjMesh(kind),wet:isLiquid(get(Math.floor(x),Math.floor(y),Math.floor(z)))};
   if(extra)Object.assign(p,extra);projs.push(p);return p;
 }
 function projHit(p,px,py,pz,m){
@@ -4238,7 +4240,8 @@ function updateProjs(dt){
         if(Math.abs(p.x-m.x)<m.r+.1&&Math.abs(p.z-m.z)<m.r+.1&&p.y>m.y&&p.y<m.y+m.h+.1){done=projHit(p,p.x,p.y,p.z,m);if(!done){p.stuck=true;}done=true;break;}}
       if(done)break;
       const id=get(Math.floor(p.x),Math.floor(p.y),Math.floor(p.z));
-      if(isSolid(id)||((p.kind==='fire'||p.kind==='efire'||p.kind==='rocket'||p.kind==='gfire'||p.kind==='mfire'||p.kind==='boulder')&&id===WATER)||p.y<0){const rm=projHit(p,ox,oy,oz,null);if(rm)done=true;else{p.stuck=true;break;}}
+      if(p.wet&&!isLiquid(id))p.wet=false;
+      if(isSolid(id)||((p.kind==='fire'||p.kind==='efire'||p.kind==='rocket'||p.kind==='gfire'||p.kind==='mfire'||p.kind==='boulder')&&id===WATER&&!p.wet)||p.y<0){const rm=projHit(p,ox,oy,oz,null);if(rm)done=true;else{p.stuck=true;break;}}
     }
     if(done&&!(p.kind==='arrow'&&p.stuck)){scene.remove(p.mesh);projs.splice(i,1);continue;}
     p.mesh.position.set(p.x,p.y,p.z);
@@ -4258,7 +4261,7 @@ function screenDir(sx,sy){
   const l=Math.hypot(x3,y2,z3)||1;return{x:x3/l,y:y2/l,z:z3/l};
 }
 function shootArrow(){if(P.bowT>0)return;P.bowT=Math.max(.05,.35/rateMul);const d=camDir(),c=EYE;
-  shoot('arrow',c.x+d.x*.6,c.y+d.y*.6-.1,c.z+d.z*.6,d.x*34,d.y*34+1,d.z*34,{mul:wpnMul});sfx(700,.12,'triangle',.05,300);}
+  const A=aimPoint(60),tf=Math.min(60,A.t)/34;shoot('arrow',c.x+d.x*.6,c.y+d.y*.6-.1,c.z+d.z*.6,d.x*34,d.y*34+6*tf+.1,d.z*34,{mul:wpnMul});sfx(700,.12,'triangle',.05,300);}
 // ================= ステージ1：ワープ銃・飛ぶそうび（ジェット・つばさ）・巨大化薬 =================
 let gear=null,gearPrevJump=false,flapCD=0,jetSndT=0;
 let giantS=1,giantTarget=1,giantT=0,giantStepD=0;
@@ -4394,10 +4397,11 @@ const roboBeamA=new THREE.Mesh(unitBox,new THREE.MeshBasicMaterial({color:0xfff6
 roboBeamA.visible=roboBeamB.visible=false;roboBeamA.frustumCulled=roboBeamB.frustumCulled=false;scene.add(roboBeamA);scene.add(roboBeamB);
 function roboInit(m){if(m.rw==null){m.rw=0;m.rcd=[0,0,0,0,0];m.podT=0;m.mq=0;m.mqT=0;m.fist=null;m.charge=0;m.beamT=0;m.slam=false;m.hover=3;m.recoil=0;m.pside=1;}}
 // 前方の敵をさがす（ミサイルの分散・パンチのねらい）
-function roboTargets(maxN,cone,range){const c=EYE,d=camDir(),a=[];
+function freshLock(cone){const t=lockTarget;if(!t||!mobs.includes(t)||t.hp<=0)return null;const c=EYE,d=camDir(),tx=t.x-c.x,ty=t.y+t.h*.5-c.y,tz=t.z-c.z,ds=Math.hypot(tx,ty,tz)||1;return (tx*d.x+ty*d.y+tz*d.z)/ds>cone?t:null;}
+function roboTargets(maxN,cone,range){const c=EYE,d=camDir(),a=[];const cm=mobRay(c,d,range,true);const first=cm&&!isAlly(cm.m)&&isHostile(cm.m)?cm.m:null;
   for(const q of mobs){if(q===P.mount||isAlly(q)||!isHostile(q))continue;const tx=q.x-c.x,ty=q.y+q.h*.5-c.y,tz=q.z-c.z,ds=Math.hypot(tx,ty,tz);if(ds>range||ds<3)continue;
-    const co=(tx*d.x+ty*d.y+tz*d.z)/ds;if(co<cone)continue;a.push({q,s:co*2-ds/range});}
-  a.sort((x,y)=>y.s-x.s);return a.slice(0,maxN).map(o=>o.q);}
+    const co=(tx*d.x+ty*d.y+tz*d.z)/ds;if(co<cone)continue;a.push({q,s:co*8-ds/range});}
+  a.sort((x,y)=>y.s-x.s);const r=a.map(o=>o.q).filter(q=>q!==first);if(first)r.unshift(first);return r.slice(0,maxN);}
 function robotSetWeapon(m,i){roboInit(m);m.rw=i;toast(ROBO_W[i].ic+' わざ '+(i+1)+'：'+ROBO_W[i].n,1300);sfx(520+i*80,.08,'square',.04,700);}
 function robotNextWeapon(){const m=P.mount;roboInit(m);robotSetWeapon(m,(m.rw+1)%ROBO_W.length);}
 function roboHand(m,side){const rx=Math.cos(m.yaw),rz=-Math.sin(m.yaw),fx=-Math.sin(m.yaw),fz=-Math.cos(m.yaw);return{x:m.x+rx*3.5*side+fx*2.5,y:m.y+6,z:m.z+rz*3.5*side+fz*2.5};}
@@ -4408,13 +4412,13 @@ function robotAttack(m){
     const mh=mobHit(16);
     if(mh&&mh.t<14){m.rcd[0]=Math.max(.15,.45/rateMul);m.pside=-m.pside;m.punch=.45;mobHurt(mh.m,150*wpnMul,d.x*16,9,d.z*16,'player');hitMark();
       const hx=EYE.x+d.x*mh.t,hy=EYE.y+d.y*mh.t,hz=EYE.z+d.z*mh.t;crushAt(hx,hy-2,hz,2.5);noise(.5,.4,400,80);for(let i=0;i<16;i++)addP(hx,hy,hz,(rand()-.5)*8,rand()*6,(rand()-.5)*8,.5,.2,1,.9,.6,6);return;}
-    m.rcd[0]=cd;m.pside=-m.pside;m.recoil=1;const sx=m.x+rx*2.6*m.pside+d.x*4,sy=m.y+12.6+d.y*4,sz=m.z+rz*2.6*m.pside+d.z*4;
-    shoot('rocket',sx,sy,sz,d.x*72,d.y*72,d.z*72,{speed:72,power:4.2*pw,dmg:90*wpnMul,straight:true,veh:true});
+    m.rcd[0]=cd;m.pside=-m.pside;m.recoil=1;const sx=m.x+rx*2.6*m.pside+d.x*4,sy=m.y+12.6+d.y*4,sz=m.z+rz*2.6*m.pside+d.z*4,v=toward(sx,sy,sz,aimPoint(240),d);
+    shoot('rocket',sx,sy,sz,v.x*72,v.y*72,v.z*72,{speed:72,power:4.2*pw,dmg:90*wpnMul,straight:true,veh:true});
     for(let i=0;i<10;i++)addP(sx,sy,sz,d.x*6+(rand()-.5)*3,d.y*6+rand()*2,d.z*6+(rand()-.5)*3,.4,.3,1,.7,.3,0);noise(.45,.5,600,70);sfx(80,.35,'sawtooth',.1,40);return;}
-  if(w===1){m.rcd[1]=cd;m.podT=1.8;m.mq=24;m.mqT=.25;m.mtg=lockTarget?[lockTarget]:roboTargets(8,.8,170);sfx(300,.5,'sawtooth',.05,900);toast('🚀 ミサイル一斉発射！',900);return;}
+  if(w===1){m.rcd[1]=cd;m.podT=1.8;m.mq=24;m.mqT=.25;m.mtg=freshLock(.8)?[lockTarget]:roboTargets(8,.8,170);sfx(300,.5,'sawtooth',.05,900);toast('🚀 ミサイル一斉発射！',900);return;}
   if(w===2){if(m.fist)return;m.rcd[2]=cd;m.pside=-m.pside;const side=m.pside,h=roboHand(m,side);
-    const tq=(lockTarget&&mobs.includes(lockTarget))?lockTarget:roboTargets(1,.9,90)[0]||null;let ax,ay,az;
-    if(tq){ax=tq.x;ay=tq.y+tq.h*.5;az=tq.z;}else{const bh=raycastFrom(EYE,d,90),t=bh?bh.t:90;ax=EYE.x+d.x*t;ay=EYE.y+d.y*t;az=EYE.z+d.z*t;}
+    const tq=freshLock(.85)||roboTargets(1,.9,90)[0]||null;let ax,ay,az;
+    if(tq){ax=tq.x;ay=tq.y+tq.h*.5;az=tq.z;}else{const A=aimPoint(90);ax=A.x;ay=A.y;az=A.z;}
     let fx=ax-h.x,fy=ay-h.y,fz=az-h.z;const fl=Math.hypot(fx,fy,fz)||1;fx/=fl;fy/=fl;fz/=fl;
     const me=new THREE.Mesh(unitBox,roboFistMat);me.scale.set(1.8,1.6,1.9);scene.add(me);
     m.fist={me,side,x:h.x,y:h.y,z:h.z,vx:fx*62,vy:fy*62,vz:fz*62,t:0,back:false,hit:new Set(),tq};m.parts.fists[side<0?0:1].visible=false;
@@ -4434,10 +4438,10 @@ function updateRobot(dt){
   roboHud.hidden=!on||!playing;
   if(!m||!mobs.includes(m)){roboBeamA.visible=roboBeamB.visible=false;if(m&&m.fist){scene.remove(m.fist.me);m.fist=null;}roboLast=null;return;}
   roboInit(m);if(!on){m.mq=0;m.charge=0;m.beamT=0;m.slam=false;}for(let i=0;i<5;i++)m.rcd[i]-=dt;m.podT=Math.max(0,m.podT-dt);m.recoil=Math.max(0,m.recoil-dt*4);
-  const d=on?camDir():{x:-Math.sin(m.yaw),y:0,z:-Math.cos(m.yaw)},pw=1+(wpnMul-1)*.2;
+  let d=on?camDir():{x:-Math.sin(m.yaw),y:0,z:-Math.cos(m.yaw)};const pw=1+(wpnMul-1)*.2;
   // ミサイル：背中のポッドから少しずつ出て、敵（ロックした相手）かねらった所へ
   if(m.mq>0){m.mqT-=dt;while(m.mqT<=0&&m.mq>0){m.mqT+=.035;m.mq--;const s=m.mq%2?1:-1,rx=Math.cos(m.yaw),rz=-Math.sin(m.yaw),bx0=m.x+rx*1.5*s-d.x*1.6,by=m.y+11.4,bz=m.z+rz*1.5*s-d.z*1.6;
-      const tg=m.mtg&&m.mtg.length?m.mtg[m.mq%m.mtg.length]:null;const bh=raycastFrom(EYE,d,240),t=bh?bh.t:180;const ax=EYE.x+d.x*t,ay=EYE.y+d.y*t,az=EYE.z+d.z*t;
+      const tg=m.mtg&&m.mtg.length?m.mtg[m.mq%m.mtg.length]:null;const A=on?aimPoint(240):{x:m.x+d.x*120,y:m.y+8,z:m.z+d.z*120},ax=A.x,ay=A.y,az=A.z;
       const up=14+rand()*6,sv=8;swAdd(bx0,by,bz,(rand()-.5)*sv+rx*s*6,up,(rand()-.5)*sv+rz*s*6,1,ax+(rand()-.5)*3,ay+(rand()-.5)*2,az+(rand()-.5)*3,tg,30*wpnMul,1.9*pw,7);
       noise(.06,.15,1600,600,'bandpass');}}
   // ロケットパンチ
@@ -4454,7 +4458,8 @@ function updateRobot(dt){
   // 胸のビーム砲：ためてから1.4秒うちつづける
   if(m.charge>0){m.charge-=dt;for(let i=0;i<3;i++){const a=rand()*6.283;addP(m.x+d.x*2+Math.cos(a)*3,m.y+9.9+Math.sin(a)*3,m.z+d.z*2,-Math.cos(a)*5,-Math.sin(a)*5,0,.25,.15,1,.4,.9,0);}
     if(m.charge<=0){m.beamT=1.4;m.beamCut=0;noise(.5,1.4,2400,400,'bandpass');sfx(160,1.4,'sawtooth',.08,80);}}
-  if(m.beamT>0){m.beamT-=dt;const o={x:m.x+d.x*2.4,y:m.y+9.9,z:m.z+d.z*2.4},L=150;
+  if(m.beamT>0){m.beamT-=dt;const o0={x:m.x+d.x*2.4,y:m.y+9.9,z:m.z+d.z*2.4},L=150;
+    {const A=on?aimPoint(L):null,v=A?toward(o0.x,o0.y,o0.z,A,d):d;d={x:v.x,y:v.y,z:v.z};}const o=o0;
     for(const q of mobs){if(q===m||isAlly(q))continue;const cx=q.x-o.x,cy=q.y+q.h*.5-o.y,cz=q.z-o.z,t=cx*d.x+cy*d.y+cz*d.z;if(t<0||t>L)continue;
       const px=o.x+d.x*t,py=o.y+d.y*t,pz=o.z+d.z*t,rr=(isDrg(q.kind)?q.r*1.5:q.r)+1.6;
       if(Math.abs(px-q.x)<rr&&Math.abs(pz-q.z)<rr&&py>q.y-1.6&&py<q.y+q.h+1.6){mobHurt(q,140*dt*wpnMul,d.x*2,1,d.z*2,'player');if(rand()<.3)hitMark();}}
@@ -4548,9 +4553,14 @@ function rideVehicle(m,dt,f,r,jump,shift,sprint){
     m.yaw=lerpAngle(m.yaw,yaw,Math.min(1,dt*5));
   }
 }
+// 照準（画面のまん中）の先にある点。乗り物の大砲・ロボのわざはここへ向かって撃つ（肩や胸からまっすぐ出すと、照準とずれて空中の敵に当たらない）
+function aimPoint(range){const c=EYE,d=camDir(),mh=mobRay(c,d,range,true),bh=raycastFrom(c,d,range);let t=range;
+  if(mh&&(!bh||mh.t<bh.t))t=mh.t;else if(bh)t=bh.t;return{x:c.x+d.x*t,y:c.y+d.y*t,z:c.z+d.z*t,t};}
+function toward(x,y,z,a,d){const dx=a.x-x,dy=a.y-y,dz=a.z-z,l=Math.hypot(dx,dy,dz);return l<5?{x:d.x,y:d.y,z:d.z}:{x:dx/l,y:dy/l,z:dz/l};}
 function vehicleFire(){
   const m=P.mount;if(!m||!m.def.vehicle||vehCD>0)return;const d=camDir(),k=m.kind,pw=1+(wpnMul-1)*.2;
-  const shell=(x,y,z,sp,power,dmg)=>shoot('rocket',x,y,z,d.x*sp,d.y*sp,d.z*sp,{speed:sp,power:power*pw,dmg:dmg*wpnMul,straight:true,veh:true});
+  const A=k==='robot'?null:aimPoint(240);
+  const shell=(x,y,z,sp,power,dmg)=>{const v=toward(x,y,z,A,d);return shoot('rocket',x,y,z,v.x*sp,v.y*sp,v.z*sp,{speed:sp,power:power*pw,dmg:dmg*wpnMul,straight:true,veh:true});};
   const rx=Math.cos(m.yaw),rz=-Math.sin(m.yaw);
   if(k==='tank'){vehCD=Math.max(.15,1.1/rateMul);const tx=m.x,ty=m.y+1.75,tz=m.z;shell(tx+d.x*3.6,ty+d.y*3.6,tz+d.z*3.6,80,3.4,60);
     noise(.6,.5,500,60);sfx(70,.4,'sawtooth',.12,30);for(let i=0;i<10;i++)addP(tx+d.x*4,ty+d.y*4,tz+d.z*4,d.x*3+(rand()-.5)*2,d.y*3+rand(),d.z*3+(rand()-.5)*2,.8,.3,.75,.75,.75,-.4,1.5);}
@@ -5067,18 +5077,18 @@ function fireRocket(g,it){
 const SW_N=20000;
 const swPos=new Float32Array(SW_N*3),swVel=new Float32Array(SW_N*3),swAim=new Float32Array(SW_N*3);
 const swLife=new Float32Array(SW_N),swAge=new Float32Array(SW_N),swDmg=new Float32Array(SW_N),swPow=new Float32Array(SW_N),swSpd=new Float32Array(SW_N);
-const swMode=new Uint8Array(SW_N),swTgt=new Array(SW_N).fill(null);
+const swMode=new Uint8Array(SW_N),swWet=new Uint8Array(SW_N),swTgt=new Array(SW_N).fill(null);
 let swN=0,swFrame=0,swBoomT=0;
 const swMat=new THREE.MeshBasicMaterial({color:0xffc070});
 const swMesh=new THREE.InstancedMesh(unitBox,swMat,SW_N);swMesh.count=0;swMesh.frustumCulled=false;scene.add(swMesh);
 const swDummy=new THREE.Object3D(),swBooms=new Map(),swHurt=new Map(),swGrid=new Map();
 function swCopy(j,i){for(let k=0;k<3;k++){swPos[i*3+k]=swPos[j*3+k];swVel[i*3+k]=swVel[j*3+k];swAim[i*3+k]=swAim[j*3+k];}
-  swLife[i]=swLife[j];swAge[i]=swAge[j];swDmg[i]=swDmg[j];swPow[i]=swPow[j];swSpd[i]=swSpd[j];swMode[i]=swMode[j];swTgt[i]=swTgt[j];}
+  swLife[i]=swLife[j];swAge[i]=swAge[j];swDmg[i]=swDmg[j];swPow[i]=swPow[j];swSpd[i]=swSpd[j];swMode[i]=swMode[j];swWet[i]=swWet[j];swTgt[i]=swTgt[j];}
 function swKill(i){const j=--swN;if(i!==j)swCopy(j,i);swTgt[j]=null;}
 function swAdd(x,y,z,vx,vy,vz,mode,ax,ay,az,tgt,dmg,pow,life){
   if(swN>=SW_N)swKill(0);
   const i=swN++,o=i*3;swPos[o]=x;swPos[o+1]=y;swPos[o+2]=z;swVel[o]=vx;swVel[o+1]=vy;swVel[o+2]=vz;swAim[o]=ax;swAim[o+1]=ay;swAim[o+2]=az;
-  swLife[i]=life;swAge[i]=0;swDmg[i]=dmg;swPow[i]=pow;swSpd[i]=Math.hypot(vx,vy,vz);swMode[i]=mode;swTgt[i]=tgt;}
+  swLife[i]=life;swAge[i]=0;swDmg[i]=dmg;swPow[i]=pow;swSpd[i]=Math.hypot(vx,vy,vz);swMode[i]=mode;swTgt[i]=tgt;swWet[i]=isLiquid(get(Math.floor(x),Math.floor(y),Math.floor(z)))?1:0;}
 // 近くで同時に起きた爆発は1つの大きな爆発にまとめる（軽くするため）
 function swBoom(x,y,z,pow){const k=Math.floor(x/4)+','+Math.floor(y/4)+','+Math.floor(z/4);let b=swBooms.get(k);
   if(!b){b={x:0,y:0,z:0,n:0,p:0};swBooms.set(k,b);}b.x+=x;b.y+=y;b.z+=z;b.n++;if(pow>b.p)b.p=pow;}
@@ -5123,7 +5133,8 @@ function updateSwarm(dt){
     for(let k=0;k<steps&&!hit;k++){
       const ox=x,oy=y,oz=z;x+=vx*s;y+=vy*s;z+=vz*s;
       const id=get(Math.floor(x),Math.floor(y),Math.floor(z));
-      if(isSolid(id)||id===WATER||y<0){swBoom(ox,oy,oz,swPow[i]);hit=true;break;}
+      if(isSolid(id)||y<0||(isLiquid(id)&&!swWet[i]&&swMode[i]<2)){swBoom(ox,oy,oz,swPow[i]);hit=true;break;}
+      if(swWet[i]&&!isLiquid(id))swWet[i]=0;
       const a=swGrid.get(Math.floor(x/8)+Math.floor(z/8)*4096);
       if(a)for(const m of a){const big=isDrg(m.kind),rr=(big?m.r*1.5:m.r)+.3;
         if(Math.abs(x-m.x)<rr&&Math.abs(z-m.z)<rr&&y>m.y-.2&&y<m.y+m.h+(big?.8:.3)){
@@ -5212,7 +5223,7 @@ function updateWeapons(dt,moving){
 function dragonFire(){
   if(P.fireT>0)return;P.fireT=Math.max(.06,.45/rateMul);const m=P.mount,d=camDir(),ry=m.kind==='ryu';
   const sc=seatScale(m),dr=isDrg(m.kind),fw=ry?1.7*RS:dr?3.0*DS*.7*sc:.5,hx=m.x-Math.sin(m.yaw)*fw,hz=m.z-Math.cos(m.yaw)*fw,hy=m.y+(ry?.85*RS:dr?1.4*DS*sc:.3);
-  shoot('fire',hx,hy,hz,d.x*28+m.vx,d.y*28+m.vy,d.z*28+m.vz);
+  const v=toward(hx,hy,hz,aimPoint(70),d);shoot('fire',hx,hy,hz,v.x*28+m.vx,v.y*28+m.vy,v.z*28+m.vz);
   for(let i=0;i<12;i++)addP(hx,hy,hz,d.x*8+(rand()-.5)*3,d.y*8+(rand()-.5)*3,d.z*8+(rand()-.5)*3,.3,.25,1,.6,.2,0,2);
   noise(.25,.5,2000,400,'bandpass');sfx(120,.4,'sawtooth',.05,60);
 }
@@ -5762,7 +5773,9 @@ function aimText(m){
 function updateTouchLabels(){
   const it=hot[sel],dragon=isFlyMount(P.mount);
   $('tBreak').textContent=isGun(it)||(P.mount&&P.mount.def.vehicle&&P.mount.kind!=='cart')?'うつ':dragon?'ほのお':it===SWORD||it===BEAM?'こうげき':it===WARPGUN?'ワープ':'こわす';
-  $('tPlace').textContent=isGun(it)?(zoom?'ズーム解除':'ズーム'):it>=100?'つかう':'おく';
+  const veh=!!(P.mount&&P.mount.def.vehicle&&P.mount.kind!=='cart'),robo=!!(P.mount&&P.mount.kind==='robot');
+  $('tPlace').textContent=robo?'わざ':isGun(it)?(zoom?'ズーム解除':'ズーム'):it>=100?'つかう':'おく';
+  setBodyClass('veh',veh);setBodyClass('robo',robo);
   $('tFly').textContent=P.mount?'おりる':'しゃがむ';
   $('tFly').classList.toggle('on',touchSneak&&!P.mount);
   $('tJump').textContent=P.fly||dragon?'上へ':'ジャンプ';
