@@ -5592,10 +5592,19 @@ addEventListener('keyup',e=>{keys[e.code]=false;if(e.code==='KeyW')sprintTap=fal
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;breakHeld=useHeld=fireHeld=false;sprintTap=false;});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('contextmenu',e=>{if(playing)e.preventDefault();});
+// マウスロック中のクリックは document で受ける（Safari ではロック中のクリックが canvas に届かないことがあるため）
+document.addEventListener('mousedown',e=>{
+  if(!locked||!playing||isTouch||invOpen)return;
+  if(e.button===1)e.preventDefault();
+  if(e.button===0){if(!pressAttack())breakPulse=true;breakHeld=true;}
+  else if(e.button===2){pressUse();useHeld=true;}
+  else if(e.button===1)pickBlock();
+});
 canvas.addEventListener('mousedown',e=>{
   if(!playing||isTouch||invOpen)return;
   if(e.button===1)e.preventDefault();
-  if(locked){
+  if(locked)return;
+  if(false){
     if(e.button===0){if(!pressAttack())breakPulse=true;breakHeld=true;}
     else if(e.button===2){pressUse();useHeld=true;}
     else if(e.button===1)pickBlock();
@@ -5618,8 +5627,11 @@ addEventListener('mousemove',e=>{
 canvas.addEventListener('wheel',e=>{if(!playing)return;e.preventDefault();select((sel+(e.deltaY>0?1:-1)+9)%9);},{passive:false});
 function requestLock(){
   if(isTouch||dragMode)return;
-  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(lockFail);}catch(e){lockFail();}
+  try{const r=canvas.requestPointerLock();if(r&&r.catch)r.catch(lockFail);}catch(e){lockFail();return;}
+  // Safari などでロックが成功も失敗もしないまま止まるときは、ドラッグ操作に切りかえる
+  clearTimeout(lockWait);lockWait=setTimeout(()=>{if(!locked&&!dragMode&&playing&&!invOpen&&!lockWorked)enableDrag();},900);
 }
+let lockWait=0;
 function lockFail(){if(lockWorked)toast('画面をクリックすると操作に戻ります',2200);else enableDrag();}
 function enableDrag(){if(dragMode)return;dragMode=true;toast('マウスをドラッグして見回せます（長押しでこわす）',2600);}
 document.addEventListener('pointerlockchange',()=>{
