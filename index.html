@@ -215,7 +215,7 @@ body.flying #tDown,body.gun #tReload{display:block}
 #bossbar{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(520px,70vw);z-index:30;text-align:center;pointer-events:none;color:#fff;text-shadow:0 1px 2px #000;font-weight:700}
 #bossbar .bn{font-size:15px;letter-spacing:.08em}#bossbar .bb{height:12px;border:2px solid #1a0a10;background:#3a1a22;margin:3px 0;border-radius:3px;overflow:hidden}#bossbar i{display:block;height:100%;background:linear-gradient(#ff5a7a,#c8183a);width:100%}#bossbar .bc{font-size:12px;opacity:.9}
 input.rng{flex:1;min-width:120px;max-width:240px;accent-color:#f3c445;height:28px}b.rv{min-width:3.6em;text-align:right;color:#ffe9a8}
-#mapCv{display:block;width:100%;max-width:min(620px,85vh);aspect-ratio:640/512;image-rendering:pixelated;border:2px solid var(--line);background:#0b1220;cursor:pointer;touch-action:manipulation}
+#mapCv{display:block;width:100%;max-width:min(620px,85vh);aspect-ratio:1/1;image-rendering:pixelated;border:2px solid var(--line);background:#0b1220;cursor:pointer;touch-action:manipulation}
 .maplist{flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:4px;max-height:min(600px,70vh);overflow:auto}
 .lmh{margin:8px 0 0;font-size:12px;color:var(--sun);letter-spacing:.12em}
 .lm{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;background:rgba(0,0,0,.28);border:2px solid transparent;color:var(--paper);padding:6px 8px;font-size:14px}
@@ -323,7 +323,7 @@ input.rng{flex:1;min-width:120px;max-width:240px;accent-color:#f3c445;height:28p
     </div>
     <div class="mapbody">
       <div class="mapbox">
-        <canvas id="mapCv" width="768" height="614" aria-label="世界の地図"></canvas>
+        <canvas id="mapCv" width="900" height="900" aria-label="世界の地図"></canvas>
         <p class="invinfo" id="mapInfo"></p>
         <div class="btns"><button class="btn" id="mapGo" type="button" hidden>ここへワープ</button></div>
       </div>
@@ -446,6 +446,7 @@ input.rng{flex:1;min-width:120px;max-width:240px;accent-color:#f3c445;height:28p
     </div>
     <div id="titleExtras">
       <ul class="feat">
+        <li class="new">世界が約3倍に（1024×1024）</li><li class="new">日本（東京タワー・清水寺など）</li><li class="new">こわれない大闘技場</li><li class="new">ハワイ（ダイヤモンドヘッドなど）</li><li class="new">世界の名所・宇宙コロニー</li><li class="new">ロボットの5つのわざ</li>
         <li class="new">戦車・ヘリ・飛行機・巨大ロボット</li><li class="new">島をめぐるジェットコースター</li><li class="new">ボス戦4か所</li><li class="new">人・仲間・ペット</li><li class="new">ジェット・つばさ・巨大化薬</li><li class="new">ワープ銃・釣り</li>
         <li class="hot">前の36倍の広い世界</li><li class="hot">雪山・火山・王国・街</li><li class="hot">宇宙と月面基地</li>
         <li class="hot">地下研究所・海底トンネル</li><li class="new">地図とワープ</li><li class="new">体力むてき設定</li>
@@ -508,11 +509,11 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 
 // ================= 定数・ブロック =================
-const W=640,D=512,H=96,CS=16,SEA=10;
+const W=1024,D=1024,H=96,CS=16,SEA=10,OLDW=640,OLDD=512;
 const AIR=0,GRASS=1,DIRT=2,STONE=3,LOG=4,LEAVES=5,SAND=6,PLANKS=7,GLASS=8,BRICK=9,COBBLE=10,BEDROCK=11,SNOW=12,WATER=13,
   BOMB=14,BIGBOMB=15,LAMP=16,JUMPPAD=17,OBSIDIAN=18,GOLD=19,RED=20,ORANGE=21,YELLOW=22,GREEN=23,BLUE=24,WHITE=25,BLACK=26,
   MAGMA=27,ICE=28,COAL=29,IRON=30,RUBYORE=31,FLOWER_R=32,FLOWER_Y=33,TGRASS=34,PUMPKIN=35,SAPLING=36,NEON=37,MOSSY=38,CLOUD=39,BOOKS=40,RUBY=41,
-  ASPHALT=42,ROADLINE=43,CONCRETE=44,WINDOW=45,STEEL=46,MOONROCK=47,BASALT=48,CASTLE=49,ROOFB=50,COPPER=51,LABPANEL=52,LAUNCH=53,WARPSTONE=54,NEONP=55,NEONY=56,MARBLE=57,RSAND=58,TILEROOF=59,PINK=60,GLASSB=61,TRAV=62,TERRA=63,RAIL=64;
+  ASPHALT=42,ROADLINE=43,CONCRETE=44,WINDOW=45,STEEL=46,MOONROCK=47,BASALT=48,CASTLE=49,ROOFB=50,COPPER=51,LABPANEL=52,LAUNCH=53,WARPSTONE=54,NEONP=55,NEONY=56,MARBLE=57,RSAND=58,TILEROOF=59,PINK=60,GLASSB=61,TRAV=62,TERRA=63,RAIL=64,ARENA_S=65,ARENA_F=66,ARENA_L=67;
 const IGNITER=100,THROWBOMB=101,FIREWORK=102,EGG=103,SWORD=104,BOW=105,STAFF=106,WARP=107,
   E_YAK=108,E_WHALE=109,E_IMP=110,E_WISP=111,E_GOLEM=112,E_DRAGON=113,E_BOSS=114,
   HANDGUN=115,MACHINEGUN=116,ROCKET=117,ROCKET2=126,ROCKET3=127,ROCKET4=128,ROCKET5=129,ROCKET6=130,E_TITAN=131,E_GDRAGON=132,E_ELEPHANT=133,E_CAMEL=134,ROCKET7=135,ROCKET8=136,BEAM=137,E_RYU=138,E_GORILLA=139,WARPGUN=140,JETPACK=141,WINGS=142,GIANTPOT=143,E_HORSE=144,V_TANK=145,V_HELI=146,V_JET=147,V_ROBOT=148,MINECART=149,E_DOG=150,E_CAT=151,E_WOLF=152,E_KNIGHT=153,E_SOLDIER=154,ROD=155,MEGA1=156,MEGA2=157,E_EDRAGON=118,
@@ -574,7 +575,7 @@ const BLOCKS={
   [LABPANEL]:{name:'研究所のかべ',t:[59,59,59]},
   [BASALT]:{name:'玄武岩',t:[54,55,54],desc:'火山のまわりの岩'},
   [MOONROCK]:{name:'月の砂',t:[53,53,53],desc:'宇宙にうかぶ月の地面'},
-  [LAUNCH]:{name:'発射台',t:[60,61,61],desc:'乗ると宇宙へ飛んでいく（宇宙では地上へ）'},
+  [LAUNCH]:{name:'発射台',t:[60,61,61],desc:'乗ると宇宙へ飛んでいく（宇宙では地上へ。大闘技場の南の発射台は宇宙コロニー行き）'},
   [MARBLE]:{name:'大理石',t:[66,66,66],desc:'白くかがやく石'},
   [RSAND]:{name:'赤い砂岩',t:[67,67,67]},
   [TILEROOF]:{name:'瓦屋根',t:[68,68,68]},
@@ -583,6 +584,9 @@ const BLOCKS={
   [TRAV]:{name:'トラバーチン（石灰岩）',t:[71,71,71],desc:'コロッセオの石'},
   [TERRA]:{name:'テラコッタのかべ',t:[72,72,72],desc:'ローマの家のかべ'},
   [RAIL]:{name:'レール（線路）',t:[73,74,74],desc:'ならべるとトロッコが走る。上り下りは1段ずつ'},
+  [ARENA_S]:{name:'大闘技場の石',t:[76,76,76],desc:'どんな攻撃でもこわれない'},
+  [ARENA_F]:{name:'大闘技場の床',t:[77,77,77],desc:'どんな攻撃でもこわれない'},
+  [ARENA_L]:{name:'大闘技場の灯り',t:[78,78,78],glow:true,desc:'どんな攻撃でもこわれない'},
   [WARPSTONE]:{name:'旅の石',t:[62,63,62],glow:true,desc:'乗ると地図が開き、見つけた場所へワープできる'}
 };
 const TOOLS={
@@ -681,7 +685,9 @@ const DEFAULT_HOT=[GRASS,PLANKS,BOMB,IGNITER,MACHINEGUN,HANDGUN,ROCKET,E_DRAGON,
 let hot=DEFAULT_HOT.slice();
 
 const world=new Uint8Array(W*H*D);
-const wl=new Uint8Array(W*H*D);       // 水・マグマの量（7=源）
+const wl=new Uint8Array(W*H*D/2);     // 水・マグマの量（7=源）。1マス4bitにつめている
+function wlG(i){return (wl[i>>1]>>((i&1)<<2))&15;}
+function wlS(i,v){const j=i>>1,sh=(i&1)<<2;wl[j]=(wl[j]&~(15<<sh))|((v&15)<<sh);}
 const colTop=new Int16Array(W*D);     // 各列のいちばん上のブロック
 const idx=(x,y,z)=>x+z*W+y*W*D;
 const inB=(x,y,z)=>x>=0&&z>=0&&y>=0&&x<W&&z<D&&y<H;
@@ -708,7 +714,7 @@ let playing=false,invOpen=false,dead=false;
 let bgmOn=true,bgmVol=1,lookMul=1,quality='auto',godMode=false,eggCount=1;
 
 // ================= テクスチャ（ドット絵を自動生成） =================
-const TILE=16,NT=76;
+const TILE=16,NT=79;
 const atlas=document.createElement('canvas');atlas.width=TILE*NT;atlas.height=TILE;
 const ac=atlas.getContext('2d');
 const R=rng(20261118);
@@ -864,6 +870,10 @@ each((x,y)=>{const e=x===0||y===0||x===15||y===15,i2=x===3||y===3||x===12||y===1
   put(64,x,y,e?[150,30,100]:i2?[255,200,240]:[250,90,190],jit(.06));
   put(65,x,y,e?[160,120,20]:i2?[255,250,200]:[250,220,70],jit(.06));});
 
+// 76 大闘技場の石・77 大闘技場の床・78 大闘技場の灯り（こわれない）
+each((x,y)=>{const e=x===0||y===0||x===15||y===15,g=(x===2||x===13)&&y>1&&y<14||(y===2||y===13)&&x>1&&x<14;put(76,x,y,e?[150,128,92]:g?[214,176,90]:[224,206,170],jit(.05));});
+each((x,y)=>{const e=(x&7)===0||(y&7)===0;put(77,x,y,e?[160,136,98]:[210,186,140],jit(.07));});
+each((x,y)=>{const e=x<2||y<2||x>13||y>13,c=Math.hypot(x-7.5,y-7.5);put(78,x,y,e?[200,160,70]:c<3?[255,250,220]:[255,214,120],jit(.04));});
 const tileColor=[];
 (function(){const d=ac.getImageData(0,0,TILE*NT,TILE).data;
   for(let t=0;t<NT;t++){let r=0,g=0,b=0,n=0;
@@ -918,7 +928,7 @@ function geo(T){const g=new THREE.BufferGeometry();
   g.setAttribute('color',new THREE.Float32BufferAttribute(T.c,3));
   g.setAttribute('uv',new THREE.Float32BufferAttribute(T.u,2));
   g.setIndex(T.i);g.computeBoundingSphere();return g;}
-function liquidTop(x,y,z,id){if(get(x,y+1,z)===id)return 1;const l=wl[idx(x,y,z)];return l>=7?.88:.2+l*.1;}
+function liquidTop(x,y,z,id){if(get(x,y+1,z)===id)return 1;const l=wlG(idx(x,y,z));return l>=7?.88:.2+l*.1;}
 // チャンクの形は、使い回す型付き配列に直接書きこむ（配列の push より速く、ゴミも出にくい）
 function mkTB(){return{p:new Float32Array(12288),c:new Float32Array(12288),u:new Float32Array(8192),i:new Uint32Array(6144),nv:0,ni:0};}
 const TB_S=mkTB(),TB_G=mkTB(),TB_W=mkTB();
@@ -940,6 +950,7 @@ function plantQuads(T,x,y,z,tile){
     T.nv+=4;T.ni+=12;}
 }
 const PLANT_Q=[[.15,.15,.85,.85],[.85,.15,.15,.85]];
+const UNBR=new Uint8Array(256);UNBR[65]=UNBR[66]=UNBR[67]=1;
 const BTR=new Uint8Array(256),NBUF=new Uint8Array(6);for(const k in BLOCKS)if(BLOCKS[k].trans)BTR[k]=1;
 function buildChunk(cx,cz){
   if(cx<0||cz<0||cx>=NCX||cz>=NCZ)return;
@@ -1020,6 +1031,7 @@ function flushDirty(budgetMs){
 // ================= 遠くの景色：霧なしで世界のはしまで見通せるように、遠くは軽い形（2×2マスのかたまり）で描く =================
 // 32×32マスの区画ごとに1つの形。近くの区画は細かいチャンクを、遠くの区画はこの軽い形を表示する（重ならないように区画ごとに切りかえ）
 const LT=32,NLT=W/LT,NLTZ=D/LT,LODC=2,LN=LT/LODC;
+let LODMAX=isTouch?480:820;   // 遠くの景色が見える距離（世界が広いので、これより先は霧でかくす）
 const lodMat=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide});
 const lodGlowMat=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide});
 const lods=new Array(NLT*NLTZ).fill(null),lodDirty=new Set();
@@ -1084,9 +1096,9 @@ function updateLodVis(){
     const t=tx+tz*NLT;let det=true;
     for(let k=0;k<4&&det;k++){const cx=tx*2+(k&1),cz=tz*2+(k>>1),dx=cx-pcx,dz=cz-pcz;if(!chunks[cx+cz*NCX]||dx*dx+dz*dz>V)det=false;}
     for(let k=0;k<4;k++){const ch=chunks[tx*2+(k&1)+(tz*2+(k>>1))*NCX];if(ch&&ch.near!==det)showChunk(ch,det);}
-    let L=lods[t];
-    if(!det&&(!L||lodDirty.has(t))&&rebuilt<2){buildLodTile(tx,tz);L=lods[t];rebuilt++;}
-    if(L&&L.on===det)showLod(L,!det);
+    let L=lods[t];const ex=(tx+.5)*LT-f.x,ez=(tz+.5)*LT-f.z,want=!det&&ex*ex+ez*ez<LODMAX*LODMAX;
+    if(want&&(!L||lodDirty.has(t))&&rebuilt<2){buildLodTile(tx,tz);L=lods[t];rebuilt++;}
+    if(L&&L.on!==want)showLod(L,want);
   }
 }
 
@@ -1132,7 +1144,7 @@ function makeNoise(seed){
     return (A+(B-A)*sx)+((Cc+(Dd-Cc)*sx)-(A+(B-A)*sx))*sy;};
   return (x,y)=>{let s=0,amp=.5,f=1,n=0;for(let o=0;o<4;o++){s+=amp*n2(x*f,y*f);n+=amp;amp*=.5;f*=2;}return s/n;};
 }
-function wput(k,id){world[k]=id;wl[k]=0;if(trackEdits)edits.add(k);}
+function wput(k,id){if(UNBR[world[k]]&&world[k]!==id)return;world[k]=id;wlS(k,0);if(trackEdits)edits.add(k);}
 function growTree(x,y,z,r){
   r=r||rand;const th=4+(r()*2|0),top=y+th-1;
   for(let dy=-2;dy<=1;dy++){const rad=dy<0?2:1;
@@ -1145,7 +1157,7 @@ function growTree(x,y,z,r){
 // ================= 世界の生成（広いオープンワールド 384×384） =================
 // まんなか＝はじまりの島（前の島と同じ作り方）、北＝雪山、東＝火山、南＝いにしえの王国、西＝ニューヨークふうの街、
 // 地下＝研究所と地下鉄（海の下はガラスのトンネル）、上空（高さ72より上）＝宇宙（月面基地・宇宙ステーション）
-const OW=384,CX=OW/2,CZ=OW/2,OX=CX-32,OZ=CZ-32,SPACE_Y=72,GEN_VER=3;
+const OW=384,CX=OW/2,CZ=OW/2,OX=CX-32,OZ=CZ-32,SPACE_Y=72,GEN_VER=4;
 const NYB={x0:12,x1:126,z0:112,z1:262};
 const CITY={x0:22,x1:117,z0:124,z1:251};
 const PARK={x0:52,x1:93,z0:156,z1:183};
@@ -1160,13 +1172,13 @@ const LAKE={x:150,z:94,r:13};
 const MOON={x:300,z:74,r:34,y:80};
 const STATION={x:232,z:116,y:88};
 const SUB={z0:197,z1:203,x0:46,x1:269};
-const REGN=['center','snow','volcano','kingdom','city','sea','sf','dubai','india','shanghai','rome','singapore'];
+const REGN=['center','snow','volcano','kingdom','city','sea','sf','dubai','india','shanghai','rome','singapore','tokyo','kyoto','fuji','arena2','oahu','bigisland','egypt','london','paris','wall','moai'];
 const REGION_NAME={center:'はじまりの島',sea:'外海',snow:'白銀の雪山',volcano:'ホムラ火山',kingdom:'いにしえの王国',city:'ニューヨークふうの街',
-  lab:'地下研究所',subway:'地下鉄・海底トンネル',space:'宇宙',sf:'サンフランシスコふうの街',dubai:'ドバイふうの砂漠都市',india:'インドふうの都',shanghai:'上海ふうの港町',rome:'ローマふうの都',singapore:'シンガポールふうの湾岸都市'};
+  lab:'地下研究所',subway:'地下鉄・海底トンネル',space:'宇宙',sf:'サンフランシスコふうの街',dubai:'ドバイふうの砂漠都市',india:'インドふうの都',shanghai:'上海ふうの港町',rome:'ローマふうの都',singapore:'シンガポールふうの湾岸都市',tokyo:'東京',kyoto:'京都・奈良',fuji:'富士山',arena2:'大闘技場',oahu:'オアフ島（ハワイ）',bigisland:'ハワイ島',egypt:'エジプト',london:'ロンドン',paris:'パリ',wall:'万里の長城',moai:'イースター島',colony:'宇宙コロニー'};
 const REG=new Uint8Array(W*D);
 let HM=null,LANDMARKS=[],PADS=[],classicSnap=null,spawnLabGolems=[];
 const smooth=(a,b,v)=>{let t=(v-a)/(b-a);t=t<0?0:t>1?1:t;return t*t*(3-2*t);};
-function gset(x,y,z,id,l){if(x<0||z<0||y<0||x>=W||z>=D||y>=H)return;const i=idx(x,y,z);world[i]=id;wl[i]=isLiquid(id)?(l||7):0;}
+function gset(x,y,z,id,l){if(x<0||z<0||y<0||x>=W||z>=D||y>=H)return;const i=idx(x,y,z);world[i]=id;wlS(i,isLiquid(id)?(l||7):0);}
 function gget(x,y,z){return get(x,y,z);}
 function fillB(x0,y0,z0,x1,y1,z1,id){for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++)gset(x,y,z,id);}
 function gh(x,z){x=Math.max(0,Math.min(W-1,x|0));z=Math.max(0,Math.min(D-1,z|0));return HM[x+z*W];}
@@ -1213,7 +1225,7 @@ function addLM(id,name,reg,x,z,y,noStone){
 // ---- 前の島（64×64）を、まんなかにそのまま作る ----
 function genClassic(sd){
   const w=64,dd=64,hh=40,ox=OX,oz=OZ,I=(x,y,z)=>idx(x+ox,y,z+oz);
-  for(let y=0;y<H;y++)for(let z=0;z<dd;z++){const b=idx(ox,y,z+oz);world.fill(0,b,b+w);wl.fill(0,b,b+w);}
+  for(let y=0;y<H;y++)for(let z=0;z<dd;z++){const b=idx(ox,y,z+oz);world.fill(0,b,b+w);wl.fill(0,b>>1,(b+w)>>1);}
   const fbm=makeNoise(sd),r=rng(sd^0x9e3779b9);
   const hm=new Int16Array(w*dd);
   for(let z=0;z<dd;z++)for(let x=0;x<w;x++){
@@ -1227,7 +1239,7 @@ function genClassic(sd){
       if(y===0)id=BEDROCK;
       else if(y<h-3){
         id=STONE;const q=r();
-        if(y<=3&&q<.012){id=MAGMA;wl[I(x,y,z)]=7;}
+        if(y<=3&&q<.012){id=MAGMA;wlS(I(x,y,z),7);}
         else if(y<8&&q<.016)id=RUBYORE;
         else if(y<14&&q<.03)id=IRON;
         else if(y<20&&q<.05)id=COAL;
@@ -1236,7 +1248,7 @@ function genClassic(sd){
       else id=beach?(h>=SEA-4?SAND:DIRT):(h>=25?SNOW:(h>=23&&r()<.5?STONE:GRASS));
       world[I(x,y,z)]=id;
     }
-    for(let y=h+1;y<=SEA;y++){world[I(x,y,z)]=WATER;wl[I(x,y,z)]=7;}
+    for(let y=h+1;y<=SEA;y++){world[I(x,y,z)]=WATER;wlS(I(x,y,z),7);}
   }
   for(let z=3;z<dd-3;z++)for(let x=3;x<w-3;x++){
     const h=hm[x+z*w];
@@ -1258,7 +1270,7 @@ function genClassic(sd){
     for(let dz=-4;dz<=4;dz++)for(let dx=-4;dx<=4;dx++){
       const d=Math.hypot(dx,dz),xx=x+dx,zz=z+dz;if(d>4.2)continue;
       for(let y=h-1;y<hh;y++)if(world[I(xx,y,zz)]!==AIR&&world[I(xx,y,zz)]!==MAGMA)world[I(xx,y,zz)]=AIR;
-      if(d<3){world[I(xx,h-1,zz)]=MAGMA;wl[I(xx,h-1,zz)]=7;world[I(xx,h-2,zz)]=STONE;}
+      if(d<3){world[I(xx,h-1,zz)]=MAGMA;wlS(I(xx,h-1,zz),7);world[I(xx,h-2,zz)]=STONE;}
       else{world[I(xx,h-1,zz)]=d<3.6?OBSIDIAN:STONE;}
     }
     break;
@@ -1276,15 +1288,16 @@ function genClassic(sd){
 }
 // 前の島の「最初の状態」をとっておく（前の保存データから、遊んだ変化だけを取り出すため）
 function snapClassic(){const n=64*64*40,a=new Uint8Array(n),b=new Uint8Array(n);
-  for(let y=0;y<40;y++)for(let z=0;z<64;z++)for(let x=0;x<64;x++){const i=x+z*64+y*4096,j=idx(x+OX,y,z+OZ);a[i]=world[j];b[i]=wl[j];}
+  for(let y=0;y<40;y++)for(let z=0;z<64;z++)for(let x=0;x<64;x++){const i=x+z*64+y*4096,j=idx(x+OX,y,z+OZ);a[i]=world[j];b[i]=wlG(j);}
   classicSnap={w:a,l:b};}
 
 // ---- 地形（行ごとに少しずつ） ----
 function* genTerrain(sd){
-  const nA=makeNoise(sd^0x51ed),nB=makeNoise(sd^0x2b7f),nC=makeNoise(sd^0x7733),r=rng(sd^0x1234567),r2=rng(sd^0x2468ace),r3=rng(sd^0x13579b);
+  const nA=makeNoise(sd^0x51ed),nB=makeNoise(sd^0x2b7f),nC=makeNoise(sd^0x7733),r=rng(sd^0x1234567),r2=rng(sd^0x2468ace),r3=rng(sd^0x13579b),r4=rng(sd^0x19a1f3);
   HM=new Int16Array(W*D);
   for(let z=0;z<D;z++){
     for(let x=0;x<W;x++){
+      if(x>=OLDW||z>=OLDD){newCell3(x,z,nA,nB,nC,r4);continue;}
       if(x>=EW){newCell2(x,z,nA,nB,nC,r3);continue;}
       if(x>=OW||z>=OW){newCell(x,z,nA,nB,nC,r2);continue;}
       const dx=x-CX,dz=z-CZ,d=Math.hypot(dx,dz);
@@ -1337,16 +1350,16 @@ function* genTerrain(sd){
         else if(y<h)id=sub;else id=top;
         world[base+y*st]=id;
       }
-      for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wl[base+y*st]=7;}
+      for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wlS(base+y*st,7);}
     }
-    if((z&7)===7)yield{p:.03+z/D*.32,t:'地形をつくっています'};
+    if((z&15)===15)yield{p:.03+z/D*.32,t:'地形をつくっています'};
   }
 }
 // ---- 草・木・花 ----
 function* genPlants(sd){
   const r=rng(sd^0x3141);
-  for(let z=4;z<D-4;z++){
-    for(let x=4;x<W-4;x++){
+  for(let z=4;z<OLDD-4;z++){
+    for(let x=4;x<OLDW-4;x++){
       const k=x+z*W,reg=REG[k],h=HM[k];if(reg===0||reg===4||reg===5||reg>=6||h<=SEA+1)continue;
       const tp=world[idx(x,h,z)],q=r();
       if(reg===1){
@@ -1363,7 +1376,7 @@ function* genPlants(sd){
         else if(q<.12)gset(x,h+1,z,FLOWER_Y);
       }
     }
-    if((z&15)===15)yield{p:.35+z/D*.08,t:'木と花を植えています'};
+    if((z&15)===15)yield{p:.35+z/OLDD*.08,t:'木と花を植えています'};
   }
 }
 
@@ -1852,7 +1865,7 @@ function newCell(x,z,nA,nB,nC,r){
   for(let y=1;y<=h;y++){let id;
     if(y<h-3){id=STONE;const q=r();if(y<9&&q<.012)id=RUBYORE;else if(y<18&&q<.028)id=IRON;else if(y<30&&q<.045)id=COAL;}
     else if(y<h)id=sub;else id=top;world[base+y*st]=id;}
-  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wl[base+y*st]=7;}
+  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wlS(base+y*st,7);}
 }
 function palmTree(x,y,z,r){
   const th=6+(r()*4|0),lean=r()<.5?1:-1;let px=x;
@@ -2109,12 +2122,12 @@ function genDubai(r){
 }
 function* genNewPlants(sd){
   const r=rng(sd^0x7a7a7a);
-  for(let z=4;z<D-4;z++){for(let x=4;x<W-4;x++){if(x<OW&&z<OW)continue;const k=x+z*W,reg=REG[k],h=HM[k];if(reg<6||reg>=10||h<=SEA+1)continue;
+  for(let z=4;z<OLDD-4;z++){for(let x=4;x<OLDW-4;x++){if(x<OW&&z<OW)continue;const k=x+z*W,reg=REG[k],h=HM[k];if(reg<6||reg>=10||h<=SEA+1)continue;
     const tp=world[idx(x,h,z)],q=r();
     if(reg===6&&tp===GRASS){if(q<.012)growTree(x,h+1,z,r);else if(q<.08)gset(x,h+1,z,TGRASS);else if(q<.1)gset(x,h+1,z,FLOWER_Y);}
     else if(reg===8&&(tp===GRASS||tp===DIRT)){if(q<.006)growTree(x,h+1,z,r);else if(q<.01)palmTree(x,h+1,z,r);else if(q<.05&&tp===GRASS)gset(x,h+1,z,TGRASS);else if(q<.07)gset(x,h+1,z,FLOWER_R);}
     else if(reg===7&&tp===SAND&&q<.0025&&Math.hypot(x-BURJ.x,z-BURJ.z)>50)palmTree(x,h+1,z,r);}
-    if((z&31)===31)yield{p:.62+z/D*.03,t:'木を植えています'};}
+    if((z&31)===31)yield{p:.62+z/OLDD*.03,t:'木を植えています'};}
 }
 function genLinks(r){
   // 前からある世界と、新しい街をつなぐ橋
@@ -2149,7 +2162,7 @@ function newCell2(x,z,nA,nB,nC,r){
   for(let y=1;y<=h;y++){let id;
     if(y<h-3){id=STONE;const q=r();if(y<9&&q<.012)id=RUBYORE;else if(y<18&&q<.028)id=IRON;else if(y<30&&q<.045)id=COAL;}
     else if(y<h)id=sub;else id=top;world[base+y*st]=id;}
-  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wl[base+y*st]=7;}
+  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wlS(base+y*st,7);}
 }
 function streetTop(x,z,id){const k=x+z*W,h=HM[k];if(h<=SEA)return;for(let y=h+1;y<h+10;y++){const c=get(x,y,z);if(c===LOG||c===LEAVES||isPlant(c))gset(x,y,z,AIR);}gset(x,h,z,id);}
 function umbrellaPine(x,y,z,r){const th=6+(r()*3|0);for(let k=0;k<th;k++)gset(x,y+k,z,LOG);
@@ -2405,16 +2418,16 @@ function genCoaster(){
   for(let rep=0;rep<2;rep++){for(let i=0;i<N;i++){const p=h[(i-1+N)%N];if(h[i]<p-1)h[i]=p-1;}for(let i=N-1;i>=0;i--){const q=h[(i+1)%N];if(h[i]<q-1)h[i]=q-1;}}
   for(let i=0;i<N;i++){const [x,z]=cells[i],y=Math.min(66,h[i]);h[i]=y;
     world[idx(x,y,z)]=RAIL;for(let k=1;k<=4;k++)world[idx(x,y+k,z)]=AIR;
-    if(i%5===0){for(let yy=y-1;yy>0;yy--){const id=world[idx(x,yy,z)];if(id&&id!==WATER&&id!==LEAVES&&!isPlant(id))break;world[idx(x,yy,z)]=WHITE;wl[idx(x,yy,z)]=0;}}}
+    if(i%5===0){for(let yy=y-1;yy>0;yy--){const id=world[idx(x,yy,z)];if(id&&id!==WATER&&id!==LEAVES&&!isPlant(id))break;world[idx(x,yy,z)]=WHITE;wlS(idx(x,yy,z),0);}}}
   const track=new Set(cells.map(c=>c[0]+','+c[1]));
   // 駅：線路の横に乗り場（2×5）。地面には旅の石（乗ると地図が開いて駅へワープできる）
   for(const k in stIdx){const i=+k,a=stIdx[k],[x,z]=cells[i],nx=cells[(i+1)%N],dx=nx[0]-x,dz=nx[1]-z,y=h[i];
     // 乗り場は線路が通っていない側に作る
     let px=-dz,pz=dx;const onTrack=(sx,sz)=>{for(let a2=-3;a2<=3;a2++)for(let q=1;q<=3;q++)if(track.has((x+dx*a2+sx*q)+','+(z+dz*a2+sz*q)))return true;return false;};
     if(onTrack(px,pz)){px=-px;pz=-pz;}
-    for(let a2=-2;a2<=2;a2++)for(let s=1;s<=2;s++){const cx=x+dx*a2+px*s,cz=z+dz*a2+pz*s;if(cx<1||cz<1||cx>=W-1||cz>=D-1)continue;
+    for(let a2=-2;a2<=2;a2++)for(let s=1;s<=2;s++){const cx=x+dx*a2+px*s,cz=z+dz*a2+pz*s;if(cx<1||cz<1||cx>=OLDW-1||cz>=OLDD-1)continue;
       if(world[idx(cx,y,cz)]===RAIL)continue;world[idx(cx,y,cz)]=PLANKS;for(let kk=1;kk<=3;kk++)world[idx(cx,y+kk,cz)]=AIR;
-      if(s===2&&Math.abs(a2)===2)for(let yy=y-1;yy>0;yy--){const id=world[idx(cx,yy,cz)];if(id&&id!==WATER&&!isPlant(id))break;world[idx(cx,yy,cz)]=WHITE;wl[idx(cx,yy,cz)]=0;}}
+      if(s===2&&Math.abs(a2)===2)for(let yy=y-1;yy>0;yy--){const id=world[idx(cx,yy,cz)];if(id&&id!==WATER&&!isPlant(id))break;world[idx(cx,yy,cz)]=WHITE;wlS(idx(cx,yy,cz),0);}}
     for(const s of [-2,2])world[idx(x+dx*s+px*2,y+1,z+dz*s+pz*2)]=LAMP;
     const lx=x+px*2,lz=z+pz*2;
     // 地面の旅の石（真下の地面）
@@ -2453,7 +2466,7 @@ function genBossArenas(){
     world[idx(cx+ARENA_R-4,y0,cz)]=WARPSTONE;
     LANDMARKS.push({id:A.id,name:A.name+'（ボス戦）',reg:REGN[REG[cx+cz*W]]==='sea'?'center':(REGN[REG[cx+cz*W]]||'center'),x:cx+ARENA_R-3.5,y:y0+1,z:cz+.5,tall:true,boss:true});
     const gy=genColTop(cx,cz);
-    if(gy<SEA){for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){world[idx(cx+dx,SEA,cz+dz)]=PLANKS;wl[idx(cx+dx,SEA,cz+dz)]=0;}world[idx(cx,SEA+1,cz)]=WARPSTONE;}
+    if(gy<SEA){for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){world[idx(cx+dx,SEA,cz+dz)]=PLANKS;wlS(idx(cx+dx,SEA,cz+dz),0);}world[idx(cx,SEA+1,cz)]=WARPSTONE;}
     else if(gy<y0-14)world[idx(cx,gy+1,cz)]=WARPSTONE;
   }
 }
@@ -2466,21 +2479,550 @@ function genFishing(){
   FISH_PIERS.length=0;
   for(const S of FISH_SPOTS){let best=null;
     for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){let x=S.x,z=S.z,lastLand=null;
-      for(let k=0;k<70;k++){x+=dx;z+=dz;if(x<2||z<2||x>=W-2||z>=D-2)break;const top=genColTop(x,z),wtr=world[idx(x,SEA,z)]===WATER;
+      for(let k=0;k<70;k++){x+=dx;z+=dz;if(x<2||z<2||x>=OLDW-2||z>=OLDD-2)break;const top=genColTop(x,z),wtr=world[idx(x,SEA,z)]===WATER;
         if(!wtr&&top>SEA){lastLand=[x,z,top];continue;}
-        if(wtr&&lastLand){let ok=true;for(let q=1;q<=12;q++){const xx=x+dx*q,zz=z+dz*q;if(xx<1||zz<1||xx>=W-1||zz>=D-1||world[idx(xx,SEA,zz)]!==WATER){ok=false;break;}}
+        if(wtr&&lastLand){let ok=true;for(let q=1;q<=12;q++){const xx=x+dx*q,zz=z+dz*q;if(xx<1||zz<1||xx>=OLDW-1||zz>=OLDD-1||world[idx(xx,SEA,zz)]!==WATER){ok=false;break;}}
           if(ok){const dist=Math.hypot(lastLand[0]-S.x,lastLand[1]-S.z);if(!best||dist<best.dist)best={dist,x0:lastLand[0],z0:lastLand[1],top:lastLand[2],dx,dz};}break;}}}
     if(!best)continue;
     const {x0,z0,dx,dz}=best,px=-dz,pz=dx,y=SEA+1;
     for(let k=0;k<=11;k++)for(let s=-1;s<=1;s++){const x=x0+dx*k+px*s,z=z0+dz*k+pz*s;
-      for(let yy=y;yy<=y+4;yy++)world[idx(x,yy,z)]=AIR;world[idx(x,y,z)]=PLANKS;wl[idx(x,y,z)]=0;
-      if(k%3===0&&s!==0)for(let yy=1;yy<y;yy++){const id=world[idx(x,yy,z)];if(id&&id!==WATER)continue;world[idx(x,yy,z)]=LOG;wl[idx(x,yy,z)]=0;}}
+      for(let yy=y;yy<=y+4;yy++)world[idx(x,yy,z)]=AIR;world[idx(x,y,z)]=PLANKS;wlS(idx(x,y,z),0);
+      if(k%3===0&&s!==0)for(let yy=1;yy<y;yy++){const id=world[idx(x,yy,z)];if(id&&id!==WATER)continue;world[idx(x,yy,z)]=LOG;wlS(idx(x,yy,z),0);}}
     for(const s of [-1,1]){world[idx(x0+dx*11+px*s,y+1,z0+dz*11+pz*s)]=LAMP;world[idx(x0+dx*4+px*s,y+1,z0+dz*4+pz*s)]=LAMP;}
     // 岸から桟橋へ上がる段
     for(let k=-3;k<0;k++){const x=x0+dx*k,z=z0+dz*k,t=genColTop(x,z);if(t>y)for(let yy=y+1;yy<=t;yy++)world[idx(x,yy,z)]=AIR;if(t<y)world[idx(x,y,z)]=PLANKS;}
     const ex=x0+dx*10,ez=z0+dz*10;world[idx(ex,y,ez)]=WARPSTONE;
     LANDMARKS.push({id:S.id,name:S.name,reg:REGN[REG[x0+z0*W]]==='sea'?'center':(REGN[REG[x0+z0*W]]||'center'),x:ex+.5,y:y+1,z:ez+.5});
     FISH_PIERS.push({x:ex+.5,z:ez+.5,y:y+1});}
+}
+
+// ================= v19：広がった世界（日本・大闘技場・ハワイ・世界の名所・宇宙コロニー） =================
+// 古い世界（x<640, z<512）はそのまま。外がわはすべて newCell3 でつくる
+const JPB={x0:664,x1:1010,z0:16,z1:330};        // 日本（東京・京都・富士山）
+const ARB={x0:692,x1:988,z0:352,z1:598};        // 大闘技場の島
+const GA={x:840,z:475,a:125,b:105,G:14};        // 大闘技場（面積がコロッセオの約10倍）
+const EGB={x0:20,x1:258,z0:560,z1:790};         // エジプト
+const LDB={x0:292,x1:518,z0:560,z1:770};        // ロンドン
+const PRB={x0:20,x1:258,z0:822,z1:1004};        // パリ
+const GWB={x0:292,x1:518,z0:800,z1:1004};       // 万里の長城
+const OAHU={x:645,z:740,rx:92,rz:58},DHEAD={x:712,z:792},BIGI={x:880,z:885,r:112},MKEA={x:855,z:835},MLOA={x:890,z:905},KILA={x:940,z:918},MOAI={x:548,z:966};
+const COLONY={x0:560,x1:780,z:640,y:84,r:11};   // 宇宙コロニー（海の上の宇宙）
+const thames=x=>685+6*Math.sin(x/40),seine=x=>868+5*Math.sin(x/25);
+function newCell3(x,z,nA,nB,nC,r){
+  const f1=nB(x/52+11,z/52+5),f2=nB(x/17+40,z/17+90),f3=nC(x/30+3,z/30+8),cn=nA(x/40+9,z/40+1);
+  const rl=b=>(x<b.x0-12||x>b.x1+12||z<b.z0-12||z>b.z1+12)?0:smooth(0,10,Math.min(x-b.x0,b.x1-x,z-b.z0,b.z1-z)+(cn-.5)*8);
+  let land=0,reg=5,hL=12,top=GRASS,sub=DIRT,deep=STONE;
+  let l=rl(JPB);
+  if(l>land){land=l;
+    if(z>=218){reg=14;hL=14+f1*3+f2;const d=Math.hypot(x-770,z-282);
+      if(d<58){let c=14+74*Math.pow(1-d/58,1.25);if(d<5)c-=(5-d)*1.6;hL=Math.max(hL,c);}
+      hL+=6*Math.exp(-((x-930)*(x-930)+(z-276)*(z-276))/300);
+      if(Math.hypot((x-735)/16,(z-236)/9)<1)hL=8;}           // 富士の湖
+    else if(x<851){reg=12;hL=13+f1*.8;}
+    else{reg=13;hL=14+f1*2+24*smooth(940,995,x)*(z<130?1:.55)+14*Math.exp(-((x-962)*(x-962)+(z-188)*(z-188))/500);}}
+  l=rl(ARB);if(l>land){land=l;reg=15;hL=14;}
+  l=rl(EGB);if(l>land){land=l;reg=18;hL=13+f1*3+(f2-.5)*2;}
+  l=rl(LDB);if(l>land){land=l;reg=19;hL=13+f1*1.2;const hw=9+6*Math.exp(-((x-455)*(x-455))/300);if(Math.abs(z-thames(x))<hw)hL=6;}
+  l=rl(PRB);if(l>land){land=l;reg=20;hL=13+f1;if(Math.abs(z-seine(x))<5)hL=6;}
+  l=rl(GWB);if(l>land){land=l;reg=21;const rg=1-Math.abs(2*nB(x/45+3,z/45+7)-1);hL=17+30*Math.pow(rg,1.6)+f2*3;}
+  // オアフ島
+  if(Math.abs(x-OAHU.x)<120&&Math.abs(z-OAHU.z)<90){
+    const u=Math.hypot((x-OAHU.x)/OAHU.rx,(z-OAHU.z)/OAHU.rz)+(cn-.5)*.22;let lo=smooth(1.02,.9,u);
+    const dd=Math.hypot(x-DHEAD.x,z-DHEAD.z);lo=Math.max(lo,smooth(19,15,dd));
+    const ph=Math.hypot(x-588,(z-772)*1.4);if(ph<15)lo*=smooth(10,15,ph);       // 真珠湾
+    if(Math.hypot(x-737,z-779)<9)lo*=smooth(6,9,Math.hypot(x-737,z-779));       // ハナウマ湾
+    if(lo>land){land=lo;reg=16;
+      hL=14+f1*3+24*Math.exp(-(x-706)*(x-706)/160)*smooth(.95,.55,u)+16*Math.exp(-(x-582)*(x-582)/140)*smooth(.95,.55,u);
+      if(z>778&&x>630&&x<700)hL=Math.min(hL,13);                                    // ワイキキの浜
+      if(dd<18){const rim=14+20*Math.exp(-(dd-11)*(dd-11)/14);hL=dd<9?Math.max(22,Math.min(hL,22)):Math.max(hL,rim);if(dd<9)hL=22;}}}
+  // ハワイ島
+  if(Math.abs(x-BIGI.x)<135&&Math.abs(z-BIGI.z)<135){
+    const u=Math.hypot(x-BIGI.x,z-BIGI.z)/BIGI.r+(cn-.5)*.25,lo=smooth(1.02,.9,u);
+    if(lo>land){land=lo;reg=17;const dk=Math.hypot(x-MKEA.x,z-MKEA.z),dl=Math.hypot(x-MLOA.x,z-MLOA.z),dc=Math.hypot(x-KILA.x,z-KILA.z);
+      hL=14+f1*3+58*Math.exp(-dk*dk/900)+34*Math.exp(-dl*dl/2600);
+      if(dc<20){const fl=24;hL=dc<16?fl:Math.max(fl,hL);}
+      hL=Math.min(hL,84);}}
+  // イースター島（モアイ）
+  {const dm=Math.hypot(x-MOAI.x,z-MOAI.z)+(cn-.5)*4,lo=smooth(20,16,dm);if(lo>land){land=lo;reg=22;hL=14+5*smooth(16,0,dm);}}
+  const seab=3+f2*3+f3;let h=Math.round(seab+(hL-seab)*land);h=Math.max(1,Math.min(88,h));
+  HM[x+z*W]=h;REG[x+z*W]=land>.5?reg:5;
+  const beach=h<=SEA+1;
+  if(beach){top=SAND;sub=SAND;if(reg===17&&z>935){top=BASALT;sub=BASALT;}}
+  else if(reg===18){top=SAND;sub=SAND;}
+  else if(reg===14&&h>=60){top=SNOW;sub=SNOW;}
+  else if(reg===14&&h>=44){top=f3>.5?BASALT:STONE;sub=BASALT;}
+  else if(reg===17){const dc=Math.hypot(x-KILA.x,z-KILA.z);if(h>=66){top=SNOW;sub=SNOW;}else if(h>=50||dc<34||(x>935&&z>925)){top=BASALT;sub=BASALT;deep=BASALT;}}
+  else if(reg===21&&h>=38){top=f3>.5?STONE:GRASS;}
+  const base=idx(x,0,z),st=W*D;world[base]=BEDROCK;
+  for(let y=1;y<=h;y++){let id;
+    if(y<h-3){id=deep;if(id===STONE){const q=r();if(y<9&&q<.012)id=RUBYORE;else if(y<18&&q<.028)id=IRON;else if(y<30&&q<.045)id=COAL;}}
+    else if(y<h)id=sub;else id=top;world[base+y*st]=id;}
+  for(let y=h+1;y<=SEA;y++){world[base+y*st]=WATER;wlS(base+y*st,7);}
+}
+// ---------- 小さな道具 ----------
+const col=(x,z,y0,y1,id)=>{for(let y=y0;y<=y1;y++)gset(x,y,z,id);};
+const rect=(x0,z0,x1,z1,y,id)=>{for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++)gset(x,y,z,id);};
+function shell(x0,y0,z0,x1,y1,z1,wall,flr,win){
+  for(let y=y0;y<=y1;y++)for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++){const e=x===x0||x===x1||z===z0||z===z1;
+    if(y===y0)gset(x,y,z,flr||wall);else if(e)gset(x,y,z,win&&(y-y0)%3!==0&&((x+z)%3!==0)?win:wall);else gset(x,y,z,AIR);}}
+function hipRoof(x0,z0,x1,z1,y,id,ov,edge){ov=ov==null?2:ov;let k=0;
+  while(x0-ov+k<=x1+ov-k&&z0-ov+k<=z1+ov-k){for(let z=z0-ov+k;z<=z1+ov-k;z++)for(let x=x0-ov+k;x<=x1+ov-k;x++){const e=x===x0-ov+k||x===x1+ov-k||z===z0-ov+k||z===z1+ov-k;if(e||k===0)gset(x,y+k,z,k===0&&edge&&e?edge:id);}
+    k++;if(k>14)break;}
+  return y+k;}
+function torii(cx,cz,y,h,w,alongX,c){c=c||ORANGE;const P=(o,yy,id)=>alongX?gset(cx,yy,cz+o,id):gset(cx+o,yy,cz,id);
+  for(const o of [-w,w])for(let yy=y;yy<y+h;yy++)P(o,yy,c);
+  for(let o=-w-1;o<=w+1;o++){P(o,y+h-2,c);P(o,y+h,BLACK);}for(let o=-w-2;o<=w+2;o++)P(o,y+h+1,BLACK);P(0,y+h-1,c);}
+function sakura(x,y,z,r){const th=3+(r()*2|0);for(let k=0;k<th;k++)gset(x,y+k,z,LOG);
+  for(let dy=-1;dy<=2;dy++)for(let dz=-3;dz<=3;dz++)for(let dx=-3;dx<=3;dx++){if(dx*dx+dz*dz+dy*dy*2>10||r()<.12)continue;if(get(x+dx,y+th+dy,z+dz)===AIR)gset(x+dx,y+th+dy,z+dz,PINK);}}
+function maple(x,y,z,r){const th=3+(r()*2|0);for(let k=0;k<th;k++)gset(x,y+k,z,LOG);
+  for(let dy=-1;dy<=1;dy++)for(let dz=-2;dz<=2;dz++)for(let dx=-2;dx<=2;dx++){if(dx*dx+dz*dz+dy*dy>6||r()<.15)continue;if(get(x+dx,y+th+dy,z+dz)===AIR)gset(x+dx,y+th+dy,z+dz,r()<.5?ORANGE:RED);}}
+function glassTower(x0,z0,w,d,G,T,c1,c2){
+  for(let y=G+1;y<=T;y++)for(let z=z0;z<z0+d;z++)for(let x=x0;x<x0+w;x++){const e=x===x0||x===x0+w-1||z===z0||z===z0+d-1;
+    gset(x,y,z,!e?(y%5===0?CONCRETE:AIR):(y%5===0?(c2||STEEL):((x+z+y)%4===0?WINDOW:(c1||GLASSB))));}
+  rect(x0,z0,x0+w-1,z0+d-1,T+1,CONCRETE);}
+// 鉄骨の塔（東京タワー・エッフェル塔）：4本の足・格子・展望台
+function latticeTower(cx,cz,G,T,base,pw,cA,cB,decks,arches){
+  for(let k=0;k<=T;k++){const y=G+1+k,t=k/T,hw=Math.max(1,Math.round(base*Math.pow(1-t,pw)+1));
+    const c=cB&&k>T*.3&&Math.floor((T-k)/5)%2===1?cB:cA;
+    for(const sx of [-1,1])for(const sz of [-1,1]){gset(cx+sx*hw,y,cz+sz*hw,c);if(hw>4){gset(cx+sx*(hw-1),y,cz+sz*hw,c);gset(cx+sx*hw,y,cz+sz*(hw-1),c);}}
+    const ring=k%6===0||hw<=2;if(arches&&k<arches&&hw>6){const a=Math.sqrt(Math.max(0,1-(k/arches)*(k/arches)))*(hw-2);
+        for(let o=-hw;o<=hw;o++)if(Math.abs(o)>a&&Math.abs(o)<hw-1&&k>arches*.55){gset(cx+o,y,cz-hw,c);gset(cx+o,y,cz+hw,c);gset(cx-hw,y,cz+o,c);gset(cx+hw,y,cz+o,c);}continue;}
+    for(let o=-hw;o<=hw;o++){const m=((o+k)%8+8)%8===0||((o-k)%8+8)%8===0;if(ring||m){gset(cx+o,y,cz-hw,c);gset(cx+o,y,cz+hw,c);gset(cx-hw,y,cz+o,c);gset(cx+hw,y,cz+o,c);}}}
+  const hwAt=k=>Math.max(1,Math.round(base*Math.pow(1-k/T,pw)+1));
+  for(const [k,hgt,wc] of decks){const hw=hwAt(k)+2,y0=G+1+k;
+    for(let y=y0;y<=y0+hgt;y++)for(let z=cz-hw;z<=cz+hw;z++)for(let x=cx-hw;x<=cx+hw;x++){const e=x===cx-hw||x===cx+hw||z===cz-hw||z===cz+hw;
+      gset(x,y,z,y===y0||y===y0+hgt?CONCRETE:e?wc:AIR);}}
+  return hwAt;}
+// ---------- 日本 ----------
+function genTokyo(r){
+  const G=13;
+  // 道路のごばん目
+  for(let z=JPB.z0+10;z<=214;z++)for(let x=JPB.x0+10;x<=846;x++){const k=x+z*W;if(REG[k]!==12||HM[k]<=SEA+1)continue;
+    const rx=(x-670)%34,rz=(z-26)%34;if(rx<5||rz<5)streetTop(x,z,(rx===2&&rz>=5)||(rz===2&&rx>=5)?ROADLINE:ASPHALT);}
+  // 東京タワー
+  {const cx=706,cz=164,g=gh(cx,cz);pad(cx-17,cz-17,cx+17,cz+17,g,CONCRETE,STONE,70);
+   for(let y=g+1;y<=g+5;y++)for(let z=cz-9;z<=cz+9;z++)for(let x=cx-9;x<=cx+9;x++){const e=Math.abs(x-cx)===9||Math.abs(z-cz)===9;gset(x,y,z,y===g+5?WHITE:e?(y%2?WINDOW:WHITE):AIR);}
+   const T=60;latticeTower(cx,cz,g,T,14,1.7,ORANGE,WHITE,[[24,4,GLASSB],[42,3,GLASSB]],0);
+   for(let y=g+T+2;y<=Math.min(H-2,g+T+12);y++)gset(cx,y,cz,y%3===0?RED:WHITE);
+   addLM('tokyoTower','東京タワー','tokyo',cx,cz+19,g);
+   LANDMARKS.push({id:'tokyoTowerDeck',name:'東京タワーの展望台','reg':'tokyo',x:cx+.5,y:g+26,z:cz+.5});}
+  // 東京スカイツリー
+  {const cx=812,cz=58,g=gh(cx,cz);pad(cx-12,cz-12,cx+12,cz+12,g,CONCRETE,STONE,85);const T=Math.min(H-4,g+80);
+   for(let y=g+1;y<=T;y++){const t=(y-g)/(T-g),R=Math.max(1.8,5*(1-t)+2);
+     for(let a=0;a<48;a++){const th=a/48*6.283,x=Math.round(cx+Math.cos(th)*R),z=Math.round(cz+Math.sin(th)*R);if(((a+y)%6===0)||y%5===0||a%8===0)gset(x,y,z,y%10===0?STEEL:WHITE);}
+     if(y%2===0)disc(cx,cz,y,1.6,CONCRETE);}
+   for(const [k,R,hgt] of [[46,6.5,4],[60,5,3]]){const y0=g+k;for(let y=y0;y<=y0+hgt;y++)for(let a=0;a<120;a++){const th=a/120*6.283;for(let rr=0;rr<=R;rr+=.6){const x=Math.round(cx+Math.cos(th)*rr),z=Math.round(cz+Math.sin(th)*rr);
+       gset(x,y,z,(y===y0||y===y0+hgt)?WHITE:rr>R-.7?GLASSB:AIR);}}}
+   for(let y=T+1;y<H-1;y++)gset(cx,y,cz,STEEL);
+   addLM('skytree','東京スカイツリー','tokyo',cx,cz+14,g);
+   LANDMARKS.push({id:'skytreeDeck',name:'東京スカイツリーの展望デッキ',reg:'tokyo',x:cx+.5,y:g+47,z:cz+.5});}
+  // 浅草：雷門・仲見世・浅草寺・五重塔
+  {const cx=752,gz=118,g=gh(cx,gz);pad(cx-22,40,cx+22,gz+4,g,COBBLE,STONE,30);
+   // 雷門
+   for(let x=cx-6;x<=cx+6;x++)for(let z=gz-2;z<=gz+2;z++){const p=(Math.abs(x-cx)===6||Math.abs(x-cx)===2)&&Math.abs(z-gz)===2;if(p)col(x,z,g+1,g+7,RED);}
+   rect(cx-6,gz-2,cx+6,gz+2,g+8,RED);hipRoof(cx-6,gz-2,cx+6,gz+2,g+9,TILEROOF,2);
+   for(let y=g+3;y<=g+6;y++)for(let z=gz-1;z<=gz+1;z++)for(let x=cx-1;x<=cx+1;x++)gset(x,y,z,y===g+3||y===g+6?BLACK:RED);
+   // 仲見世通り（両がわにお店）
+   for(let z=gz-6;z>=64;z-=6)for(const s of [-1,1]){const x0=cx+s*4,x1=cx+s*8;shell(Math.min(x0,x1),g,z-4,Math.max(x0,x1),g+3,z,WHITE,PLANKS);rect(Math.min(x0,x1),z-4,Math.max(x0,x1),z,g+4,TILEROOF);
+     gset(cx+s*4,g+2,z-2,s<0?RED:ORANGE);}
+   // 本堂
+   const hz=50;for(let x=cx-12;x<=cx+12;x++)for(let z=hz-8;z<=hz+6;z++){const e=Math.abs(x-cx)===12||z===hz-8||z===hz+6;
+     for(let y=g+1;y<=g+3;y++)gset(x,y,z,COBBLE);if(e&&(x%3===0||z%3===0))col(x,z,g+4,g+10,RED);else if(e)col(x,z,g+4,g+10,WHITE);}
+   for(let x=cx-2;x<=cx+2;x++)for(let y=g+4;y<=g+8;y++)gset(x,y,hz+6,AIR);
+   for(let z=hz+7;z<=hz+10;z++)for(let x=cx-3;x<=cx+3;x++)gset(x,g+Math.max(1,Math.min(3,hz+11-z)),z,COBBLE);
+   hipRoof(cx-12,hz-8,cx+12,hz+6,g+11,TILEROOF,3);
+   gset(cx,g+1,hz+14,COPPER);gset(cx,g+2,hz+14,COPPER);gset(cx,g+3,hz+14,LAMP);   // 常香炉
+   pagoda(cx+18,hz+12,g,5,RED);
+   addLM('asakusa','浅草（雷門・浅草寺・五重塔）','tokyo',cx,gz+6,g);}
+  // 渋谷スクランブル交差点（ハチ公の像つき）
+  {const cx=772,cz=184,g=gh(cx,cz);pad(cx-26,cz-26,cx+26,cz+22,g,ASPHALT,STONE,50);
+   for(let z=cz-26;z<=cz+22;z++)for(let x=cx-26;x<=cx+26;x++){const ax=Math.abs(x-cx),az=Math.abs(z-cz);
+     if(ax<=6||az<=6){gset(x,g,z,ASPHALT);const zb=(ax<=6&&az>6&&az<=10&&(x&1))||(az<=6&&ax>6&&ax<=10&&(z&1));if(zb)gset(x,g,z,WHITE);
+       if(ax<=6&&az<=6&&(Math.abs(ax-az)<=1)&&((x+z)&1))gset(x,g,z,WHITE);}else gset(x,g,z,CONCRETE);}
+   const bl=[[cx-24,cz-24,15,15,26,NEONP],[cx+10,cz-24,15,15,34,NEON],[cx-24,cz+10,15,11,22,NEONY],[cx+10,cz+10,15,11,18,NEONP]];
+   for(const [x0,z0,w,d,hh,nc] of bl){glassTower(x0,z0,w,d,g,g+hh,GLASSB,STEEL);
+     for(let y=g+hh-8;y<=g+hh-2;y++)for(let o=2;o<w-2;o++){gset(x0+o,y,z0+(z0<cz?d-1:0),nc);}}
+   for(let y=g+1;y<=g+20;y++)disc(cx+16,cz+16,y,4.5,y%4===0?STEEL:WHITE);    // 円い塔のビル
+   for(const [dx,dy,dz,id] of [[0,1,0,COPPER],[0,2,0,COPPER],[1,2,0,COPPER],[0,3,0,COPPER],[1,1,0,COPPER],[-1,1,0,COPPER]])gset(cx-10+dx,g+dy,cz+10+dz,id);
+   gset(cx-10,g,cz+10,COBBLE);
+   addLM('shibuya','渋谷スクランブル交差点','tokyo',cx-9,cz+9,g);}
+  // 新宿の高層ビル群と都庁
+  {const g=13;for(const [x0,z0,w,d,hh] of [[676,34,12,12,46],[692,30,10,14,52],[676,52,14,10,40],[708,36,10,10,36],[694,52,9,9,58]]){const gg=gh(x0+3,z0+3);pad(x0-1,z0-1,x0+w,z0+d,gg,CONCRETE,STONE,hh+2);glassTower(x0,z0,w,d,gg,gg+Math.min(hh,H-gg-4));}
+   const tx=724,tz=80,gg=gh(tx,tz);pad(tx-14,tz-10,tx+14,tz+10,gg,CONCRETE,STONE,60);
+   for(let y=gg+1;y<=gg+40;y++)for(let z=tz-8;z<=tz+8;z++)for(let x=tx-12;x<=tx+12;x++){const ax=Math.abs(x-tx),split=y>gg+30&&ax<3;if(split)continue;
+     const e=ax===12||Math.abs(z-tz)===8||(y>gg+30&&ax===3);if(e)gset(x,y,z,(y%3===0)?CONCRETE:((x+y)%2?WINDOW:GLASSB));else if(y%5===0)gset(x,y,z,CONCRETE);}
+   for(const s of [-1,1])rect(tx+s*3,tz-8,tx+s*12,tz+8,gg+41,CONCRETE);
+   addLM('shinjuku','新宿の高層ビル群（都庁）','tokyo',tx,tz+12,gg);}
+  // 国会議事堂
+  {const cx=800,cz=124,g=gh(cx,cz);pad(cx-24,cz-10,cx+24,cz+14,g,CONCRETE,STONE,40);
+   for(let y=g+1;y<=g+10;y++)for(let z=cz-7;z<=cz+7;z++)for(let x=cx-22;x<=cx+22;x++){const e=Math.abs(x-cx)===22||Math.abs(z-cz)===7;gset(x,y,z,e?((x%3===0&&y%3!==0)?WINDOW:CASTLE):(y===g+10?CASTLE:AIR));}
+   for(let y=g+11;y<=g+24;y++){const hw=y<=g+20?5:5-(y-g-20);for(let z=cz-hw;z<=cz+hw;z++)for(let x=cx-hw;x<=cx+hw;x++)if(Math.abs(x-cx)===hw||Math.abs(z-cz)===hw||y>g+20)gset(x,y,z,y>g+20?COPPER:CASTLE);}
+   addLM('diet','国会議事堂','tokyo',cx,cz+12,g);}
+}
+function pagoda(cx,cz,G,n,pil){let y=G+1;
+  for(let t=0;t<n;t++){const hw=4-Math.floor(t*.6);
+    for(let k=0;k<3;k++)for(let z=cz-hw;z<=cz+hw;z++)for(let x=cx-hw;x<=cx+hw;x++){const e=Math.abs(x-cx)===hw||Math.abs(z-cz)===hw;if(!e)continue;gset(x,y+k,z,(Math.abs(x-cx)===hw&&Math.abs(z-cz)===hw)?pil:WHITE);}
+    y+=3;rect(cx-hw-2,cz-hw-2,cx+hw+2,cz+hw+2,y,TILEROOF);rect(cx-hw-1,cz-hw-1,cx+hw+1,cz+hw+1,y+1,TILEROOF);y+=2;}
+  for(let k=0;k<7;k++)gset(cx,y+k,cz,k%2?GOLD:STEEL);return y;}
+function genKyoto(r){
+  // 清水寺：東の山の斜面に本堂、西へつき出た「清水の舞台」を木の柱が支える
+  {const Y=34,hx0=976,hx1=994,hz0=66,hz1=94;
+   for(let z=hz0-4;z<=hz1+4;z++)for(let x=hx0;x<=hx1+6;x++){const h=gh(x,z);for(let y=Math.min(h,Y);y<=Y;y++)gset(x,y,z,y===Y?COBBLE:STONE);for(let y=Y+1;y<=Math.max(h,Y)+2;y++)gset(x,y,z,AIR);setHM(x,z,Y);}
+   // 本堂
+   for(let z=hz0;z<=hz1;z++)for(let x=hx0;x<=hx1;x++){const e=x===hx0||x===hx1||z===hz0||z===hz1;
+     gset(x,Y,z,PLANKS);if(e)for(let y=Y+1;y<=Y+8;y++)gset(x,y,z,(x-hx0)%4===0||(z-hz0)%4===0?LOG:(y<Y+3?PLANKS:WHITE));}
+   for(let z=hz0+10;z<=hz0+16;z++)for(let y=Y+1;y<=Y+5;y++)gset(hx0,y,z,AIR);
+   hipRoof(hx0,hz0,hx1,hz1,Y+9,TILEROOF,3);
+   // 舞台
+   const sx0=958;for(let z=hz0+2;z<=hz1-2;z++)for(let x=sx0;x<hx0;x++){gset(x,Y,z,PLANKS);
+     const edge=x===sx0||z===hz0+2||z===hz1-2;if(edge)gset(x,Y+1,z,LOG);
+     const gy=gh(x,z);if((x-sx0)%3===0&&(z-hz0-2)%3===0)for(let y=gy+1;y<Y;y++)gset(x,y,z,LOG);
+     else if(((Y-gh(x,z))>4)&&((x-sx0)%3===0||(z-hz0-2)%3===0))for(let y=Y-1;y>gy;y-=4)gset(x,y,z,LOG);}
+   for(let z=hz0+2;z<=hz1-2;z++)for(let x=sx0+1;x<hx0;x++)gset(x,Y+1,z,(x>sx0&&z>hz0+2&&z<hz1-2)?AIR:LOG);
+   // 仁王門と三重塔（朱色）
+   const gx=946,gz=118,gg=gh(gx,gz);pad(gx-14,gz-10,gx+14,gz+12,gg,COBBLE,STONE,30);
+   for(let x=gx-5;x<=gx+5;x++)for(let z=gz-2;z<=gz+2;z++){if((Math.abs(x-gx)===5||Math.abs(x-gx)===2)&&Math.abs(z-gz)===2)col(x,z,gg+1,gg+6,RED);}
+   rect(gx-5,gz-2,gx+5,gz+2,gg+7,RED);hipRoof(gx-5,gz-2,gx+5,gz+2,gg+8,TILEROOF,2);
+   pagoda(gx+10,gz+8,gg,3,RED);
+   addLM('kiyomizu','清水寺（清水の舞台）','kyoto',sx0+6,hz0+8,Y);}
+  // 金閣寺
+  {const cx=884,cz=66,g=gh(cx,cz);pad(cx-30,cz-24,cx+30,cz+24,g,GRASS,DIRT,30);
+   for(let z=cz-14;z<=cz+16;z++)for(let x=cx-24;x<=cx+24;x++)if(Math.hypot((x-cx)/24,(z-cz-1)/15)<1){gset(x,g,z,WATER);gset(x,g-1,z,WATER);}
+   for(const [ix,iz] of [[cx-10,cz+6],[cx+12,cz+4]]){disc(ix,iz,g,2.5,GRASS);umbrellaPine(ix,g+1,iz,r);}
+   const px=cx,pz=cz-14;for(let z=pz-4;z<=pz+4;z++)for(let x=px-6;x<=px+6;x++)gset(x,g,z,COBBLE);
+   let y=g+1;for(const [hw,hd,hh,c] of [[5,4,4,PLANKS],[5,4,4,GOLD],[3,3,3,GOLD]]){
+     for(let k=0;k<hh;k++)for(let z=pz-hd;z<=pz+hd;z++)for(let x=px-hw;x<=px+hw;x++){const e=Math.abs(x-px)===hw||Math.abs(z-pz)===hd;if(e)gset(x,y+k,z,(c===PLANKS&&(x+z)%2)?WHITE:c);}
+     y+=hh;rect(px-hw-2,pz-hd-2,px+hw+2,pz+hd+2,y,BLACK);rect(px-hw-1,pz-hd-1,px+hw+1,pz+hd+1,y+1,TILEROOF);y+=2;}
+   gset(px,y,pz,GOLD);gset(px,y+1,pz,GOLD);
+   addLM('kinkaku','金閣寺','kyoto',cx,cz+20,g);}
+  // 伏見稲荷の千本鳥居（山へのぼる）
+  {const pts=[[904,152],[918,158],[930,170],[944,176],[954,184],[962,190]];let n=0;
+   const sx=900,sz=150,sg=gh(sx,sz);pad(sx-10,sz-10,sx+4,sz+6,sg,COBBLE,STONE,20);
+   shell(sx-9,sg,sz-9,sx-1,sg+6,sz-3,RED,PLANKS,WHITE);hipRoof(sx-9,sz-9,sx-1,sz-3,sg+7,TILEROOF,2);
+   for(let i=0;i<pts.length-1;i++){const [ax,az]=pts[i],[bx,bz]=pts[i+1],L=Math.hypot(bx-ax,bz-az);
+     for(let t=0;t<L;t+=2){const x=Math.round(ax+(bx-ax)*t/L),z=Math.round(az+(bz-az)*t/L),g=gh(x,z),alongX=Math.abs(bx-ax)>Math.abs(bz-az);
+       for(let o=-2;o<=2;o++){const xx=alongX?x:x+o,zz=alongX?z+o:z;gset(xx,gh(xx,zz),zz,COBBLE);for(let y=gh(xx,zz)+1;y<=gh(xx,zz)+6;y++)gset(xx,y,zz,AIR);}
+       torii(x,z,g+1,5,2,alongX,(n++%9===0)?RED:ORANGE);}}
+   addLM('inari','伏見稲荷の千本鳥居','kyoto',sx+2,sz+2,sg);}
+  // 八坂の塔（五重塔）
+  {const cx=926,cz=116,g=gh(cx,cz);pad(cx-7,cz-7,cx+7,cz+7,g,COBBLE,STONE,40);pagoda(cx,cz,g,5,RED);addLM('yasaka','八坂の塔（五重塔）','kyoto',cx,cz+7,g);}
+  // 奈良の大仏（大仏殿）
+  {const cx=890,cz=190,g=gh(cx,cz);pad(cx-20,cz-16,cx+20,cz+20,g,COBBLE,STONE,36);
+   for(let y=g+1;y<=g+18;y++)for(let z=cz-12;z<=cz+12;z++)for(let x=cx-16;x<=cx+16;x++){const e=Math.abs(x-cx)===16||Math.abs(z-cz)===12;
+     if(e)gset(x,y,z,(Math.abs(x-cx)%4===0||Math.abs(z-cz)%4===0)?LOG:(y>g+12?WHITE:PLANKS));else gset(x,y,z,AIR);}
+   for(let y=g+1;y<=g+10;y++)for(let x=cx-3;x<=cx+3;x++)gset(x,y,cz+12,AIR);
+   for(let y=g+6;y<=g+8;y++)for(let x=cx-2;x<=cx+2;x++)gset(x,y,cz+12,y===g+7?GOLD:AIR);
+   const ry=hipRoof(cx-16,cz-12,cx+16,cz+12,g+19,TILEROOF,3);gset(cx-10,g+26,cz,GOLD);gset(cx+10,g+26,cz,GOLD);
+   // 大仏
+   for(let z=cz-6;z<=cz-1;z++)for(let x=cx-6;x<=cx+6;x++){gset(x,g+1,z,GOLD);gset(x,g+2,z,(x+z)%2?GOLD:YELLOW);}
+   for(let y=g+3;y<=g+5;y++)for(let z=cz-6;z<=cz-1;z++)for(let x=cx-5;x<=cx+5;x++)gset(x,y,z,COPPER);
+   for(let y=g+6;y<=g+11;y++)for(let z=cz-6;z<=cz-3;z++)for(let x=cx-3;x<=cx+3;x++)gset(x,y,z,COPPER);
+   for(const s of [-1,1])for(let y=g+6;y<=g+9;y++)gset(cx+s*4,y,cz-3,COPPER);
+   for(let y=g+12;y<=g+15;y++)for(let z=cz-5;z<=cz-2;z++)for(let x=cx-2;x<=cx+2;x++)gset(x,y,z,y===g+15&&(x+z)%2?BLACK:COPPER);
+   gset(cx,g+14,cz-1,GOLD);
+   for(let a=0;a<40;a++){const th=a/40*3.1416,x=Math.round(cx+Math.cos(th)*7),y=Math.round(g+9+Math.sin(th)*7);gset(x,y,cz-7,GOLD);}
+   addLM('daibutsu','奈良の大仏（大仏殿）','kyoto',cx,cz+15,g);}
+  // 京町家の通り
+  for(let i=0;i<6;i++){const x0=868+i*9,z0=118,g=gh(x0+3,z0+3);if(g<=SEA+1)continue;pad(x0,z0,x0+7,z0+7,g,COBBLE,STONE,10);shell(x0,g,z0,x0+6,g+5,z0+5,PLANKS,PLANKS,WHITE);hipRoof(x0,z0,x0+6,z0+5,g+6,TILEROOF,1);}
+}
+function genFuji(r){
+  // 富士山の山頂：火口とふち・雪
+  const cx=770,cz=282;let top=0;for(let dz=-8;dz<=8;dz++)for(let dx=-8;dx<=8;dx++)top=Math.max(top,gh(cx+dx,cz+dz));
+  addLM('fuji','富士山の山頂','fuji',cx+6,cz,gh(cx+6,cz));
+  // ふもとの鳥居と湖
+  {const g=gh(735,250);torii(735,250,g+1,8,3,false,RED);addLM('fujiLake','富士山と湖の鳥居','fuji',735,253,g);}
+  // 姫路城
+  {const cx=930,cz=276,g=gh(cx,cz);pad(cx-16,cz-14,cx+16,cz+14,g,GRASS,DIRT,50);
+   for(let y=g+1;y<=g+7;y++){const i=y-g-1;rect(cx-12+Math.floor(i/3),cz-10+Math.floor(i/3),cx+12-Math.floor(i/3),cz+10-Math.floor(i/3),y,COBBLE);}
+   let y=g+8;for(const [hw,hd] of [[9,7],[8,6],[7,5],[6,4],[4,3]]){
+     for(let k=0;k<4;k++)for(let z=cz-hd;z<=cz+hd;z++)for(let x=cx-hw;x<=cx+hw;x++){const e=Math.abs(x-cx)===hw||Math.abs(z-cz)===hd;gset(x,y+k,z,e?((k===2&&(x+z)%4===0)?BLACK:CASTLE):AIR);}
+     y+=4;rect(cx-hw-1,cz-hd-1,cx+hw+1,cz+hd+1,y,TILEROOF);for(let gz=cz-2;gz<=cz+2;gz++){gset(cx-hw-1,y+1,gz,TILEROOF);gset(cx+hw+1,y+1,gz,TILEROOF);}y+=1;}
+   hipRoof(cx-4,cz-3,cx+4,cz+3,y,TILEROOF,1);gset(cx-4,y+4,cz,GOLD);gset(cx+4,y+4,cz,GOLD);
+   addLM('himeji','姫路城','fuji',cx,cz+16,g);}
+  // 海の大鳥居（宮島ふう）
+  {const cx=1002,cz=342;for(const s of [-1,1])for(const [ox,oz] of [[0,0],[1,0],[0,1],[1,1],[-2,0],[2,1]]){if(Math.abs(ox)===2){col(cx+ox,cz+s*6+oz,4,SEA+5,RED);continue;}col(cx+ox,cz+s*6+oz,2,SEA+14,RED);}
+   for(let z=cz-9;z<=cz+9;z++){gset(cx,SEA+12,z,RED);gset(cx+1,SEA+12,z,RED);}for(let z=cz-11;z<=cz+11;z++){gset(cx,SEA+15,z,BLACK);gset(cx+1,SEA+15,z,BLACK);gset(cx,SEA+16,z,BLACK);gset(cx+1,SEA+16,z,BLACK);}
+   gset(cx,SEA+13,cz,RED);gset(cx,SEA+14,cz,GOLD);
+   for(let x=cx-6;x<=cx-2;x++)for(let z=cz-1;z<=cz+1;z++)gset(x,SEA,z,PLANKS);gset(cx-4,SEA+1,cz,WARPSTONE);
+   LANDMARKS.push({id:'otorii',name:'海の大鳥居（宮島ふう）',reg:'fuji',x:cx-3.5,y:SEA+1,z:cz+.5});}
+}
+// ---------- 大闘技場（こわれない） ----------
+function genGrandArena(){
+  const {x:cx,z:cz,a,b,G}=GA,AS=ARENA_S,AF=ARENA_F,AL=ARENA_L;
+  pad(ARB.x0+6,ARB.z0+6,ARB.x1-6,ARB.z1-6,G,GRASS,DIRT,70);
+  for(let z=ARB.z0+6;z<=ARB.z1-6;z++)for(let x=ARB.x0+6;x<=ARB.x1-6;x++){const u=Math.hypot((x+.5-cx)/a,(z+.5-cz)/b);if(u<1.1||Math.abs(x-cx)<5||Math.abs(z-cz)<5)gset(x,G,z,u<1.1&&(x+z)%9===0?AF:COBBLE);}
+  const TOP=G+52;
+  for(let z=cz-b-1;z<=cz+b+1;z++)for(let x=cx-a-1;x<=cx+a+1;x++){
+    const dx=(x+.5-cx)/a,dz=(z+.5-cz)/b,u=Math.hypot(dx,dz);if(u>1)continue;
+    const th=Math.atan2(dz,dx),s=(th+Math.PI)*(a+b)/2,p=((s%9)+9)%9;
+    const gate=(Math.abs(z+.5-cz)<5||Math.abs(x+.5-cx)<5)&&u>.48;
+    // 床（3段の厚み）
+    for(let y=G-2;y<=G;y++)gset(x,y,z,AF);
+    if(u<.5){if(((x>>2)+(z>>2))%2===0)gset(x,G,z,AS);continue;}
+    let top;
+    if(u<.54)top=G+12;else if(u<.88)top=G+12+Math.floor((u-.54)/.34*28);else top=TOP;
+    if(u<.88){for(let y=G+1;y<=top;y++)gset(x,y,z,AS);
+      if(u>=.54&&((top-G)%4===0))gset(x,top,z,(x+z)%17===0?AL:AF);
+      if(gate)for(let y=G+1;y<=G+14&&y<=top;y++)gset(x,y,z,AIR);
+      continue;}
+    // 外がわの壁：4段のアーチ
+    for(let y=G+1;y<=TOP;y++){const lv=Math.floor((y-G-1)/13),ly=(y-G-1)%13;
+      let id=AS;if(u<.94&&u>.9)id=AIR;   // 回廊
+      if(lv<3&&p>=2&&p<=6&&ly>=1&&ly<=9)id=AIR;else if(lv===3&&p>=3&&p<=5&&ly>=3&&ly<=8)id=AIR;
+      if(ly===0||ly===12)id=u<.96?AF:AS;
+      if(lv<3&&ly===10&&(p===2||p===6))id=AS;
+      if(gate&&y<=G+14)id=AIR;
+      gset(x,y,z,id);}
+    if(u>=.97&&p<1)for(let y=TOP+1;y<=TOP+3;y++)gset(x,y,z,AS);
+    if(u>=.97&&Math.abs(p-4)<.5){gset(x,TOP+1,z,AL);}
+  }
+  // 門の上の灯り・旗
+  for(const [gx,gz] of [[cx-a-1,cz],[cx+a+1,cz],[cx,cz-b-1],[cx,cz+b+1]]){for(let y=G+15;y<=G+17;y++)gset(gx,y,gz,AL);col(gx,gz,TOP+1,TOP+7,AS);gset(gx,TOP+8,gz,RED);gset(gx+1,TOP+8,gz,RED);gset(gx,TOP+7,gz+1,RED);}
+  // 闘技場の中の4本の柱（こわれない）
+  for(const [ox,oz] of [[-30,-24],[30,-24],[-30,24],[30,24]]){for(let y=G+1;y<=G+10;y++)for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++)gset(cx+ox+dx,y,cz+oz+dz,AS);gset(cx+ox,G+11,cz+oz,AL);}
+  // 宇宙コロニーへの発射台（闘技場の南の広場）
+  {const px=cx-40,pz=GA.z+b+7;for(let dz=-2;dz<=2;dz++)for(let dx=-2;dx<=2;dx++)gset(px+dx,G,pz+dz,Math.abs(dx)<=1&&Math.abs(dz)<=1?LAUNCH:COBBLE);
+   for(const [ox,oz] of [[-3,-3],[3,-3],[-3,3],[3,3]])col(px+ox,pz+oz,G+1,G+4,STEEL);
+   PADS.push({id:'arenaPad',x:px,y:G,z:pz,to:'colonyPad',label:'宇宙コロニー',ax:px+4.5,ay:G+1,az:pz+.5});}
+  gset(cx,G,cz,WARPSTONE);
+  addLM('grandArena','大闘技場（こわれない）','arena2',cx,cz+8,G);
+  LANDMARKS.push({id:'grandArenaTop',name:'大闘技場の最上段',reg:'arena2',x:cx+.5,y:TOP+1,z:cz-b+2.5});
+}
+// ---------- ハワイ ----------
+function genOahu(r){
+  // ダイヤモンドヘッド：火口のふちに展望台
+  {const g=gh(DHEAD.x,DHEAD.z-11);let best=[DHEAD.x,DHEAD.z-11,g];for(let a=0;a<36;a++){const th=a/36*6.283,x=Math.round(DHEAD.x+Math.cos(th)*11),z=Math.round(DHEAD.z+Math.sin(th)*11),h=gh(x,z);if(h>best[2])best=[x,z,h];}
+   const [bx,bz,bh]=best;shell(bx-2,bh,bz-2,bx+2,bh+3,bz+2,COBBLE,COBBLE);for(let y=bh+1;y<=bh+2;y++)gset(bx,y,bz-2,AIR);
+   addLM('diamondHead','ダイヤモンドヘッド','oahu',bx,bz+3,gh(bx,bz+3));}
+  // ワイキキビーチ：浜・ホテル・ヤシ・サーフボード
+  {for(let x=636;x<=700;x++){for(let z=776;z<=800;z++){const h=gh(x,z);if(h>SEA&&h<=14&&z>=784){gset(x,h,z,SAND);}}}
+   const hs=[[640,768,8,8,28],[652,766,8,10,34],[664,768,7,8,22],[686,764,8,8,30],[698,768,6,8,24]];
+   for(const [x0,z0,w,d,hh] of hs){const g=gh(x0+3,z0+3);if(g<=SEA)continue;pad(x0-1,z0-1,x0+w,z0+d,g,CONCRETE,STONE,hh+2);glassTower(x0,z0,w,d,g,g+hh,WHITE,WHITE);}
+   {const x0=674,z0=772,g=gh(x0+4,z0+3);pad(x0-1,z0-1,x0+9,z0+7,g,GRASS,DIRT,14);shell(x0,g,z0,x0+8,g+8,z0+6,PINK,PLANKS,WINDOW);rect(x0,z0,x0+8,z0+6,g+9,PINK);for(const [ox,oz] of [[0,0],[8,0],[4,3]])col(x0+ox,z0+oz,g+9,g+12,PINK);
+     addLM('waikiki','ワイキキビーチ（ピンクのホテル）','oahu',x0+4,z0+10,gh(x0+4,z0+10));}
+   for(let x=638;x<=704;x+=5){const z=783+(x%3),h=gh(x,z);if(h>SEA&&h<=15)palmTree(x,h+1,z,r);}
+   const bc=[YELLOW,BLUE,RED,GREEN,ORANGE,WHITE];for(let i=0;i<10;i++){const x=642+i*6,z=790,h=gh(x,z);if(h>SEA&&h<=14){gset(x,h+1,z,bc[i%6]);gset(x,h+2,z,bc[i%6]);gset(x,h+3,z,bc[i%6]);}}}
+  // アロハタワー（ホノルルの港）とカメハメハ大王像
+  {const cx=612,cz=786,g=Math.max(SEA+1,gh(cx,cz));for(let z=cz-4;z<=cz+10;z++)for(let x=cx-6;x<=cx+6;x++){gset(x,Math.max(g,SEA+1),z,CONCRETE);}
+   for(let y=g+1;y<=g+24;y++)for(let z=cz-2;z<=cz+2;z++)for(let x=cx-2;x<=cx+2;x++){const e=Math.abs(x-cx)===2||Math.abs(z-cz)===2;if(e)gset(x,y,z,y>=g+19&&y<=g+21&&Math.abs(x-cx)+Math.abs(z-cz)<=3?WHITE:(y%4===0?WINDOW:WHITE));else gset(x,y,z,AIR);}
+   for(let y=g+20;y<=g+20;y++)for(const [x,z] of [[cx,cz-3],[cx,cz+3],[cx-3,cz],[cx+3,cz]])gset(x,y,z,BLACK);
+   hipRoof(cx-2,cz-2,cx+2,cz+2,g+25,RED,1);gset(cx,g+28,cz,STEEL);gset(cx,g+29,cz,STEEL);
+   addLM('alohaTower','アロハタワー（ホノルルの港）','oahu',cx,cz+8,g);
+   const kx=626,kz=768,kg=gh(kx,kz);rect(kx-2,kz-2,kx+2,kz+2,kg+1,COBBLE);col(kx,kz,kg+2,kg+3,BLACK);gset(kx,kg+4,kz,GOLD);gset(kx,kg+5,kz,GOLD);gset(kx-1,kg+4,kz,GOLD);gset(kx+1,kg+5,kz,BLACK);gset(kx,kg+6,kz,BLACK);}
+  // 真珠湾（白い記念館）
+  {const cx=588,cz=772;for(let x=cx-9;x<=cx+9;x++)for(let z=cz-2;z<=cz+2;z++){gset(x,SEA,z,WHITE);const e=Math.abs(z-cz)===2;if(e&&(x%3!==0))gset(x,SEA+1,z,WHITE);
+     const t=Math.abs(x-cx)/9,ry=SEA+3+Math.round((t<.4?-1:1)*0+(t*t)*2);gset(x,Math.max(SEA+2,SEA+4-Math.round((1-t)*1.5)),z,WHITE);}
+   col(cx,cz-6,1,SEA+6,STEEL);gset(cx,SEA+7,cz-6,RED);
+   LANDMARKS.push({id:'pearl',name:'真珠湾（記念館）',reg:'oahu',x:cx+.5,y:SEA+1,z:cz+.5});}
+  // ノースショア（サーフィンの浜・監視台）
+  {const cx=645,cz=684,g=gh(cx,cz+6);for(let z=cz-2;z<=cz+10;z++)for(let x=cx-30;x<=cx+30;x++){const h=gh(x,z);if(h>SEA&&h<=15)gset(x,h,z,SAND);}
+   for(const s of [-12,0,12]){const x=cx+s,z=cz+4,h=gh(x,z);if(h<=SEA)continue;for(const [ox,oz] of [[0,0],[2,0],[0,2],[2,2]])col(x+ox,z+oz,h+1,h+4,PLANKS);shell(x,h+5,z,x+2,h+7,z+2,YELLOW,PLANKS);rect(x-1,z-1,x+3,z+3,h+8,RED);}
+   for(let i=0;i<5;i++){const x=cx-20+i*9,z=cz+8,h=gh(x,z);if(h>SEA)shell(x,h,z,x+4,h+3,z+3,i%2?BLUE:GREEN,PLANKS);}
+   addLM('northShore','ノースショア（サーフィンの浜）','oahu',cx,cz+7,gh(cx,cz+7));}
+  // パイナップル畑
+  {const cx=640,cz=732,g=gh(cx,cz);pad(cx-18,cz-12,cx+18,cz+12,g,DIRT,DIRT,12);
+   for(let z=cz-11;z<=cz+11;z+=2)for(let x=cx-17;x<=cx+17;x++){if(x%2===0){gset(x,g+1,z,YELLOW);gset(x,g+2,z,LEAVES);}else gset(x,g+1,z,TGRASS);}
+   shell(cx+20,g,cz-4,cx+27,g+4,cz+3,RED,PLANKS,WINDOW);hipRoof(cx+20,cz-4,cx+27,cz+3,g+5,WHITE,1);
+   addLM('pineapple','パイナップル畑','oahu',cx+24,cz+6,gh(cx+24,cz+6));}
+  // ハナウマ湾（サンゴ）
+  {const cx=737,cz=779;for(let a=0;a<60;a++){const th=a/60*6.283,x=Math.round(cx+Math.cos(th)*rand2(r,4,8)),z=Math.round(cz+Math.sin(th)*rand2(r,4,8));const h=gh(x,z);if(h<SEA-1)gset(x,h+1,z,[PINK,YELLOW,ORANGE,RED][a%4]);}
+   {let lx=cx-10,lz=cz-2;for(let k=0;k<30&&gh(lx,lz)<=SEA;k++)lx--;addLM('hanauma','ハナウマ湾','oahu',lx,lz,gh(lx,lz));}}
+}
+const rand2=(r,a,b)=>a+r()*(b-a);
+function genBigIsland(r){
+  // マウナケアの山頂の天文台
+  {let best=[MKEA.x,MKEA.z,0];for(let dz=-8;dz<=8;dz++)for(let dx=-8;dx<=8;dx++){const h=gh(MKEA.x+dx,MKEA.z+dz);if(h>best[2])best=[MKEA.x+dx,MKEA.z+dz,h];}
+   const [mx,mz,mh]=best;
+   for(const [ox,oz,R,c] of [[0,0,4,WHITE],[11,4,3,STEEL],[-10,6,3.5,WHITE],[5,-11,3,WHITE],[-6,-10,2.5,STEEL]]){const x=mx+ox,z=mz+oz,g=gh(x,z);
+     pad(x-Math.ceil(R)-1,z-Math.ceil(R)-1,x+Math.ceil(R)+1,z+Math.ceil(R)+1,g,COBBLE,STONE,12);col(x,z,g+1,g+1,c);
+     for(let y=0;y<=Math.ceil(R)+2;y++)for(let dz=-Math.ceil(R);dz<=Math.ceil(R);dz++)for(let dx=-Math.ceil(R);dx<=Math.ceil(R);dx++){const d=Math.hypot(dx,dz,Math.max(0,y-2));if(d<=R&&d>R-1.1)gset(x+dx,g+1+y,z+dz,(y>R&&dx===0)?BLACK:c);}}
+   addLM('maunakea','マウナケア山頂（天文台）','bigisland',mx,mz+6,gh(mx,mz+6));}
+  // キラウエア火山：火口の溶岩湖と海へ流れる溶岩
+  {const cx=KILA.x,cz=KILA.z,g=gh(cx,cz);
+   for(let dz=-8;dz<=8;dz++)for(let dx=-8;dx<=8;dx++){const d=Math.hypot(dx,dz);if(d>7.5)continue;gset(cx+dx,g,cz+dz,MAGMA);gset(cx+dx,g-1,cz+dz,BASALT);if(d>6.2)gset(cx+dx,g+1,cz+dz,OBSIDIAN);}
+   let x=cx+9,z=cz+9;for(let k=0;k<90;k++){x+=1;z+=(k%3===0)?1:0;const h=gh(x,z);if(h<=SEA){for(let o=-1;o<=1;o++)gset(x,SEA,z+o,OBSIDIAN);break;}
+     for(let o=-2;o<=2;o++){const hh=gh(x,z+o);gset(x,hh,z+o,Math.abs(o)<=1?MAGMA:OBSIDIAN);}}
+   addLM('kilauea','キラウエア火山（溶岩湖）','bigisland',cx-14,cz,gh(cx-14,cz));}
+  // 黒い砂の浜
+  {const cx=890,cz=994;let x=cx,z=cz;while(z>900&&gh(x,z)<=SEA)z--;for(let k=0;k<6;k++)palmTree(x-10+k*4,gh(x-10+k*4,z-2)+1,z-2,r);
+   addLM('blackSand','黒い砂の浜（プナルウ）','bigisland',x,z-4,gh(x,z-4));}
+  // アカカの滝（東の崖）：海から谷をきざみ、奥の崖から滝が落ちる
+  {const z=858;let xc=1012;while(xc>900&&gh(xc,z)<=SEA)xc--;let xf=xc;while(xf>xc-45&&gh(xf,z)<30)xf--;
+   const top=gh(xf,z),pool=SEA+1;
+   for(let x=xf+1;x<=xc+2;x++)for(let dz=-4;dz<=4;dz++){const zz=z+dz,h=gh(x,zz),w=Math.abs(dz)<=2;for(let y=pool+(w?0:1);y<=Math.max(h,pool)+1;y++)gset(x,y,zz,AIR);
+     gset(x,pool,zz,w?WATER:MOSSY);if(w)gset(x,pool-1,zz,WATER);setHM(x,zz,pool);}
+   for(let y=pool+1;y<=top+1;y++)for(let dz=-1;dz<=1;dz++)gset(xf,y,z+dz,WATER);
+   for(let x=xf-10;x<xf;x++)for(let dz=-1;dz<=1;dz++){const h=gh(x,z+dz);gset(x,Math.max(h,top),z+dz,WATER);gset(x,Math.max(h,top)+1,z+dz,AIR);}
+   addLM('akaka','アカカの滝','bigisland',xf+6,z+4,pool);}
+  // ヒロの町
+  for(let i=0;i<6;i++){const x0=944+(i%3)*8,z0=828+Math.floor(i/3)*9,g=gh(x0+2,z0+2);if(g<=SEA+1||g>30)continue;pad(x0,z0,x0+5,z0+5,g,GRASS,DIRT,8);shell(x0,g,z0,x0+4,g+3,z0+4,[YELLOW,BLUE,GREEN,PINK,WHITE,ORANGE][i],PLANKS,WINDOW);rect(x0-1,z0-1,x0+5,z0+5,g+4,TILEROOF);}
+}
+// ---------- 世界の名所 ----------
+function pyramid(cx,cz,G,hw,id){for(let k=0;k<=hw;k++)for(let z=cz-hw+k;z<=cz+hw-k;z++)for(let x=cx-hw+k;x<=cx+hw-k;x++)gset(x,G+1+k,z,id);gset(cx,G+1+hw,cz,GOLD);gset(cx,G+hw,cz,GOLD);}
+function genEgypt(r){
+  const g=gh(120,690);
+  pyramid(120,690,g,30,TRAV);
+  // 入口と王の間
+  for(let z=690+30;z>=696;z--)for(let y=g+2;y<=g+4;y++)for(let x=119;x<=121;x++)gset(x,y,z,AIR);
+  for(let y=g+2;y<=g+6;y++)for(let z=684;z<=696;z++)for(let x=114;x<=126;x++)gset(x,y,z,(x===114||x===126||z===684||z===696||y===g+6)?GOLD:AIR);
+  gset(120,g+2,688,GOLD);gset(120,g+3,688,LAMP);
+  pyramid(176,640,gh(176,640),24,TRAV);pyramid(224,594,gh(224,594),14,TRAV);
+  addLM('gizaPyramid','ギザの大ピラミッド','egypt',120,690+34,gh(120,724));
+  // スフィンクス（東を向く）
+  {const sx=70,sz=640,sg=gh(sx,sz);pad(sx-20,sz-10,sx+22,sz+10,sg,SAND,SAND,20);
+   for(let x=sx-16;x<=sx+8;x++)for(let z=sz-4;z<=sz+4;z++)for(let y=sg+1;y<=sg+6;y++)gset(x,y,z,TRAV);
+   for(const oz of [-3,3])for(let x=sx+9;x<=sx+18;x++)for(let z=sz+oz-1;z<=sz+oz+1;z++)for(let y=sg+1;y<=sg+2;y++)gset(x,y,z,TRAV);
+   for(let x=sx+3;x<=sx+10;x++)for(let z=sz-5;z<=sz+5;z++)for(let y=sg+7;y<=sg+14;y++){const fz=Math.abs(z-sz);if(x>=sx+8&&fz<=2&&y<=sg+12)gset(x,y,z,TRAV);
+     else if(fz>=3||x<sx+8)gset(x,y,z,(y%2===0)?YELLOW:BLUE);}
+   gset(sx+11,sg+10,sz,TRAV);gset(sx+11,sg+11,sz-1,BLACK);gset(sx+11,sg+11,sz+1,BLACK);
+   addLM('sphinx','スフィンクス','egypt',sx+24,sz,gh(sx+24,sz));}
+  // オベリスクとオアシス
+  {const ox=200,oz=740,g2=gh(ox,oz);for(let y=g2+1;y<=g2+16;y++){gset(ox,y,oz,RSAND);if(y<g2+13){gset(ox+1,y,oz,RSAND);gset(ox,y,oz+1,RSAND);gset(ox+1,y,oz+1,RSAND);}}gset(ox,g2+17,oz,GOLD);
+   const wx=60,wz=760,wg=gh(wx,wz);for(let dz=-6;dz<=6;dz++)for(let dx=-8;dx<=8;dx++)if(Math.hypot(dx/8,dz/6)<1){gset(wx+dx,wg,wz+dz,WATER);gset(wx+dx,wg-1,wz+dz,WATER);}
+   for(let k=0;k<9;k++){const a=k/9*6.283,x=Math.round(wx+Math.cos(a)*11),z=Math.round(wz+Math.sin(a)*9);palmTree(x,gh(x,z)+1,z,r);}
+   addLM('oasis2','ナイルのオアシス','egypt',wx,wz+12,gh(wx,wz+12));}
+}
+function genLondon(r){
+  // ビッグ・ベンと国会議事堂（川の北がわ）
+  const bx=344,bz=Math.round(thames(344))-14,g=gh(bx,bz);pad(bx-6,bz-30,bx+70,bz+3,g,GRASS,DIRT,50);
+  for(let y=g+1;y<=g+44;y++){const hw=y<=g+36?3:Math.max(0,3-(y-g-36)*.5|0);
+    for(let z=bz-hw;z<=bz+hw;z++)for(let x=bx-hw;x<=bx+hw;x++){const e=Math.abs(x-bx)===hw||Math.abs(z-bz)===hw;if(!e&&y<g+37)continue;
+      let id=y>g+36?TILEROOF:(y%3===0?TRAV:((x+z)%2?WINDOW:TRAV));
+      if(y>=g+29&&y<=g+33&&hw===3){const fx=Math.abs(x-bx)<=2&&Math.abs(z-bz)===3,fz=Math.abs(z-bz)<=2&&Math.abs(x-bx)===3;if(fx||fz)id=(y===g+31&&(x===bx||z===bz))||(y>=g+31&&y<=g+32&&(x===bx&&z!==bz||z===bz&&x!==bx)&&false)?BLACK:WHITE;}
+      gset(x,y,z,id);}}
+  for(const [x,z] of [[bx,bz-3],[bx,bz+3],[bx-3,bz],[bx+3,bz]]){gset(x,g+31,z,BLACK);gset(x,g+32,z,BLACK);}
+  gset(bx,g+45,bz,GOLD);gset(bx,g+46,bz,GOLD);
+  for(let x=bx+5;x<=bx+66;x++)for(let z=bz-12;z<=bz+2;z++){const e=x===bx+5||x===bx+66||z===bz-12||z===bz+2;for(let y=g+1;y<=g+12;y++)gset(x,y,z,e?((x%3===0)?TRAV:WINDOW):(y===g+12?TRAV:AIR));
+    if(e&&x%6===0)col(x,z,g+13,g+15,TRAV);}
+  for(let y=g+1;y<=g+28;y++)for(let z=bz-12;z<=bz-6;z++)for(let x=bx+60;x<=bx+66;x++)if(x===bx+60||x===bx+66||z===bz-12||z===bz-6||y===g+28)gset(x,y,z,y%4===0?TRAV:CASTLE);
+  addLM('bigben','ビッグ・ベン（国会議事堂）','london',bx-5,bz,gh(bx-5,bz));
+  // タワーブリッジ
+  {const cx=455,zc=Math.round(thames(455)),G2=13;
+   for(const s of [-1,1]){const tz=zc+s*10;
+     for(let y=1;y<=G2+30;y++)for(let z=tz-3;z<=tz+3;z++)for(let x=cx-4;x<=cx+4;x++){const e=Math.abs(x-cx)===4||Math.abs(z-tz)===3;if(y<=G2-1||e)gset(x,y,z,y>G2+24?TRAV:(y%5===0?BLUE:TRAV));else gset(x,y,z,AIR);}
+     for(const [ox,oz] of [[-4,-3],[4,-3],[-4,3],[4,3]])col(cx+ox,tz+oz,G2+31,G2+34,TRAV);hipRoof(cx-3,tz-2,cx+3,tz+2,G2+31,TILEROOF,0);
+     for(let z=tz+s*4;Math.abs(z-tz)<=26;z+=s){const gg=gh(cx,z);const dy=G2+4+Math.round(Math.abs(z-tz)*.0);for(let x=cx-3;x<=cx+3;x++){gset(x,G2,z,Math.abs(x-cx)===3?BLUE:ASPHALT);}
+       const cy=G2+24-Math.round(Math.min(20,Math.abs(z-tz)*.8));gset(cx-4,cy,z,BLUE);gset(cx+4,cy,z,BLUE);if(gg>G2)break;}}
+   for(let z=zc-6;z<=zc+6;z++){for(let x=cx-3;x<=cx+3;x++)gset(x,G2,z,Math.abs(x-cx)===3?BLUE:ASPHALT);for(const s of [-1,1]){gset(cx+s*2,G2+24,z,BLUE);gset(cx+s*2,G2+25,z,BLUE);gset(cx+s*1,G2+24,z,STEEL);}}
+   addLM('towerBridge','タワーブリッジ','london',cx,zc-24,gh(cx,zc-24));}
+  // ロンドン・アイ（南がわの大観覧車）
+  {const cx=395,cz=Math.round(thames(395))+16,g2=gh(cx,cz),R=18,cy=g2+R+3;pad(cx-10,cz-3,cx+10,cz+3,g2,CONCRETE,STONE,R*2+8);
+   for(let a=0;a<240;a++){const th=a/240*6.283,x=Math.round(cx+Math.cos(th)*R),y=Math.round(cy+Math.sin(th)*R);gset(x,y,cz,WHITE);if(a%20===0){gset(x,y,cz+1,GLASS);gset(x,y,cz-1,GLASS);gset(x,y-1,cz+1,GLASS);gset(x,y-1,cz-1,GLASS);}
+     if(a%30===0)for(let k=0;k<R;k+=2)gset(Math.round(cx+Math.cos(th)*k),Math.round(cy+Math.sin(th)*k),cz,STEEL);}
+   gset(cx,cy,cz,STEEL);for(let y=g2+1;y<cy;y++){gset(cx-Math.round((cy-y)*.4),y,cz+2,WHITE);}
+   addLM('londonEye','ロンドン・アイ（大観覧車）','london',cx,cz+5,gh(cx,cz+5));}
+  // レンガの家・赤い電話ボックス・赤い2階建てバス
+  for(let i=0;i<8;i++){const x0=300+i*10,z0=600,g2=gh(x0+3,z0+3);if(g2<=SEA+1)continue;pad(x0,z0,x0+8,z0+8,g2,GRASS,DIRT,14);shell(x0,g2,z0,x0+7,g2+8,z0+7,BRICK,PLANKS,WINDOW);hipRoof(x0,z0,x0+7,z0+7,g2+9,TILEROOF,0);
+    if(i%3===0){col(x0+3,z0+10,g2+1,g2+2,RED);gset(x0+3,g2+3,z0+10,RED);}}
+  for(const [x0,z0] of [[330,640],[372,628]]){const g2=gh(x0,z0);for(let y=g2+1;y<=g2+5;y++)for(let z=z0;z<=z0+2;z++)for(let x=x0;x<=x0+9;x++){const e=x===x0||x===x0+9||z===z0||z===z0+2;if(e||y===g2+5)gset(x,y,z,(y===g2+2||y===g2+4)&&e&&x>x0&&x<x0+9?GLASS:(y===g2+1&&e&&(x===x0+1||x===x0+8)?BLACK:RED));}}
+}
+function genParis(r){
+  // エッフェル塔
+  const cx=130,cz=905,g=gh(cx,cz);pad(cx-30,cz-26,cx+30,cz+40,g,GRASS,DIRT,70);
+  for(let z=cz+20;z<=cz+40;z++)for(let x=cx-8;x<=cx+8;x++)gset(x,g,z,Math.abs(x-cx)>=6?SAND:GRASS);
+  const T=58;latticeTower(cx,cz,g,T,17,1.9,STEEL,null,[[12,2,STEEL],[28,2,STEEL],[52,2,GLASS]],12);
+  for(let y=g+T+2;y<=Math.min(H-2,g+T+8);y++)gset(cx,y,cz,STEEL);
+  addLM('eiffel','エッフェル塔','paris',cx,cz+22,g);
+  LANDMARKS.push({id:'eiffelTop',name:'エッフェル塔の展望台','reg':'paris',x:cx+.5,y:g+30,z:cz+.5});
+  // 凱旋門
+  {const ax=206,az=956,g2=gh(ax,az);pad(ax-14,az-10,ax+14,az+10,g2,COBBLE,STONE,24);
+   for(let y=g2+1;y<=g2+18;y++)for(let z=az-4;z<=az+4;z++)for(let x=ax-8;x<=ax+8;x++){const inA=Math.abs(x-ax)<=3&&(y<=g2+10||Math.hypot(x-ax,(y-g2-10)*1.0)<3.5);const inB=Math.abs(z-az)<=1&&Math.abs(x-ax)>=5&&Math.abs(x-ax)<=7&&y<=g2+6;
+     gset(x,y,z,inA||inB?AIR:(y===g2+15?WHITE:TRAV));}
+   addLM('arc','凱旋門','paris',ax,az+12,g2);}
+  // ルーブルのガラスのピラミッド
+  {const lx=60,lz=958,g2=gh(lx,lz);pad(lx-26,lz-22,lx+26,lz+14,g2,COBBLE,STONE,20);
+   for(let k=0;k<=8;k++)for(let z=lz-8+k;z<=lz+8-k;z++)for(let x=lx-8+k;x<=lx+8-k;x++){const e=x===lx-8+k||x===lx+8-k||z===lz-8+k||z===lz+8-k;if(!e)continue;const ed=Math.abs(Math.abs(x-lx)-Math.abs(z-lz))<1;gset(x,g2+1+k,z,ed?STEEL:GLASS);}
+   for(let x=lx-24;x<=lx+24;x++)for(let z=lz-20;z<=lz-14;z++)for(let y=g2+1;y<=g2+9;y++){const e=x===lx-24||x===lx+24||z===lz-20||z===lz-14;gset(x,y,z,y===g2+9?TILEROOF:e?((x%3===0)?CASTLE:WINDOW):AIR);}
+   addLM('louvre','ルーブル美術館（ガラスのピラミッド）','paris',lx,lz+11,g2);}
+  // セーヌ川の橋
+  for(const bx of [80,170]){const z0=Math.round(seine(bx))-7,z1=Math.round(seine(bx))+7;for(let z=z0;z<=z1;z++)for(let x=bx-2;x<=bx+2;x++)gset(x,14,z,Math.abs(x-bx)===2?TRAV:COBBLE);}
+}
+function genGreatWall(r){
+  // 尾根をたどる長城と見張り塔
+  let z=900;const path=[];
+  for(let x=GWB.x0+8;x<=GWB.x1-8;x++){let best=z,bh=-1;for(let dz=-1;dz<=1;dz++){const zz=Math.max(GWB.z0+14,Math.min(GWB.z1-14,z+dz)),h=gh(x,zz)+(r()*.6);if(h>bh){bh=h;best=zz;}}z=best;path.push([x,z,gh(x,z)]);}
+  // 高さをならす
+  const sm=path.map((p,i)=>{let s=0,n=0;for(let j=Math.max(0,i-4);j<=Math.min(path.length-1,i+4);j++){s+=path[j][2];n++;}return Math.round(s/n);});
+  path.forEach(([x,pz],i)=>{const top=sm[i]+5;
+    for(let o=-2;o<=2;o++){const zz=pz+o,gg=gh(x,zz);for(let y=Math.min(gg,top);y<=top;y++)gset(x,y,zz,Math.abs(o)===2?COBBLE:(y===top?STONE:COBBLE));for(let y=top+1;y<=Math.max(gg,top)+3;y++)gset(x,y,zz,AIR);
+      if(Math.abs(o)===2){gset(x,top+1,zz,COBBLE);if(x%2===0)gset(x,top+2,zz,MOSSY);}}
+    if(i%36===18){for(let y=sm[i]-4;y<=top+6;y++)for(let dz=-4;dz<=4;dz++)for(let dx=-4;dx<=4;dx++){const e=Math.abs(dx)===4||Math.abs(dz)===4;const yy=y;
+        if(yy<=top&&!e)continue;gset(x+dx,yy,pz+dz,yy===top+6?STONE:(e?((yy===top+3&&(dx===0||dz===0))?AIR:COBBLE):AIR));}
+      for(let dz=-4;dz<=4;dz++)for(let dx=-4;dx<=4;dx++)if((dx+dz)%2===0&&(Math.abs(dx)===4||Math.abs(dz)===4))gset(x+dx,top+7,pz+dz,STONE);}});
+  const mid=path[Math.floor(path.length/2)];addLM('greatWall','万里の長城','wall',mid[0],mid[1],sm[Math.floor(path.length/2)]+5,true);
+  gset(mid[0],sm[Math.floor(path.length/2)]+5,mid[1],WARPSTONE);
+}
+function genMoai(r){
+  const cx=MOAI.x,cz=MOAI.z,g=gh(cx,cz);
+  for(let x=cx-14;x<=cx+14;x++)for(let z=cz-2;z<=cz+2;z++){const gg=gh(x,z);for(let y=gg;y<=g+1;y++)gset(x,y,z,COBBLE);}
+  for(let i=0;i<7;i++){const x=cx-12+i*4,z=cz,y0=g+2;
+    for(let y=y0;y<y0+11;y++)for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=0;dx++){const head=y>=y0+5;if(!head&&dz!==0&&y>y0+3)continue;gset(x+dx,y,z+dz,STONE);}
+    gset(x,y0+8,z+2,STONE);gset(x,y0+9,z+2,STONE);gset(x,y0+9,z+1,BLACK);gset(x,y0+9,z-1,BLACK);
+    for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=0;dx++)gset(x+dx,y0+11,z+dz,RSAND);}
+  addLM('moai','モアイ像の島','moai',cx,cz+6,gh(cx,cz+6));
+}
+// ---------- 宇宙コロニー ----------
+function genColony(){
+  const {x0,x1,z:cz,y:cy,r:R}=COLONY,FL=cy-R+3;
+  for(let x=x0;x<=x1;x++){const cap=x===x0||x===x1;
+    for(let dz=-R-1;dz<=R+1;dz++)for(let dy=-R-1;dy<=R+1;dy++){const d=Math.hypot(dz,dy);if(d>R+.5)continue;const y=cy+dy,z=cz+dz;if(y>=H||y<0)continue;
+      if(cap){gset(x,y,z,d>R-2?STEEL:(d<3?GLASSB:LABPANEL));continue;}
+      if(d>R-.5){const a=Math.atan2(dz,-dy),sec=Math.floor(((a/6.2832)*6+6.5))%6;gset(x,y,z,sec%2===1?GLASS:(x%12===0?STEEL:LABPANEL));}
+      else if(y<FL)gset(x,y,z,DIRT);else if(y===FL)gset(x,y,z,GRASS);else gset(x,y,z,AIR);}}
+  // 町：まんなかに川、両がわに家と木
+  for(let x=x0+2;x<=x1-2;x++){gset(x,FL,cz,WATER);gset(x,FL-1,cz,WATER);if(x%22===0)for(let o=-1;o<=1;o++)gset(x,FL+1,cz+o,PLANKS);
+    for(const s of [-1,1]){gset(x,FL,cz+s*3,CONCRETE);if(x%10===0)gset(x,FL+1,cz+s*4,LAMP);}}
+  for(let x=x0+8;x<=x1-8;x+=11)for(const s of [-1,1]){const zz=cz+s*6,c=[WHITE,YELLOW,PINK,BLUE][(x>>3)&3];
+    for(let y=FL+1;y<=FL+3;y++)for(let dz=0;dz<=2;dz++)for(let dx=0;dx<=3;dx++){const e=dx===0||dx===3||dz===0||dz===2;gset(x+dx,y,zz+s*dz,e?(y===FL+2&&dx===1?GLASS:c):AIR);}
+    for(let dz=0;dz<=2;dz++)for(let dx=0;dx<=3;dx++)gset(x+dx,FL+4,zz+s*dz,RED);
+    gset(x+5,FL+1,zz,LOG);gset(x+5,FL+2,zz,LEAVES);gset(x+5,FL+3,zz,LEAVES);gset(x+6,FL+2,zz,LEAVES);}
+  // 太陽電池のはね（横に広がる）とドック
+  for(let x=x1+3;x<=x1+30;x++){if(x%6===0)continue;for(let o=R+3;o<=R+26;o++){gset(x,cy,cz+o,BLUE);gset(x,cy,cz-o,BLUE);}}
+  for(let x=x1+1;x<=x1+30;x++)gset(x,cy,cz,STEEL);for(let o=-R-26;o<=R+26;o++)gset(x1+16,cy,cz+o,STEEL);
+  for(let x=x0-12;x<x0;x++)for(let dz=-2;dz<=2;dz++)for(let dy=-2;dy<=2;dy++){const e=Math.abs(dz)===2||Math.abs(dy)===2;gset(x,cy+dy,cz+dz,e?STEEL:AIR);}
+  for(let dz=-2;dz<=2;dz++)for(let dy=-2;dy<=2;dy++)gset(x0,cy+dy,cz+dz,AIR);
+  for(let dz=-1;dz<=1;dz++)for(let x=x0-12;x<x0;x++)gset(x,cy-2,cz+dz,LAMP);
+  const mx=(x0+x1)>>1;gset(mx,FL,cz+4,WARPSTONE);
+  {const px=mx+14,pz=cz-5;for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){gset(px+dx,FL,pz+dz,LAUNCH);gset(px+dx,FL+1,pz+dz,AIR);}
+   PADS.push({id:'colonyPad',x:px,y:FL,z:pz,to:'arenaPad',label:'地上の大闘技場',ax:px+.5,ay:FL+1,az:pz+3.5});}
+  LANDMARKS.push({id:'colony',name:'宇宙コロニー','reg':'colony',x:mx+.5,y:FL+1,z:cz+4.5});
+}
+// ---------- 橋・植物・ぜんぶ ----------
+function genFarLinks(){
+  const B=(axis,c,from1,to1,from2,to2,DY,col2)=>{const a=shoreScan(axis,c,from1,to1),b=shoreScan(axis,c,from2,to2);if(a!==to1&&b!==to2&&Math.abs(b-a)<140)seaBridge(axis,c,Math.min(a,b),Math.max(a,b),DY,col2);};
+  B('x',120,648,600,650,720,17,RED);          // ローマ → 東京
+  B('x',470,660,600,662,720,17,STEEL);        // シンガポール → 大闘技場
+  B('z',840,340,300,342,400,17,RED);          // 日本 → 大闘技場
+  B('z',100,536,480,538,600,17,STEEL);        // サンフランシスコ → エジプト
+  B('z',350,536,470,538,600,17,STEEL);        // インド → ロンドン
+  B('x',680,275,240,276,320,17,GOLD);         // エジプト ↔ ロンドン
+  B('z',130,806,770,808,850,17,STEEL);        // エジプト → パリ
+  B('z',400,785,750,786,830,18,COBBLE);       // ロンドン → 長城
+  B('x',900,275,240,276,320,17,STEEL);        // パリ ↔ 長城
+  B('x',760,536,500,538,600,17,RED);          // ロンドン → オアフ島
+  B('z',700,640,590,642,760,17,STEEL);        // 大闘技場 → オアフ島
+}
+function genFarPlants(r){
+  for(let z=4;z<D-4;z++){for(let x=4;x<W-4;x++){if(x<OLDW&&z<OLDD)continue;const k=x+z*W,reg=REG[k],h=HM[k];if(reg<12||h<=SEA+1)continue;
+      const tp=world[idx(x,h,z)];if(tp!==GRASS&&tp!==SAND&&tp!==SNOW)continue;if(world[idx(x,h+1,z)]!==AIR)continue;const q=r();
+      if(reg===12){if(tp===GRASS&&q<.0035)sakura(x,h+1,z,r);else if(tp===GRASS&&q<.05)gset(x,h+1,z,TGRASS);}
+      else if(reg===13){if(tp===GRASS&&q<.003)sakura(x,h+1,z,r);else if(tp===GRASS&&q<.006)maple(x,h+1,z,r);else if(tp===GRASS&&q<.011)umbrellaPine(x,h+1,z,r);else if(tp===GRASS&&q<.08)gset(x,h+1,z,TGRASS);}
+      else if(reg===14){if(tp===GRASS&&h<36&&q<.012)spruce(x,h+1,z,r);else if(tp===GRASS&&h<20&&q<.015)sakura(x,h+1,z,r);else if(tp===GRASS&&q<.09)gset(x,h+1,z,TGRASS);}
+      else if(reg===16||reg===17||reg===22){if(tp===SAND&&q<.008)palmTree(x,h+1,z,r);else if(tp===GRASS&&q<.01)palmTree(x,h+1,z,r);else if(tp===GRASS&&q<.016)growTree(x,h+1,z,r);else if(tp===GRASS&&q<.1)gset(x,h+1,z,q<.06?TGRASS:(q<.08?FLOWER_R:FLOWER_Y));}
+      else if(reg===19||reg===20){if(tp===GRASS&&q<.006)growTree(x,h+1,z,r);else if(tp===GRASS&&q<.05)gset(x,h+1,z,TGRASS);else if(tp===GRASS&&q<.06)gset(x,h+1,z,FLOWER_R);}
+      else if(reg===21){if(tp===GRASS&&q<.012)spruce(x,h+1,z,r);else if(tp===GRASS&&q<.02)growTree(x,h+1,z,r);else if(tp===GRASS&&q<.08)gset(x,h+1,z,TGRASS);}}}
+}
+function farRegFix(){const set={oahu:16,bigisland:17,fuji:14,london:19,paris:20,egypt:18,moai:22,kyoto:13,tokyo:12,arena2:15,wall:21};
+  for(const lm of LANDMARKS){const v=set[lm.reg];if(!v)continue;const x0=Math.floor(lm.x),z0=Math.floor(lm.z);for(let dz=-7;dz<=7;dz++)for(let dx=-7;dx<=7;dx++){const x=x0+dx,z=z0+dz;if(x<OLDW&&z<OLDD||x<0||z<0||x>=W||z>=D)continue;if(REG[x+z*W]===5)REG[x+z*W]=v;}}}
+function* genFar(sd){
+  const r=rng(sd^0xfa7f19);
+  genTokyo(r);yield{p:.78,t:'東京をつくっています'};
+  genKyoto(r);genFuji(r);yield{p:.8,t:'京都と富士山をつくっています'};
+  genGrandArena();yield{p:.82,t:'大闘技場をつくっています'};
+  genOahu(r);genBigIsland(r);yield{p:.84,t:'ハワイをつくっています'};
+  genEgypt(r);genLondon(r);genParis(r);genGreatWall(r);genMoai(r);yield{p:.86,t:'世界の名所をつくっています'};
+  genColony();genFarLinks();yield{p:.87,t:'宇宙コロニーをつくっています'};
+  genFarPlants(r);farRegFix();yield{p:.89,t:'木を植えています'};
 }
 
 function* generateWorld(sd,wantSnap){
@@ -2505,9 +3047,10 @@ function* generateWorld(sd,wantSnap){
   const rc=rng(sd^0x5151);genSF(rc);yield{p:.71,t:'サンフランシスコふうの街をつくっています'};genIndia(rc);yield{p:.72,t:'インドふうの都をつくっています'};
   genShanghai(rc);yield{p:.73,t:'上海ふうの港町をつくっています'};genDubai(rc);genLinks(rc);yield{p:.74,t:'ドバイふうの砂漠都市をつくっています'};
   const re=rng(sd^0x7e57);genRome(re);yield{p:.75,t:'ローマふうの都とコロッセオをつくっています'};genSingapore(re);genEastLinks(re);COASTER_ST.length=0;genCoaster();genBossArenas();genFishing();yield{p:.76,t:'シンガポールふうの湾岸都市をつくっています'};
+  yield* genFar(sd);
   LANDMARKS.unshift({id:'start',name:'はじまりの島',reg:'center',x:spawn.x,y:spawn.y,z:spawn.z});
   LANDMARKS.push({id:'titanField',name:'巨人の野原',reg:REGN[REG[74+70*W]]==='sea'?'snow':REGN[REG[74+70*W]],x:84.5,y:gh(84,80)+1,z:80.5});
-  for(let z=0;z<D;z++){for(let x=0;x<W;x++)recomputeTop(x,z);if((z&31)===31)yield{p:.76+z/D*.04,t:'しあげをしています'};}
+  for(let z=0;z<D;z++){for(let x=0;x<W;x++)recomputeTop(x,z);if((z&63)===63)yield{p:.9+z/D*.04,t:'しあげをしています'};}
   HM=null;
 }
 
@@ -2519,13 +3062,13 @@ const pending=new Set();
 let tickN=0;
 function schedule(x,y,z){if(inB(x,y,z))pending.add(idx(x,y,z));}
 function scheduleAround(x,y,z){schedule(x,y,z);schedule(x+1,y,z);schedule(x-1,y,z);schedule(x,y+1,z);schedule(x,y-1,z);schedule(x,y,z+1);schedule(x,y,z-1);}
-function setRaw(x,y,z,id,lvl){const i=idx(x,y,z);world[i]=id;wl[i]=isLiquid(id)?(lvl||7):0;markDirty(x,z);if(trackEdits)edits.add(i);
+function setRaw(x,y,z,id,lvl){const i=idx(x,y,z);if(UNBR[world[i]]&&world[i]!==id)return;world[i]=id;wlS(i,isLiquid(id)?(lvl||7):0);markDirty(x,z);if(trackEdits)edits.add(i);
   const k=x+z*W;if(id!==AIR){if(y>colTop[k])colTop[k]=y;}else if(y>=colTop[k])recomputeTop(x,z);}
 function setBlock(x,y,z,id,lvl){setRaw(x,y,z,id,lvl);scheduleAround(x,y,z);queueSave();}
 const saplings=[];
 function steam(x,y,z){for(let i=0;i<10;i++)addP(x+rand(),y+.8+rand()*.4,z+rand(),(rand()-.5),1.5+rand()*1.5,(rand()-.5),.8+rand()*.5,.25,.9,.9,.92,-1,1.5);
   noise(.08*distVol(x,y,z),.5,3000,6000,'highpass');}
-function solidify(x,y,z){const src=wl[idx(x,y,z)]>=7;setRaw(x,y,z,src?OBSIDIAN:COBBLE);scheduleAround(x,y,z);steam(x,y,z);}
+function solidify(x,y,z){const src=wlG(idx(x,y,z))>=7;setRaw(x,y,z,src?OBSIDIAN:COBBLE);scheduleAround(x,y,z);steam(x,y,z);}
 function tickBlocks(){
   tickN++;
   if(!pending.size)return;
@@ -2536,7 +3079,7 @@ function tickBlocks(){
     const x=i%W,z=((i/W)|0)%D,y=(i/(W*D))|0,id=world[i];
     if(id===SAND){
       if(y<=0)continue;const b=world[idx(x,y-1,z)];
-      if(b===AIR||b===WATER||isPlant(b)){const bl=wl[idx(x,y-1,z)];setRaw(x,y-1,z,SAND);
+      if(b===AIR||b===WATER||isPlant(b)){const bl=wlG(idx(x,y-1,z));setRaw(x,y-1,z,SAND);
         if(b===WATER)setRaw(x,y,z,WATER,bl);else setRaw(x,y,z,AIR);
         scheduleAround(x,y-1,z);scheduleAround(x,y,z);}
     }else if(isPlant(id)){
@@ -2557,7 +3100,7 @@ function tickBlocks(){
   queueSave();
 }
 function flow(i,x,y,z,id){
-  const lvl=wl[i],lava=id===MAGMA;if(y<=0)return;
+  const lvl=wlG(i),lava=id===MAGMA;if(y<=0)return;
   const bi=idx(x,y-1,z),b=world[bi];
   const ocean=!lava&&y<=SEA&&lvl>=7;
   if(b===AIR||isPlant(b)){setRaw(x,y-1,z,id,ocean?7:6);scheduleAround(x,y-1,z);return;}
@@ -2570,7 +3113,7 @@ function flow(i,x,y,z,id){
     const nx=x+d[0],nz=z+d[1];if(!inB(nx,y,nz))continue;
     const j=idx(nx,y,nz),nb=world[j];
     if(nb===AIR||isPlant(nb)){setRaw(nx,y,nz,id,nl);scheduleAround(nx,y,nz);}
-    else if(nb===id&&wl[j]<nl){wl[j]=nl;markDirty(nx,nz);schedule(nx,y,nz);if(trackEdits)edits.add(j);}
+    else if(nb===id&&wlG(j)<nl){wlS(j,nl);markDirty(nx,nz);schedule(nx,y,nz);if(trackEdits)edits.add(j);}
     else if(!lava&&nb===MAGMA){solidify(nx,y,nz);}
   }
 }
@@ -2738,6 +3281,12 @@ const SONGS={
   singapore:{name:'湾岸のネオン（シンガポール）',bpm:100,ch:[[62,65,69,72],[58,62,65,69],[60,64,67,71],[57,60,64,67]],
     bass:[0,-1,0,7,-1,0,-1,5,0,-1,0,7,-1,10,-1,7],arp:[0,2,1,3,2,1,0,-1,1,3,2,-1,0,2,3,-1],lead:'square',lv:.026,oct:12,
     k:[0,6,8,14],s:[4,12],h:[2,6,10,14],hv:.016,pad:.04},
+  japan:{name:'さくら舞う都（日本）',bpm:84,ch:[[57,59,64],[52,57,59],[53,57,60],[52,56,59]],
+    bass:[0,-1,-1,-1,7,-1,-1,-1,5,-1,-1,-1,7,-1,-1,-1],arp:[2,-1,1,-1,0,-1,1,2,3,-1,2,-1,1,-1,0,-1],lead:'triangle',lv:.06,oct:12,bell:true,
+    k:[0,8],s:[],h:[4,12],hv:.008,pad:.04},
+  hawaii:{name:'アロハの風（ハワイ）',bpm:92,ch:[[60,64,67,69],[65,69,72,74],[67,71,74,77],[60,64,67,72]],
+    bass:[0,-1,7,-1,0,-1,7,-1,0,-1,7,-1,0,4,7,-1],arp:[0,2,1,3,-1,2,1,0,2,-1,3,1,0,-1,2,-1],lead:'triangle',lv:.05,oct:12,
+    k:[0,8],s:[4,12],h:[2,6,10,14],hv:.01,pad:.03},
   space:{name:'星の海（宇宙）',bpm:60,ch:[[60,64,67,71],[57,60,64,67],[53,57,60,64],[55,59,62,65]],
     bass:[0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],arp:[3,-1,-1,-1,2,-1,-1,-1,1,-1,-1,-1,0,-1,-1,-1],lead:'sine',lv:.07,oct:24,bell:true,
     k:[],s:[],h:[],hv:0,pad:.065}
@@ -2773,20 +3322,23 @@ function inBattle(){
 function pickMood(){
   if(inBattle())return'battle';
   const rg=curRegion;
-  if(rg==='space'||launchSt)return'space';
+  if(rg==='space'||rg==='colony'||launchSt)return'space';
   if(rg==='lab')return'lab';
   if(rg==='subway'||rg==='city')return'city';
   if(isUnder&&P.y<SEA+4)return'cave';
   if(rg==='volcano')return'volcano';
   if(rg==='sf'||rg==='dubai'||rg==='india'||rg==='shanghai'||rg==='rome'||rg==='singapore')return rg;
   if(rg==='snow')return'snow';
-  if(rg==='kingdom')return'kingdom';
+  if(rg==='kingdom'||rg==='london'||rg==='paris'||rg==='wall')return'kingdom';
+  if(rg==='tokyo'||rg==='kyoto'||rg==='fuji')return'japan';
+  if(rg==='oahu'||rg==='bigisland'||rg==='moai')return'hawaii';
+  if(rg==='arena2')return'rome';if(rg==='egypt')return'dubai';
   if(isFlyMount(P.mount)||(P.fly&&P.y>topAt(P.x,P.z)+8))return'sky';
   if(dayLight<.5)return'night';
   return'day';
 }
 function showBgm(){const el=$('bgmLabel');el.textContent='♪ '+SONGS[curSong].name;el.classList.add('show');bgmLabelT=3;
-  $('bgmNow').textContent='いまの曲：'+SONGS[curSong].name+'。いる場所（はじまりの島・街・雪山・火山・王国・研究所・宇宙・サンフランシスコ・インド・上海・ドバイ・ローマ・シンガポール）と、昼・夜・空・地下・戦いに合わせて自動で切り替わります。';}
+  $('bgmNow').textContent='いまの曲：'+SONGS[curSong].name+'。いる場所（はじまりの島・街・雪山・火山・王国・研究所・宇宙・サンフランシスコ・インド・上海・ドバイ・ローマ・シンガポール・日本・ハワイ・大闘技場・世界の名所）と、昼・夜・空・地下・戦いに合わせて自動で切り替わります。';}
 function musicTick(dt){
   bgmLabelT-=dt;if(bgmLabelT<=0)$('bgmLabel').classList.remove('show');
   if(!actx||!musicOut||!bgmOn||actx.state!=='running')return;
@@ -3055,7 +3607,7 @@ function spawnDefaultMobs(){
   at('yak',LAKE.x+10,LAKE.z,26,8);at('rabbit',CASTLE_C.x,CASTLE_C.z-40,30,12);at('rabbit',(PARK.x0+PARK.x1)/2,(PARK.z0+PARK.z1)/2,14,6);
   at('yak',VOL.x-50,VOL.z+40,20,4);at('rabbit',80,90,24,8);at('yak',250,300,24,4);
   spawnMob('dragon',CASTLE_C.x,48,CASTLE_C.z-10,{home:{x:CASTLE_C.x,z:CASTLE_C.z,y:52,r:30}});
-  spawnCityMobs();spawnEastMobs();spawnV14Mobs();v14done=true;
+  spawnCityMobs();spawnEastMobs();spawnV14Mobs();v14done=true;spawnFarMobs();
   const wg=[['steel',236,282],['magma',VOL.x-30,VOL.z+20],['ice',LAKE.x,LAKE.z+18],['thunder',262,330],['mini',CASTLE_C.x+8,CASTLE_C.z-12],['mini',132,280],['giant',152,352],['golem',CX+6,CZ+6]];
   for(const [k,x,z] of wg){const p=landNear(x,z,6);if(p)spawnMob(k,p.x,p.y,p.z,{wild:true});}
   for(const [x,y,z,k] of spawnLabGolems)spawnMob(k,x,y,z,{wild:true});
@@ -3073,6 +3625,13 @@ function spawnResidents(){
   if(!has('titan')){const h=RES_HOME.titan;spawnMob('titan',h.x+.5,titanGround(h.x,h.z),h.z+.5,{resident:true,home:h});}
   if(!has('gdragon')){const h=RES_HOME.gdragon;spawnMob('gdragon',h.x+h.r,h.y,h.z,{resident:true,home:h});}
   if(!has('gorilla')){const h=RES_HOME.gorilla;spawnMob('gorilla',h.x+.5,titanGround(h.x,h.z),h.z+.5,{resident:true,home:h});}
+}
+function spawnFarMobs(){
+  const at=(k,cx,cz,r,n)=>{for(let i=0;i<n;i++){const p=landNear(cx,cz,r);if(p)spawnMob(k,p.x,p.y,p.z);}};
+  at('citizen',760,150,30,8);at('merchant',752,90,10,3);at('ninja',930,120,20,4);at('citizen',900,110,20,4);
+  at('camel',130,760,30,5);at('knight',380,620,20,3);at('citizen',420,640,30,4);at('chef',150,940,20,3);at('citizen',120,960,20,3);
+  at('horse',640,720,30,4);at('rabbit',870,860,30,5);at('soldier',840,560,20,4);at('yak',420,900,30,3);
+  for(const [x,z] of [[700,860],[760,950],[600,900]])spawnMob('whale',x,6,z);
 }
 function spawnV14Mobs(){
   for(const [cx,cz,n] of [[CX-24,CZ+28,4],[150,300,4],[600,40,3],[250,420,3],[540,300,2]])for(let i=0;i<n;i++){const p=landNear(cx,cz,18);if(p)spawnMob('horse',p.x,p.y,p.z);}
@@ -5113,7 +5672,7 @@ $('viewBtn').addEventListener('click',e=>{e.stopPropagation();cyclePerspective()
 $('viewBtn').addEventListener('pointerdown',e=>e.stopPropagation());
 
 // ---------- こわす・攻撃・使う ----------
-let allyHint=false,bedrockHint=false;
+let allyHint=false,bedrockHint=false,unbrHint=false;
 function attackMob(mh){
   const it=hot[sel],sw=it===SWORD,cdMax=(sw?.6:.25)/(autoAll?rateMul:1),k=Math.max(.2,1-Math.max(0,atkCD)/cdMax);atkCD=cdMax;
   const m=mh.m,kb=(sw?8:5)*k;
@@ -5150,7 +5709,7 @@ function pickBlock(){
   if(!playing)return;
   const mh=mobHit(reachEntity()),h=raycast(reachBlock());let it=null;
   if(mh&&(!h||mh.t<h.t+.6))it=KIND_EGG[mh.m.kind];else if(h)it=h.id;
-  if(it==null||!(BLOCKS[it]||TOOLS[it]))return;
+  if(it==null||!(BLOCKS[it]||TOOLS[it])||UNBR[it])return;
   const j=hot.indexOf(it);if(j>=0)select(j);else{hot[sel]=it;renderHotbar();select(sel);queueSave();}
 }
 function doBreak(h){
@@ -5178,7 +5737,7 @@ function updateMining(dt){
   if(!active){if(brk){brk=null;hideCrack();}return;}
   const mh=mobHit(reachEntity()),h=raycast(reachBlock());
   if(mh&&(!h||mh.t<h.t+.6)){brk=null;hideCrack();if(atkCD<=0&&!pulse)attackMob(mh);return;}
-  if(!h||h.id===BEDROCK){brk=null;hideCrack();if(h&&!bedrockHint){bedrockHint=true;toast('岩盤はこわせません');}return;}
+  if(!h||h.id===BEDROCK||UNBR[h.id]){brk=null;hideCrack();if(h&&UNBR[h.id]){if(!unbrHint){unbrHint=true;toast('大闘技場はどんな攻撃でもこわれません');}}else if(h&&!bedrockHint){bedrockHint=true;toast('岩盤はこわせません');}return;}
   if(!brk||brk.x!==h.x||brk.y!==h.y||brk.z!==h.z)brk={x:h.x,y:h.y,z:h.z,t:0,need:breakTime(h.id),snd:0};
   if(brkDelay>0)return;
   brk.t+=dt;brk.snd-=dt;
@@ -5565,11 +6124,12 @@ function updateDebug(){
 
 // ================= 冒険：地方・発見・コンパス・地図・ワープ・発射台 =================
 let curRegion='center',regionShown='center',regionHold=0,regionT=0,isUnder=false,stoneLock=false,found=new Set(),launchSt=null,cmpT=0,cmpTarget=null;
-const REGION_SUB={rome:'コロッセオ・凱旋門・遺跡・願いの泉・かたむいた塔',singapore:'屋上に船がのったホテル・光る木の庭・大観覧車',center:'スタート地点の島',sea:'どこまでも続く海',snow:'北の雪山・氷の湖・白銀の峰',volcano:'東の火山・マグマの川',kingdom:'南の城・大樹・遺跡',
+const REGION_SUB={tokyo:'東京タワー・東京スカイツリー・浅草・渋谷・新宿・国会議事堂',kyoto:'清水寺・金閣寺・伏見稲荷・八坂の塔・奈良の大仏',fuji:'富士山・姫路城・海の大鳥居',arena2:'コロッセオの約10倍の面積。どんな攻撃でもこわれない',oahu:'ダイヤモンドヘッド・ワイキキ・アロハタワー・真珠湾・ノースショア',bigisland:'マウナケアの天文台・キラウエアの溶岩湖・黒い砂の浜・アカカの滝',egypt:'ピラミッド・スフィンクス・オアシス',london:'ビッグ・ベン・タワーブリッジ・ロンドン・アイ',paris:'エッフェル塔・凱旋門・ルーブル',wall:'山の尾根を走る長い城壁',moai:'海に浮かぶモアイ像の島',colony:'海の上の宇宙にうかぶ筒の形の町',rome:'コロッセオ・凱旋門・遺跡・願いの泉・かたむいた塔',singapore:'屋上に船がのったホテル・光る木の庭・大観覧車',center:'スタート地点の島',sea:'どこまでも続く海',snow:'北の雪山・氷の湖・白銀の峰',volcano:'東の火山・マグマの川',kingdom:'南の城・大樹・遺跡',
   city:'西の摩天楼・つり橋・女神の像',sf:'坂道とカラフルな家・赤い大つり橋',dubai:'砂漠と超高層タワー・ヤシの木の島',india:'白亜の霊廟・市場・川辺の階段',shanghai:'川沿いの洋館とテレビ塔',lab:'地下にひそむ研究所',subway:'海の下を通るトンネル',space:'高さ72より上・月面基地と宇宙ステーション'};
 function regionAt(x,y,z){
   x=Math.floor(x);z=Math.floor(z);
   // 高い山の上（地面から続いている）は宇宙ではない。月や宇宙ステーションは下が空いている
+  if(y>=SPACE_Y-6&&x>=COLONY.x0-13&&x<=COLONY.x1+30&&Math.abs(z-COLONY.z)<=COLONY.r+1)return'colony';
   if(y>=SPACE_Y-2){let solid=x>=0&&z>=0&&x<W&&z<D;for(let yy=30;solid&&yy<Math.min(H,Math.floor(y));yy++){const id=world[idx(x,yy,z)];if(!id||id===CLOUD)solid=false;}if(!solid)return'space';}
   if(x>=LABB.x0-2&&x<=LABB.x1+2&&z>=LABB.z0-2&&z<=LABB.z1+9&&y<16)return'lab';
   if(x>=SUB.x0-1&&x<=SUB.x1&&z>=SUB.z0-4&&z<=SUB.z1+12&&y<8)return'subway';
@@ -5628,8 +6188,8 @@ function updateCompass(dt){
 // ---- 地図 ----
 let mapOpen=false,mapImg=null,mapStamp=-1,mapSel=null;
 const mapCv=$('mapCv'),mctx=mapCv.getContext('2d');
-const MAP_LABELS=[['rome',548,30],['singapore',522,500],['sf',100,444],['india',300,426],['shanghai',470,110],['dubai',452,340],['center',CX,CZ+30],['snow',196,70],['volcano',VOL.x,VOL.z+40],['kingdom',CASTLE_C.x,CASTLE_C.z+40],['city',70,150],['space',MOON.x,MOON.z-40]];
-const LM_ORDER=['center','city','subway','snow','volcano','lab','kingdom','space','sf','india','shanghai','dubai','rome','singapore'];
+const MAP_LABELS=[['rome',548,30],['singapore',522,500],['sf',100,444],['india',300,426],['shanghai',470,110],['dubai',452,340],['center',CX,CZ+30],['snow',196,70],['volcano',VOL.x,VOL.z+40],['kingdom',CASTLE_C.x,CASTLE_C.z+40],['city',70,150],['space',MOON.x,MOON.z-40],['tokyo',756,24],['kyoto',930,30],['fuji',770,318],['arena2',840,620],['oahu',600,820],['bigisland',880,1010],['egypt',140,575],['london',405,575],['paris',140,1012],['wall',405,1012],['moai',548,940],['colony',670,600]];
+const LM_ORDER=['center','city','subway','snow','volcano','lab','kingdom','space','sf','india','shanghai','dubai','rome','singapore','tokyo','kyoto','fuji','arena2','oahu','bigisland','egypt','london','paris','wall','moai','colony'];
 function buildMapImage(){
   const c=document.createElement('canvas');c.width=W;c.height=D;const g=c.getContext('2d'),im=g.createImageData(W,D),d=im.data;
   const ys=new Int16Array(W*D),ids=new Uint8Array(W*D);
@@ -5649,7 +6209,7 @@ function drawMap(){
   g.imageSmoothingEnabled=false;g.drawImage(mapImg,0,0,mapCv.width,mapCv.height);
   // 宇宙（上空）のしるし
   g.strokeStyle='rgba(190,210,255,.7)';g.setLineDash([6,6]);g.lineWidth=2;g.beginPath();g.arc(MOON.x*S,MOON.z*S,MOON.r*S,0,6.283);g.stroke();
-  g.strokeRect((STATION.x-34)*S,(STATION.z-8)*S,68*S,16*S);g.setLineDash([]);
+  g.strokeRect((STATION.x-34)*S,(STATION.z-8)*S,68*S,16*S);g.strokeRect((COLONY.x0-12)*S,(COLONY.z-COLONY.r)*S,(COLONY.x1-COLONY.x0+42)*S,COLONY.r*2*S);g.setLineDash([]);
   g.textAlign='center';g.textBaseline='middle';
   g.font='22px DotGothic16, "Hiragino Kaku Gothic ProN", sans-serif';
   for(const [rg,x,z] of MAP_LABELS){g.lineWidth=4;g.strokeStyle='rgba(0,0,0,.65)';g.strokeText(REGION_NAME[rg],x*S,z*S);g.fillStyle='rgba(255,250,230,.95)';g.fillText(REGION_NAME[rg],x*S,z*S);}
@@ -5754,7 +6314,7 @@ function updateSky(){
   const a=tod*Math.PI*2,sh=Math.sin(a);
   dayLight=Math.max(.3,Math.min(1,.34+sh*.95));
   const cy=camera.position.y;
-  spaceAmt+=(smooth(SPACE_Y-18,SPACE_Y,cy)-spaceAmt)*.08;
+  spaceAmt+=(smooth(SPACE_Y-18,SPACE_Y,cy)*(curRegion==='fuji'||curRegion==='bigisland'||curRegion==='arena2'?.3:1)-spaceAmt)*.08;
   underAmt+=((playing&&isUnder?1:0)-underAmt)*.06;
   volAmt+=((playing&&curRegion==='volcano'?1:0)-volAmt)*.03;
   light=dayLight*(1-wetAmt*.3)*(1-snowAmt*.08);
@@ -5768,7 +6328,7 @@ function updateSky(){
   if(spaceAmt>.01)sky.lerp(spaceC,spaceAmt);
   if(underAmt>.01)sky.lerp(underC,underAmt*.85);
   scene.fog.color.copy(sky);
-  scene.fog.near=1e5;scene.fog.far=2e5;   // 霧なし：遠くまで見通せる
+  scene.fog.near=LODMAX*.72;scene.fog.far=LODMAX;   // 遠くだけうすい霧（世界が広いので）
   const starA=Math.max(spaceAmt,(1-k)*.85)*(1-wetAmt*.9)*(1-underAmt);
   stars.visible=starA>.03;if(stars.visible){starMat.opacity=Math.min(1,starA);stars.position.copy(camera.position);stars.scale.setScalar(camera.far*.82);}
   matSolid.color.setScalar(light);matWater.color.setScalar(light);matEntity.color.setScalar(light);MOB_LIT.color.setScalar(light);lodMat.color.setScalar(light);
@@ -5792,15 +6352,15 @@ function b64(u8){let s='';for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode
 function unb64(s){const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
 function encodeEdits(){
   const ks=new Int32Array(edits.size);let j=0;for(const i of edits)ks[j++]=i;ks.sort();const out=new Uint8Array(ks.length*7+8);let n=0,prev=0;
-  for(const i of ks){let d=i-prev;prev=i;while(d>=128){out[n++]=(d&127)|128;d=Math.floor(d/128);}out[n++]=d;out[n++]=world[i];out[n++]=wl[i];}
+  for(const i of ks){let d=i-prev;prev=i;while(d>=128){out[n++]=(d&127)|128;d=Math.floor(d/128);}out[n++]=d;out[n++]=world[i];out[n++]=wlG(i);}
   return b64(out.subarray(0,n));
 }
-function decodeEdits(str,oldW){
+function decodeEdits(str,oldW,oldD){oldD=oldD||oldW;
   const u=unb64(str);let p=0,prev=0,n=0;
   while(p<u.length){let d=0,mul=1,b;do{b=u[p++];d+=(b&127)*mul;mul*=128;}while((b&128)&&p<u.length);
     const i0=prev+d;prev=i0;const id=u[p++],l=u[p++];
-    const i=oldW?idx(i0%oldW,Math.floor(i0/(oldW*oldW)),Math.floor(i0/oldW)%oldW):i0;
-    if(i>=0&&i<world.length){const v=BLOCKS[id]?id:AIR;world[i]=v;wl[i]=isLiquid(v)?(l||7):0;edits.add(i);n++;}}
+    const i=oldW?idx(i0%oldW,Math.floor(i0/(oldW*oldD)),Math.floor(i0/oldW)%oldD):i0;
+    if(i>=0&&i<world.length){const v=BLOCKS[id]?id:AIR;world[i]=v;wlS(i,isLiquid(v)?(l||7):0);edits.add(i);n++;}}
   return n;
 }
 function save(){
@@ -5813,7 +6373,7 @@ function save(){
   catch(e){if(!saveWarned){saveWarned=true;toast('保存の容量がいっぱいです。メニューの「新しい世界をつくる」で軽くなります',4200);}}
 }
 function queueSave(){if(!worldReady)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(window.requestIdleCallback)requestIdleCallback(save,{timeout:2000});else save();},1500);}
-let grewEast=false,loadedMobs=null,migratedGuns=false,saveVer=6,migrated=false,worldChanged=false,rkTipShown=false,grewWorld=false;
+let grewFar=false,grewEast=false,loadedMobs=null,migratedGuns=false,saveVer=6,migrated=false,worldChanged=false,rkTipShown=false,grewWorld=false;
 function readSave(){try{const j=JSON.parse(localStorage.getItem(KEY)||'null');if(!j||!(j.e!=null||j.w)||!Array.isArray(j.p))return null;return j;}catch(e){return null;}}
 // 世界を作る前に：設定・位置・もちものなど
 function applySaveMeta(j){
@@ -5838,12 +6398,12 @@ function applySaveMeta(j){
 // 世界を作ったあとに：変えたブロックをもどす（前の64×64の島は、最初の状態とくらべて変わったところだけを、まんなかへ引っ越す）
 function applySaveWorld(j){
   let n=0;
-  if(j.v>=6){if(j.e){if(j.gen===GEN_VER)n=decodeEdits(j.e);else if(j.gen===1){n=decodeEdits(j.e,384);grewWorld=true;grewEast=true;}else if(j.gen===2){n=decodeEdits(j.e,512);grewEast=true;}else worldChanged=true;}}
+  if(j.v>=6){if(j.e){if(j.gen===GEN_VER)n=decodeEdits(j.e);else if(j.gen===1){n=decodeEdits(j.e,384);grewWorld=true;grewEast=true;grewFar=true;}else if(j.gen===2){n=decodeEdits(j.e,512);grewEast=true;grewFar=true;}else if(j.gen===3){n=decodeEdits(j.e,640,512);grewFar=true;}else worldChanged=true;}}
   else if(j.w&&classicSnap){
     const ow=unb64(j.w);
     if(ow.length===64*64*40){const ol=j.l?unb64(j.l):null,okL=ol&&ol.length===ow.length;
       for(let i=0;i<ow.length;i++){let id=ow[i];if(id&&!BLOCKS[id])id=AIR;const l=isLiquid(id)?(okL?ol[i]||7:7):0;
-        if(id!==classicSnap.w[i]||(l&&l!==classicSnap.l[i])){const x=i%64,z=((i/64)|0)%64,y=(i/4096)|0,k=idx(x+OX,y,z+OZ);world[k]=id;wl[k]=l;edits.add(k);n++;}}
+        if(id!==classicSnap.w[i]||(l&&l!==classicSnap.l[i])){const x=i%64,z=((i/64)|0)%64,y=(i/4096)|0,k=idx(x+OX,y,z+OZ);world[k]=id;wlS(k,l);edits.add(k);n++;}}
       migrated=true;}
   }
   classicSnap=null;
@@ -5899,7 +6459,7 @@ function bootWorld(sd,j,after){
       const m=spawnMob(a[0],a[1],a[2],a[3],res?{resident:true,home:RES_HOME[a[0]]}:a[5]===0?{wild:true}:null);
       if(m){if(a[4])m.hp=a[4];if(a[6])m.angry=true;if(a[7]){m.stay=true;m.home={x:m.x,z:m.z};}if(a[9])tameMob(m);if(a[5]===1&&!m.ally)m.ally=true;if(m.def.human&&!m.ally&&!m.home)m.home={x:m.x,z:m.z,r:14};}}
       if(saveVer<5){spawnWildGolems();newGolems=true;}
-      if(saveVer<6)spawnRegionMobs();if(grewWorld||saveVer<6)spawnCityMobs();if(grewEast||saveVer<6)spawnEastMobs();if(!v14done){spawnV14Mobs();v14done=true;}spawnResidents();}
+      if(saveVer<6)spawnRegionMobs();if(grewWorld||saveVer<6)spawnCityMobs();if(grewEast||saveVer<6)spawnEastMobs();if(!v14done){spawnV14Mobs();v14done=true;}if(grewFar)spawnFarMobs();spawnResidents();}
     else spawnDefaultMobs();
     loadedMobs=null;
     titleFocus={x:P.x,y:P.y,z:P.z};titleUnder=roofAbove(P.x,P.y+1.6,P.z);
@@ -6003,6 +6563,7 @@ function start(){
   if(!hasSave)setTimeout(()=>toast('広い世界へようこそ！ つり橋の先は街、北は雪山、東は火山、南は王国。'+(isTouch?'右上の「地図」':'M キー')+'で地図を開けます',5600),portrait?3200:600);
   else if(newGolems){newGolems=false;setTimeout(()=>toast('島に野生のゴーレムが7種類あらわれました。好物をあげると仲間になります',4200),600);}
   else if(migratedGuns){migratedGuns=false;setTimeout(()=>toast('7〜9番の枠に、ハンドガン・マシンガン・ロケットランチャーを入れました',4200),600);}
+  if(grewFar){grewFar=false;setTimeout(()=>toast('世界が約3倍に広がりました！ 日本（東京・京都・富士山）、こわれない大闘技場、ハワイ（オアフ島・ハワイ島）、エジプト・ロンドン・パリ・万里の長城・モアイ、海の上の宇宙コロニーができています（地図 M から見つけた場所へワープ。橋でもつながっています）',9000),grewEast||grewWorld?9500:900);}
   if(grewEast&&!grewWorld){grewEast=false;setTimeout(()=>toast('世界がさらに広がりました！ 東の海の向こうに、ローマふうの都（コロッセオ）とシンガポールふうの湾岸都市ができています（上海・ドバイから橋でつながっています）',6500),900);}
   if(grewWorld){grewWorld=false;grewEast=false;setTimeout(()=>toast('世界が広がりました！ 海の向こうに、サンフランシスコ・インド・上海・ドバイふうの4つの街ができています（橋でつながっています）',6000),900);}
   if(!rkTipShown){rkTipShown=true;setTimeout(()=>toast('ロケットランチャーが3種類に（1発ずつ・連発・20発ショットガン）。もちものの「ぶき」にあります。弾は全部無限です',5200),isTouch?6500:6500);queueSave();}
@@ -6157,7 +6718,7 @@ function update(dt){
 }
 let perfT=0,perfN=0;
 let fpsNow=60,lowStreak=0;
-function setFar(){camera.far=900;camera.updateProjectionMatrix();viewR=Math.ceil(fogFar/CS);wantKey=-1;}
+function setFar(){camera.far=LODMAX+60;camera.updateProjectionMatrix();viewR=Math.ceil(fogFar/CS);wantKey=-1;}
 function applyQuality(){
   const dpr=window.devicePixelRatio||1;
   if(quality==='lite'){pixelRatio=Math.min(dpr,1);fogFar=64;MAXP=900;}
