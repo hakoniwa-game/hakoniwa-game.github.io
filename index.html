@@ -1,4 +1,4 @@
-<title>ハコニワ島</title>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body><title>ハコニワ島</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap">
 <style>
@@ -3174,11 +3174,13 @@ function toSpawn(){P.x=spawn.x;P.y=spawn.y;P.z=spawn.z;P.vx=P.vy=P.vz=0;P.fallTo
 function lerpAngle(a,b,t){let d=b-a;d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;return a+d*t;}
 
 // ================= 粒（破片・煙・火花・花火） =================
-let MAXP=isTouch?1500:2600;const MAXP_ALLOC=2600;
+let MAXP=2600;const MAXP_ALLOC=2600;
 const pMesh=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({fog:true}),MAXP_ALLOC);
+// 色のバッファは最初から全部のぶん用意する（count=0 のあとに setColorAt すると長さ0のバッファになり、スマホのGPUでは粒が描かれない／PCでは黒くなる）
+function instColor(m,n){m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(n*3).fill(1),3);m.instanceColor.setUsage(THREE.DynamicDrawUsage);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);}
+instColor(pMesh,MAXP_ALLOC);
 pMesh.frustumCulled=false;pMesh.count=0;
 const tmpC=new THREE.Color(),dummy=new THREE.Object3D();
-pMesh.setColorAt(0,tmpC.setRGB(1,1,1));
 scene.add(pMesh);
 const parts=[];
 function addP(x,y,z,vx,vy,vz,life,size,r,g,b,grav,drag){
@@ -3196,7 +3198,7 @@ function updateParts(dt){
   const qx=camera.position.x,qy=camera.position.y,qz=camera.position.z;
   for(const p of parts){
     const dc=(p.x-qx)*(p.x-qx)+(p.y-qy)*(p.y-qy)+(p.z-qz)*(p.z-qz);if(dc<1.7)continue;
-    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1));dummy.updateMatrix();
+    dummy.position.set(p.x,p.y,p.z);dummy.scale.setScalar(Math.max(p.size*Math.min(1,p.life/p.max*1.6)*(dc<16?Math.sqrt(dc)/4:1),dc>16?Math.sqrt(dc)*PXW*1.2:0));dummy.updateMatrix();
     pMesh.setMatrixAt(n,dummy.matrix);pMesh.setColorAt(n,tmpC.setRGB(p.r,p.g,p.b));n++;
   }
   pMesh.count=n;pMesh.instanceMatrix.needsUpdate=true;if(pMesh.instanceColor)pMesh.instanceColor.needsUpdate=true;
@@ -4966,7 +4968,7 @@ buildRodModel();
 // ================= 1万発の銃：集約・単発（1回に1万発ぶんを1点に集める）／ショットガン（1発で1万発が広がる） =================
 const MEGA_N=10000,MEGA_VIS=1200;
 const megaMesh=new THREE.InstancedMesh(unitBox,new THREE.MeshBasicMaterial({color:0xffe08a,fog:false}),MEGA_VIS);
-megaMesh.count=0;megaMesh.frustumCulled=false;megaMesh.visible=false;scene.add(megaMesh);
+megaMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);megaMesh.count=0;megaMesh.frustumCulled=false;megaMesh.visible=false;scene.add(megaMesh);
 const megaBeamMat=new THREE.MeshBasicMaterial({color:0xfff2b0,fog:false});
 let megaT=0;const megaDummy=new THREE.Object3D();
 const megaProtect=id=>!id||isLiquid(id)||id===BEDROCK||id===OBSIDIAN||id===WARPSTONE||id===LAUNCH;
@@ -4981,8 +4983,11 @@ function fireMegaFocus(g){
   const c=EYE,d=camDir(),R=280,bh=raycastFrom(c,d,R),t=bh?bh.t+.5:R,ax=c.x+d.x*t,ay=c.y+d.y*t,az=c.z+d.z*t;
   const ul=Math.hypot(d.x,d.z)||1,ux=-d.z/ul,uz=d.x/ul,vx=-d.y*uz,vy=d.z*ux-d.x*uz,vz=d.y*ux;
   const dmg=g.dmg*wpnMul,pow=.6*(1+(wpnMul-1)*.2);
-  for(let k=0;k<MEGA_N;k++){const a=rand()*6.283,r=Math.sqrt(rand())*.45,ox=Math.cos(a)*r,oy=Math.sin(a)*r;
-    const sx=c.x+d.x*1.2+ux*ox+vx*oy,sy=c.y+d.y*1.2+vy*oy-.12,sz=c.z+d.z*1.2+uz*ox+vz*oy;
+  // 銃口のまわりから、ねらった1点へ向かって集まっていく（目の前からまっすぐ奥へ飛ぶだけだと、画面では照準の上の小さな点になって見えない）
+  const m0=muzzle();megaTrails.push({x:m0.x,y:m0.y,z:m0.z,ax,ay,az,t:0,T:Math.hypot(ax-m0.x,ay-m0.y,az-m0.z)/MEGA_SPD});
+  for(let k=0;k<MEGA_N;k++){const a=rand()*6.283,r=.06+Math.sqrt(rand())*.42,ox0=Math.cos(a),oy0=Math.sin(a);
+    let sx=m0.x+ux*ox0*r+vx*oy0*r,sy=m0.y+vy*oy0*r,sz=m0.z+uz*ox0*r+vz*oy0*r;
+    if(isSolid(get(Math.floor(sx),Math.floor(sy),Math.floor(sz)))){sx=m0.x;sy=m0.y;sz=m0.z;}
     const tx=ax+(rand()-.5)*.6-sx,ty=ay+(rand()-.5)*.6-sy,tz=az+(rand()-.5)*.6-sz,dl=Math.hypot(tx,ty,tz)||1;
     swAdd(sx,sy,sz,tx/dl*MEGA_SPD,ty/dl*MEGA_SPD,tz/dl*MEGA_SPD,2,0,0,0,null,dmg,pow,(dl+14)/MEGA_SPD+rand()*.03);}
   noise(.55,.5,700,60);sfx(55,.5,'sawtooth',.12,25);setTimeout(()=>noise(.3,.35,3200,1200,'bandpass'),40);
@@ -4991,13 +4996,22 @@ function fireMegaFocus(g){
 function fireMegaShot(g){
   const c=EYE,d=camDir(),R=180,spread=g.spread,cosS=Math.cos(spread);
   const ul=Math.hypot(d.x,d.z)||1,ux=-d.z/ul,uz=d.x/ul,vx=-d.y*uz,vy=d.z*ux-d.x*uz,vz=d.y*ux;
-  const dmg=g.dmg*wpnMul,pow=.45*(1+(wpnMul-1)*.2);
+  const dmg=g.dmg*wpnMul,pow=.45*(1+(wpnMul-1)*.2),m0=muzzle();
   for(let k=0;k<MEGA_N;k++){const th=Math.acos(1-rand()*(1-cosS)),ph=rand()*6.283,st=Math.sin(th),a=Math.cos(ph)*st,b=Math.sin(ph)*st,cz=Math.cos(th);
-    const dx=d.x*cz+ux*a+vx*b,dy=d.y*cz+vy*b,dz=d.z*cz+uz*a+vz*b,s0=1+rand()*.8;
-    swAdd(c.x+dx*s0,c.y+dy*s0-.12,c.z+dz*s0,dx*MEGA_SPD,dy*MEGA_SPD,dz*MEGA_SPD,2,0,0,0,null,dmg,pow,R/MEGA_SPD*(.97+rand()*.06));}
+    const dx=d.x*cz+ux*a+vx*b,dy=d.y*cz+vy*b,dz=d.z*cz+uz*a+vz*b,s0=rand()*.6;
+    swAdd(m0.x+dx*s0,m0.y+dy*s0,m0.z+dz*s0,dx*MEGA_SPD,dy*MEGA_SPD,dz*MEGA_SPD,2,0,0,0,null,dmg,pow,R/MEGA_SPD*(.97+rand()*.06));}
   noise(.6,.45,1600,200,'bandpass');sfx(90,.3,'square',.08,40);setTimeout(()=>noise(.35,.35,4000,900,'highpass'),30);
 }
-function updateMega(dt){if(megaT>0){megaT-=dt;if(megaT<=0){megaMesh.count=0;megaMesh.visible=false;}}}
+const megaTrails=[],mtCore=new THREE.MeshBasicMaterial({color:0xfff6d0,fog:false}),mtGlow=new THREE.MeshBasicMaterial({color:0xffb040,transparent:true,opacity:.5,depthWrite:false,fog:false});
+const mtMesh=[];for(let i=0;i<8;i++){const a=new THREE.Mesh(unitBox,i&1?mtGlow:mtCore);a.visible=false;a.frustumCulled=false;scene.add(a);mtMesh.push(a);}
+function updateMega(dt){if(megaT>0){megaT-=dt;if(megaT<=0){megaMesh.count=0;megaMesh.visible=false;}}
+  for(const m of mtMesh)m.visible=false;let mi=0;const cp=camera.position;
+  for(let i=megaTrails.length-1;i>=0;i--){const t=megaTrails[i];t.t+=dt;if(t.t>t.T+.25){megaTrails.splice(i,1);continue;}
+    const L=Math.hypot(t.ax-t.x,t.ay-t.y,t.az-t.z)||1,ux=(t.ax-t.x)/L,uy=(t.ay-t.y)/L,uz=(t.az-t.z)/L;
+    const head=Math.min(L,t.t*MEGA_SPD),tail=Math.max(.3,t.t>t.T?L*Math.min(1,(t.t-t.T)/.25):head-60);if(head-tail<.2)continue;
+    for(const [f0,f1] of [[0,.35],[.35,1]]){if(mi>=mtMesh.length-1)break;const a=tail+(head-tail)*f0,b=tail+(head-tail)*f1,mx=t.x+ux*(a+b)/2,my=t.y+uy*(a+b)/2,mz=t.z+uz*(a+b)/2;
+      const dist=Math.hypot(mx-cp.x,my-cp.y,mz-cp.z),w=Math.max(.05,Math.min(.9,dist*PXW*2.2));
+      for(const [k,ww] of [[0,w],[1,w*2.6]]){const me=mtMesh[mi++];me.visible=true;me.position.set(mx,my,mz);me.scale.set(ww,ww,b-a);me.lookAt(t.x+ux*b,t.y+uy*b,t.z+uz*b);}}}}
 function buildMegaModels(){
   const gold=mat('#d9b04a'),dark=mat('#23262c'),steel=mat('#7a8490'),red=mat('#c8322a'),fl=glowM('#ffe08a');
   let g=new THREE.Group();bx(g,.08,.09,.6,dark,0,0,-.05);bx(g,.05,.05,.5,gold,0,.01,-.5);bx(g,.1,.1,.08,gold,0,0,-.74);bx(g,.07,.16,.09,dark,0,-.12,.14).rotation.x=.25;bx(g,.04,.06,.2,red,0,.07,-.05);
@@ -5051,11 +5065,15 @@ function fireBullet(g,it){
   tracer(muzzle(),end);
   const v=it===HANDGUN?1:.75;noise(.34*v,it===HANDGUN?.2:.1,3200,300);sfx(it===HANDGUN?170:130,.07,'square',.07*v,60);
 }
+// 画面の1ピクセルが、1マス先で何マスの大きさか（スマホは解像度が低いので大きい）。細い弾がピクセルより細くなって消えないように使う
+let PXW=.001;function updatePXW(){const h=renderer.domElement.height||600;PXW=2*Math.tan(camera.fov*Math.PI/360)/h;}
 const tracers=[];
 const tracerMat=new THREE.MeshBasicMaterial({color:0xffe08a,fog:false,transparent:true,opacity:.85});
-function tracer(a,b){const len=Math.hypot(b.x-a.x,b.y-a.y,b.z-a.z);if(len<.5)return;
-  const me=new THREE.Mesh(unitBox,tracerMat);me.position.set((a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2);me.scale.set(.035,.035,len);me.lookAt(b.x,b.y,b.z);
-  scene.add(me);tracers.push({me,t:.06});}
+function tracer(a,b){const len=Math.hypot(b.x-a.x,b.y-a.y,b.z-a.z);if(len<.5)return;const cp=camera.position;
+  const cuts=len>12?[0,.15,.45,1]:[0,1];
+  for(let k=0;k<cuts.length-1;k++){const t0=cuts[k],t1=cuts[k+1],ax=a.x+(b.x-a.x)*t0,ay=a.y+(b.y-a.y)*t0,az=a.z+(b.z-a.z)*t0,bx=a.x+(b.x-a.x)*t1,by=a.y+(b.y-a.y)*t1,bz=a.z+(b.z-a.z)*t1;
+    const mx=(ax+bx)/2,my=(ay+by)/2,mz=(az+bz)/2,dist=Math.hypot(mx-cp.x,my-cp.y,mz-cp.z),w=Math.max(.035,Math.min(.6,dist*PXW*1.5));
+    const me=new THREE.Mesh(unitBox,tracerMat);me.position.set(mx,my,mz);me.scale.set(w,w,len*(t1-t0)+w);me.lookAt(bx,by,bz);scene.add(me);tracers.push({me,t:.07});}}
 function fireRocket(g,it){
   const c=EYE,d0=camDir(),m0=muzzle(),R=g.rk;
   let aim=null;if(!lockTarget||!R.homing){const bh=raycastFrom(c,d0,120);aim=bh?{x:c.x+d0.x*bh.t,y:c.y+d0.y*bh.t,z:c.z+d0.z*bh.t}:{x:c.x+d0.x*120,y:c.y+d0.y*120,z:c.z+d0.z*120};}
@@ -5080,7 +5098,7 @@ const swLife=new Float32Array(SW_N),swAge=new Float32Array(SW_N),swDmg=new Float
 const swMode=new Uint8Array(SW_N),swWet=new Uint8Array(SW_N),swTgt=new Array(SW_N).fill(null);
 let swN=0,swFrame=0,swBoomT=0;
 const swMat=new THREE.MeshBasicMaterial({color:0xffc070});
-const swMesh=new THREE.InstancedMesh(unitBox,swMat,SW_N);swMesh.count=0;swMesh.frustumCulled=false;scene.add(swMesh);
+const swMesh=new THREE.InstancedMesh(unitBox,swMat,SW_N);swMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);swMesh.count=0;swMesh.frustumCulled=false;scene.add(swMesh);
 const swDummy=new THREE.Object3D(),swBooms=new Map(),swHurt=new Map(),swGrid=new Map();
 function swCopy(j,i){for(let k=0;k<3;k++){swPos[i*3+k]=swPos[j*3+k];swVel[i*3+k]=swVel[j*3+k];swAim[i*3+k]=swAim[j*3+k];}
   swLife[i]=swLife[j];swAge[i]=swAge[j];swDmg[i]=swDmg[j];swPow[i]=swPow[j];swSpd[i]=swSpd[j];swMode[i]=swMode[j];swWet[i]=swWet[j];swTgt[i]=swTgt[j];}
@@ -5143,7 +5161,7 @@ function updateSwarm(dt){
     swPos[o]=x;swPos[o+1]=y;swPos[o+2]=z;
     // 目の前（6マス以内）と、出たばかりのロケットは描かない＝視界をふさがない
     const dc=(x-cx)*(x-cx)+(y-cy)*(y-cy)+(z-cz)*(z-cz);
-    if(dc>36&&swAge[i]>.05&&vis<SW_N){swDummy.position.set(x,y,z);swDummy.lookAt(x+vx,y+vy,z+vz);if(swMode[i]>=2)swDummy.scale.set(.06,.06,1.5);else swDummy.scale.set(.16,.16,.7);swDummy.updateMatrix();swMesh.setMatrixAt(vis++,swDummy.matrix);
+    if((dc>36||(dc>1.5&&(i&15)===0))&&swAge[i]>.02&&vis<SW_N){swDummy.position.set(x,y,z);swDummy.lookAt(x+vx,y+vy,z+vz);{const pw=Math.sqrt(dc)*PXW;if(swMode[i]>=2){const w=Math.max(.06,pw*1.5);swDummy.scale.set(w,w,Math.max(2.4,w*12));}else{const w=Math.max(.16,pw*2.2);swDummy.scale.set(w,w,Math.max(.7,w*4));}}swDummy.updateMatrix();swMesh.setMatrixAt(vis++,swDummy.matrix);
       if(swMode[i]<2&&((i+swFrame)&31)===0&&dc>196)addP(x-vx*.02,y-vy*.02,z-vz*.02,0,.4,0,.35,.12,.75,.75,.75,-.4,1.5);}
   }
   swMesh.count=vis;swMesh.visible=vis>0;swMesh.instanceMatrix.needsUpdate=true;
@@ -5454,7 +5472,7 @@ function bigHit(p){
 const MOB_COL={rabbit:'#e8e0d0',yak:'#8a6a4a',whale:'#5d84a8',imp:'#3b2a5c',boss:'#24183a',wisp:'#ff9a3a',golem:'#8a8a86',steel:'#9aa7b4',magma:'#d2421f',
   ice:'#9fdcf2',thunder:'#ecc23a',mini:'#ff9ad0',giant:'#7a7a7a',dragon:'#2f8f7a',edragon:'#a8322a',titan:'#8a6a50',gdragon:'#3a2a6a',elephant:'#8a8a90',camel:'#c8a06a',ryu:'#2f6fd0',gorilla:'#2b2727',horse:'#8a5a34',tank:'#5a6b3a',heli:'#3a5a7a',vjet:'#8a96a4',robot:'#e8ecf0',cart:'#c8322a',viking:'#7a5a3a',soldier:'#5a6b3a',knight:'#c8ccd4',wizard:'#3a2a8a',pirate:'#e8e0d0',ninja:'#24242c',citizen:'#3a7ac8',farmer:'#c8322a',merchant:'#8a3a8a',chef:'#f4f4f0',dog:'#c8904a',cat:'#f0a040',wolf:'#9aa0a8',bdragon:'#24182e',phoenix:'#ff5a1a',frost:'#bfe6ff',mecha:'#3a3a44',crystal:'#ff6ad8'};
 const IMP_N=700,impMat=new THREE.MeshBasicMaterial({color:0xffffff}),impMesh=new THREE.InstancedMesh(unitBox,impMat,IMP_N);
-impMesh.count=0;impMesh.frustumCulled=false;scene.add(impMesh);
+instColor(impMesh,IMP_N);impMesh.count=0;impMesh.frustumCulled=false;scene.add(impMesh);
 const impDummy=new THREE.Object3D(),impCol={};for(const k in MOB_COL)impCol[k]=new THREE.Color(MOB_COL[k]);
 let mobLodT=0;
 function updateMobLod(dt){
@@ -6118,7 +6136,16 @@ function placeCamera(){
     if(perspective===2){camYaw=yaw+Math.PI;camPitch=-(pitch+camKick);}
   }
   camera.rotation.x=camPitch;camera.rotation.y=camYaw;
+  hideNearMount();
 }
+// 1人称で乗っているとき、カメラのすぐ近くにある乗りものの部分（ロボの頭・ヘリの操縦席など）はかくす（画面がふさがらないように）
+let hidMount=null;const _hwp=new THREE.Vector3(),_hws=new THREE.Vector3();
+function hideNearMount(){const m=P.mount;
+  if(hidMount&&(hidMount!==m||perspective!==0||!playing)){hidMount.mesh&&hidMount.mesh.traverse(o=>{if(o.isMesh&&o.userData.hidFP){o.visible=true;o.userData.hidFP=false;}});hidMount=null;}
+  if(!m||perspective!==0||!m.mesh||!playing)return;hidMount=m;m.mesh.updateMatrixWorld(true);const cp=camera.position;
+  m.mesh.traverse(o=>{if(!o.isMesh)return;const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere;_hwp.copy(bs.center).applyMatrix4(o.matrixWorld);o.getWorldScale(_hws);
+    const r=bs.radius*Math.max(_hws.x,_hws.y,_hws.z),near=_hwp.distanceTo(cp)<r+.8+m.h*.1;
+    if(near){if(o.visible){o.visible=false;o.userData.hidFP=true;}}else if(o.userData.hidFP){o.visible=true;o.userData.hidFP=false;}});}
 const DIRS=['北（-Z）','西（-X）','南（+Z）','東（+X）'];
 let frameMs=0;
 function updateDebug(){
@@ -6734,9 +6761,9 @@ let fpsNow=60,lowStreak=0;
 function setFar(){camera.far=LODMAX+60;camera.updateProjectionMatrix();viewR=Math.ceil(fogFar/CS);wantKey=-1;}
 function applyQuality(){
   const dpr=window.devicePixelRatio||1;
-  if(quality==='lite'){pixelRatio=Math.min(dpr,1);fogFar=64;MAXP=900;}
+  if(quality==='lite'){pixelRatio=Math.min(dpr,1);fogFar=64;MAXP=1600;}
   else if(quality==='high'){pixelRatio=Math.min(dpr,2);fogFar=isTouch?112:128;MAXP=2600;}
-  else{pixelRatio=Math.min(dpr,isTouch?1.5:2);fogFar=isTouch?FOG_FAR:112;MAXP=isTouch?1500:2600;}
+  else{pixelRatio=Math.min(dpr,isTouch?1.5:2);fogFar=isTouch?FOG_FAR:112;MAXP=2600;}
   setFar();renderer.setPixelRatio(pixelRatio);resize();
 }
 // 「自動」のときは、2秒ごとの平均の速さを見て、遅ければ少しずつ画質を下げる
@@ -6748,10 +6775,10 @@ function adaptQuality(raw){
   if(quality!=='auto')return;
   if(fpsNow<45)lowStreak++;else lowStreak=0;
   if(lowStreak>=1&&pixelRatio>.75){pixelRatio=Math.max(.75,pixelRatio-.25);renderer.setPixelRatio(pixelRatio);resize();lowStreak=0;}
-  else if(lowStreak>=2&&fogFar>56){fogFar=Math.max(56,fogFar-10);setFar();MAXP=Math.max(700,MAXP-300);lowStreak=0;}
+  else if(lowStreak>=2&&fogFar>56){fogFar=Math.max(56,fogFar-10);setFar();MAXP=Math.max(1400,MAXP-300);lowStreak=0;}
 }
 function frame(now){
-  const t0=performance.now();
+  const t0=performance.now();updatePXW();
   const raw=Math.min(.25,(now-last)/1000),dt=Math.min(.05,raw);last=now;
   adaptQuality(raw);
   if(!timeStop)tod=(tod+dt/DAY_LEN)%1;
@@ -6776,3 +6803,4 @@ function frame(now){
 requestAnimationFrame(frame);
 })();
 </script>
+</body></html>
